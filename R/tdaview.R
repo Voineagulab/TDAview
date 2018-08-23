@@ -5,11 +5,12 @@
 #' @import htmlwidgets
 #'
 #' @export
-tdaview <- function(message, width = NULL, height = NULL, elementId = NULL) {
+tdaview <- function(mapper , width = NULL, height = NULL, elementId = NULL) {
 
   # forward options using x
   x = list(
-    message = message
+    Nodes <- tbl_df_strip(mapperVertices(mapper, 1:100)),
+    Links <- tbl_df_strip(mapperEdges(mapper))
   )
 
   # create widget
