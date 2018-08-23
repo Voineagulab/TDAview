@@ -36,6 +36,28 @@ HTMLWidgets.widget({
 					circle.position.set(vector.x, vector.y, vector.z);
 					scene.add(circle);
 				}, false);
+				
+				//Create graph
+				var nodes = HTMLWidgets.dataframeToD3(x.Nodes);
+				var links = HTMLWidgets.dataframeToD3(x.Links);
+				var circles = new Array(nodes.length);
+				for(var i=0; i<circles.length; i++) {
+				    circles[i] = new THREE.Mesh(geometry, material);
+				    scene.add(circles[i]);
+				}
+                    
+                var simulation = d3.forceSimulation(nodes)
+                    .force("charge", d3.forceManyBody())
+                    .force("link", d3.forceLink(links))
+                    .force("center", d3.forceCenter())
+                    .on("tick", tick);
+                    
+                //Update simulation display
+                function tick() {
+                    for(var i=0; i<circles.length; i++) {
+                        circles.position.set(new THREE.Vector3(simulation.nodes[i].x, simulation.nodes[i].y, 0));
+                    }
+                }
 
 				//Start render loop
 				function render() {
