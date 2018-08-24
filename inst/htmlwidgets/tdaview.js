@@ -18,46 +18,57 @@ HTMLWidgets.widget({
 				renderer = new THREE.WebGLRenderer({ antialias: true });
 				renderer.setSize(width, height);
 				element.appendChild(renderer.domElement);
-
-				//Add mouse listners
-				document.body.addEventListener("mousedown", function(event) {
-					//Convert mouse coordinates to scene vector
-					var elem = renderer.domElement;
-					var boundingRect = elem.getBoundingClientRect();
-					var x = (event.clientX - boundingRect.left) * (elem.width / boundingRect.width);
-					var y = (event.clientY - boundingRect.top) * (elem.height / boundingRect.height);
-					var vector = new THREE.Vector3(( x / width ) * 2 - 1, - ( y / height ) * 2 + 1, 0);
-					vector.unproject(camera);
-
-					//Create circle at coordinates
-					var geometry = new THREE.CircleGeometry(50, 32);
-					var material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-					var circle = new THREE.Mesh( geometry, material );
-					circle.position.set(vector.x, vector.y, vector.z);
-					scene.add(circle);
-				}, false);
 				
-				//Create graph
-				var nodes = HTMLWidgets.dataframeToD3(x.Nodes);
-				var links = HTMLWidgets.dataframeToD3(x.Links);
-				var circles = new Array(nodes.length);
-				for(var i=0; i<circles.length; i++) {
-				    circles[i] = new THREE.Mesh(geometry, material);
-				    scene.add(circles[i]);
+				//Imported links not working - require "source" and "target" fields
+				//var nodes = HTMLWidgets.dataframeToD3(x.nodes);
+				//var links = HTMLWidgets.dataframeToD3(x.links);
+				
+
+				//Simple test data
+				var nodes = [
+					{ thing: 4 },
+					{ thing: 3 },
+					{ thing: 3 }
+				];
+				var links = [
+					{ source: 0, target: 1 },
+					{ source: 0, target: 2 }
+				];
+
+				//Create nodes
+				var circleGeom = new THREE.CircleGeometry(10, 32);
+				var circleMat = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+				for(var i=0; i<nodes.length; i++) {
+					nodes[i].circle = new THREE.Mesh(circleGeom, circleMat);
+					scene.add(nodes[i].circle);
 				}
-                    
-                var simulation = d3.forceSimulation(nodes)
-                    .force("charge", d3.forceManyBody())
-                    .force("link", d3.forceLink(links))
-                    .force("center", d3.forceCenter())
-                    .on("tick", tick);
-                    
-                //Update simulation display
-                function tick() {
-                    for(var i=0; i<circles.length; i++) {
-                        circles.position.set(new THREE.Vector3(simulation.nodes[i].x, simulation.nodes[i].y, 0));
-                    }
-                }
+
+				//Create edges
+				var lineMat = new THREE.LineBasicMaterial( { color: 0xff0000 } );
+				for(let i=0; i<links.length; i++) {
+					var lineGeom = new THREE.Geometry();
+					lineGeom.vertices = [new THREE.Vector3(1000, 0, 0), new THREE.Vector3(0, 0, 0)];
+					links[i].line = new THREE.Line(lineGeom, lineMat);
+					scene.add(links[i].line);
+				}
+				
+				//Start simulation loop
+				var simulation = d3.forceSimulation(nodes)
+				.force("link",  d3.forceLink(links).distance(50))
+				.force('center', d3.forceCenter())
+				.force("charge", d3.forceManyBody().strength(-30));
+				simulation.on("tick", function () {
+                    for(var i=0; i<links.length; i++) {
+						var source = links[i].source;
+						var target = links[i].target;
+						var line = links[i].line;
+						line.geometry.vertices[0].x = source.circle.position.x = source.x;
+						line.geometry.vertices[0].y = source.circle.position.y = source.y;
+						line.geometry.vertices[1].x = target.circle.position.x = target.x;
+						line.geometry.vertices[1].y = target.circle.position.y = target.y;
+						line.geometry.verticesNeedUpdate = true;
+					}
+				});
 
 				//Start render loop
 				function render() {

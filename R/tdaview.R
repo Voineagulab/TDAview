@@ -6,17 +6,10 @@
 #'
 #' @export
 tdaview <- function(mapper , width = NULL, height = NULL, elementId = NULL) {
-
-  # forward options using x
-  x = list(
-    Nodes <- tbl_df_strip(mapperVertices(mapper, 1:100)),
-    Links <- tbl_df_strip(mapperEdges(mapper))
-  )
-
   # create widget
   htmlwidgets::createWidget(
     name = 'tdaview',
-    x,
+    x = list(nodes = tbl_df_strip(mapperVertices(mapper, 1:100)), links = tbl_df_strip(mapperEdges(mapper))),
     width = width,
     height = height,
     package = 'tdaview',
@@ -50,4 +43,13 @@ tdaviewOutput <- function(outputId, width = '100%', height = '400px'){
 renderTdaview <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, tdaviewOutput, env, quoted = TRUE)
+}
+
+tbl_df_strip <- function(x) {
+    if('tbl_df' %in% class(x)) {
+        message(paste(deparse(substitute(x)),
+                      'is a tbl_df. Converting to a plain data frame.'))
+        x <- base::as.data.frame(x)
+    }
+    return(x)
 }
