@@ -25,4 +25,3 @@ MapperNodes <- mapperVertices(First.Example.mapper, 1:100 )
 MapperLinks <- mapperEdges(First.Example.mapper)
 
 tdaview(First.Example.mapper, First.Example.data)
-

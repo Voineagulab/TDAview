@@ -2,7 +2,7 @@
 #'
 #' <Displays topological data as graph from TDAMapper or pHom>
 #'
-#' @import htmlwidgets htmltools
+#' @import htmlwidgets htmltools shiny crosstalk
 #'
 #' @export
 tdaview <- function(mapper, data = NULL, width = NULL, height = NULL, elementId = NULL) {
@@ -46,5 +46,39 @@ renderTdaview <- function(expr, env = parent.frame(), quoted = FALSE) {
 }
 
 tdaview_html <- function(id, style, class, ...){
-  htmltools::tags$div(id = id, class = class)
+  # Define UI for application that draws a histogram
+  fluidPage(
+
+    # App title ----
+    titlePanel("Hello Shiny!"),
+
+    # Sidebar layout with input and output definitions ----
+    sidebarLayout(
+
+      # Sidebar panel for inputs ----
+      sidebarPanel(
+
+        # Input: Slider for the number of bins ----
+        sliderInput(inputId = "bins",
+                    label = "Number of bins:",
+                    min = 1,
+                    max = 50,
+                    value = 30),
+
+        # adding the new div tag to the sidebar            
+        tags$div(class="header", checked=NA,
+                tags$p("Ready to take the Shiny tutorial? If so"),
+                tags$a(href="shiny.rstudio.com/tutorial", "Click Here!")
+        )
+      ),
+
+      # Main panel for displaying outputs ----
+      mainPanel(
+
+        # adding the new div tag to the sidebar            
+        tags$div(class=class, id=id)
+        )
+      )
+    )
+  )
 }
