@@ -1,15 +1,12 @@
 # Set working directory
 
-# Install necessary packages
+# Install necessary packages (also call library)
 install.packages("htmlwidgets")
 install.packages("devtools")
+install.packages("shiny") 
 
 # Display graph in browser (OPTIONAL)
 options(viewer = NULL)
-
-# Build library
-devtools::install()
-library(tdaview)
 
 # TEST DATA
 devtools::install_github("paultpearson/TDAmapper")
@@ -21,7 +18,8 @@ First.Example.mapper <- mapper(dist_object = First.Example.dist,
                                num_intervals = 6,
                                percent_overlap = 50,
                                num_bins_when_clustering = 10)
-MapperNodes <- mapperVertices(First.Example.mapper, 1:100 )
-MapperLinks <- mapperEdges(First.Example.mapper)
 
+# Build library each update
+devtools::install()
+library(tdaview) #only required once
 tdaview(First.Example.mapper, First.Example.data)
