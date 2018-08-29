@@ -1,15 +1,15 @@
-#' <Add Title>
+#' <TDAView>
 #'
-#' <Add Description>
+#' <Displays topological data as graph from TDAMapper or pHom>
 #'
-#' @import htmlwidgets
+#' @import htmlwidgets htmltools
 #'
 #' @export
-tdaview <- function(mapper , width = NULL, height = NULL, elementId = NULL) {
+tdaview <- function(mapper, data = NULL, width = NULL, height = NULL, elementId = NULL) {
   # create widget
   htmlwidgets::createWidget(
     name = 'tdaview',
-    x = list(nodes = tbl_df_strip(mapperVertices(mapper, 1:100)), links = tbl_df_strip(mapperEdges(mapper))),
+    x = list(mapper = mapper, data = data),
     width = width,
     height = height,
     package = 'tdaview',
@@ -45,11 +45,6 @@ renderTdaview <- function(expr, env = parent.frame(), quoted = FALSE) {
   htmlwidgets::shinyRenderWidget(expr, tdaviewOutput, env, quoted = TRUE)
 }
 
-tbl_df_strip <- function(x) {
-    if('tbl_df' %in% class(x)) {
-        message(paste(deparse(substitute(x)),
-                      'is a tbl_df. Converting to a plain data frame.'))
-        x <- base::as.data.frame(x)
-    }
-    return(x)
+tdaview_html <- function(id, style, class, ...){
+  htmltools::tags$div(id = id, class = class)
 }
