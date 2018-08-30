@@ -77,4 +77,5 @@ tdaview_html <- function(id, style, class, ...){
         tags$div(class=class, id=id)
       )
     )
+  )
 }
