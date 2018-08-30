@@ -23,9 +23,7 @@ HTMLWidgets.widget({
 				element.appendChild(renderer.domElement);
 
 				var sidebar = document.getElementById("sidebar-controls");
-				var text = document.createTextNode("This is new.");
-				sidebar.appendChild(text);
-
+				
 				//Parse metadata variables
 				var metaVars = Object.keys(x.data);
 				var selectedMeta = 0;
@@ -37,7 +35,7 @@ HTMLWidgets.widget({
 				for(var i=0; i<means.length; i++) {
 					if(x.mapper.points_in_vertex[i].length) {
 						for(var j=0; j<x.mapper.points_in_vertex[i].length; j++) {
-							var point = x.data[metaVars[selectedMeta]][x.mapper.points_in_vertex[i][j]-1]; //WARNING: 1-INDEXED
+							var point = x.data[metaVars[selectedMeta]][x.mapper.points_in_vertex[i][j]-1];
 							if(point < min) min = point;
 							if(point > max) max = point;
 							means[i] += point;
@@ -63,13 +61,14 @@ HTMLWidgets.widget({
 				//Parse and meshify links
 				var num = 0;
 				var links = new Array(Math.pow(x.mapper.num_vertices, 2));
-				var lineMat = new THREE.LineBasicMaterial( { color: 0xffffff } );
+				
 				for(let i=0; i<x.mapper.num_vertices; i++) {
 					let row = x.mapper.adjacency[i];
 					for(let j=0; j<x.mapper.num_vertices; j++) {
 						if(row[j]) {
 							var lineGeom = new THREE.Geometry();
 							lineGeom.vertices = [new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1)];
+							var lineMat = new THREE.LineBasicMaterial( { color: "hsl(" + (means[i] + means[j])/2 * 100 + ", 100%, 50%)" } );
 							links[num] = new link(nodes[i], nodes[j], lineGeom, lineMat);
 							scene.add(links[num]);
 							++num;
