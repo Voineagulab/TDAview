@@ -22,6 +22,10 @@ HTMLWidgets.widget({
 				renderer.setSize(width, height);
 				element.appendChild(renderer.domElement);
 
+				var sidebar = document.getElementById("sidebar-controls");
+				var text = document.createTextNode("This is new.");
+				sidebar.appendChild(text);
+
 				//Parse metadata variables
 				var metaVars = Object.keys(x.data);
 				var selectedMeta = 0;

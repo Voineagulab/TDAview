@@ -3,7 +3,8 @@
 # Install necessary packages (also call library)
 install.packages("htmlwidgets")
 install.packages("devtools")
-install.packages("shiny") 
+install.packages("shiny")
+library(shiny)
 
 # Display graph in browser (OPTIONAL)
 options(viewer = NULL)
@@ -23,3 +24,6 @@ First.Example.mapper <- mapper(dist_object = First.Example.dist,
 devtools::install()
 library(tdaview) #only required once
 tdaview(First.Example.mapper, First.Example.data)
+
+#First.Example.temp<-First.Example.data[0]
+

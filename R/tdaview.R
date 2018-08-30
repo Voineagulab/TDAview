@@ -2,7 +2,7 @@
 #'
 #' <Displays topological data as graph from TDAMapper or pHom>
 #'
-#' @import htmlwidgets htmltools shiny crosstalk
+#' @import htmlwidgets htmltools shiny
 #'
 #' @export
 tdaview <- function(mapper, data = NULL, width = NULL, height = NULL, elementId = NULL) {
@@ -56,29 +56,25 @@ tdaview_html <- function(id, style, class, ...){
     sidebarLayout(
 
       # Sidebar panel for inputs ----
-      sidebarPanel(
+      sidebarPanel(id = "sidebar-controls",
 
         # Input: Slider for the number of bins ----
-        sliderInput(inputId = "bins",
-                    label = "Number of bins:",
-                    min = 1,
-                    max = 50,
-                    value = 30),
+        selectInput("variable", "Variable:",
+                c("Cylinders" = "cyl",
+                  "Transmission" = "am",
+                  "Gears" = "gear")),
 
         # adding the new div tag to the sidebar            
         tags$div(class="header", checked=NA,
-                tags$p("Ready to take the Shiny tutorial? If so"),
+                tags$p("Need to impliment crosstalk"),
                 tags$a(href="shiny.rstudio.com/tutorial", "Click Here!")
         )
       ),
 
       # Main panel for displaying outputs ----
       mainPanel(
-
         # adding the new div tag to the sidebar            
         tags$div(class=class, id=id)
-        )
       )
     )
-  )
 }
