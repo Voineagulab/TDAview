@@ -22,22 +22,22 @@ HTMLWidgets.widget({
 			renderer.setSize(width, height);
 			element.appendChild(renderer.domElement);
 
+			//Create dropdown
 			var selector = document.createElement("SELECT");
 			var metaVars = Object.keys(x.data);
 			for(let i=0; i<metaVars.length; i++){
-				console.log(metaVars[i]);
 				var option = document.createElement("option");
 				option.setAttribute("value", metaVars[i]);
 				option.innerHTML = metaVars[i];
 				selector.appendChild(option);
 			}
 			
-			
+			//Add listener to dropdown
 			selector.addEventListener("change", function(event) {
 				updateColours(event.target.value);
-				requestAnimationFrame(render);
 			});
 
+			//Add dropdown to sidebar
 			document.getElementById("sidebar-controls").appendChild(selector);
 			
 
@@ -46,14 +46,13 @@ HTMLWidgets.widget({
 			var nodes = new Array(x.mapper.num_vertices);
 			for(let i=0; i<nodes.length; i++) {
 				var circleMat = new THREE.MeshBasicMaterial();
-				nodes[i] = new node(x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i], circleGeom, circleMat);
+				nodes[i] = new node(i, x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i], circleGeom, circleMat);
 				scene.add(nodes[i]);
 			}
 			
 			//Parse and meshify links
 			var num = 0;
 			var links = new Array(Math.pow(x.mapper.num_vertices, 2));
-			
 			for(let i=0; i<x.mapper.num_vertices; i++) {
 				let row = x.mapper.adjacency[i];
 				for(let j=0; j<x.mapper.num_vertices; j++) {
@@ -68,7 +67,7 @@ HTMLWidgets.widget({
 				}
 			}
 			
-			//Truncate array
+			//Truncate links array
 			links.length = num;
 
 			//Declare method for changing color by mean
@@ -102,6 +101,7 @@ HTMLWidgets.widget({
 					links[i].material.color.setHSL((means[links[i].source.index]+means[links[i].target.index])/2, 1, 0.5);
 					links[i].geometry.colorsNeedUpdate = true;
 				}
+				requestAnimationFrame(render);
 			}
 
 			//Set colours
@@ -185,17 +185,18 @@ HTMLWidgets.widget({
 	
 	
 class node extends THREE.Mesh {
-	constructor(level, points, geometry, material) {
+	constructor(index, level, points, geometry, material) {
 	super(geometry, material);
-	this.level = level;
-	this.points = points;
+		this.index = index;
+		this.level = level;
+		this.points = points;
 	}
 }
 	
 class link extends THREE.Line {
 	constructor(source, target, geometry, material) {
-	super(geometry, material);
-	this.source = source;
-	this.target = target;
+		super(geometry, material);
+		this.source = source;
+		this.target = target;
 	}
 }
