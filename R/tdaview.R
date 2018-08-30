@@ -77,7 +77,6 @@ tdaview_html <- function(id, style, class, ...){
 
         # adding the new div tag to the sidebar            
         tags$div(class=class, id=id)
-        )
       )
     )
   )
