@@ -58,12 +58,6 @@ tdaview_html <- function(id, style, class, ...){
       # Sidebar panel for inputs ----
       sidebarPanel(id = "sidebar-controls",
 
-        # Input: Slider for the number of bins ----
-        selectInput("variable", "Variable:",
-                c("X" = "x",
-                  "Y" = "y",
-                  "Z" = "z")),
-
         # adding the new div tag to the sidebar            
         tags$div(class="header", checked=NA,
                 tags$p("Select the metadata variable by which you want the graph coloured."),
