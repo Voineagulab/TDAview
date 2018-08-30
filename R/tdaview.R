@@ -50,7 +50,7 @@ tdaview_html <- function(id, style, class, ...){
   fluidPage(
 
     # App title ----
-    titlePanel("Hello Shiny!"),
+    titlePanel("TDAView"),
 
     # Sidebar layout with input and output definitions ----
     sidebarLayout(
@@ -60,14 +60,14 @@ tdaview_html <- function(id, style, class, ...){
 
         # Input: Slider for the number of bins ----
         selectInput("variable", "Variable:",
-                c("Cylinders" = "cyl",
-                  "Transmission" = "am",
-                  "Gears" = "gear")),
+                c("X" = "x",
+                  "Y" = "y",
+                  "Z" = "z")),
 
         # adding the new div tag to the sidebar            
         tags$div(class="header", checked=NA,
-                tags$p("Need to impliment crosstalk"),
-                tags$a(href="shiny.rstudio.com/tutorial", "Click Here!")
+                tags$p("Select the metadata variable by which you want the graph coloured."),
+                tags$a(href="shiny.rstudio.com/tutorial", "")
         )
       ),
 
