@@ -3,7 +3,7 @@ HTMLWidgets.widget({
 	type: 'output',
 	
 	factory: function(element, width, height) {
-		const MIN_RADIUS = 5, MAX_RADIUS = 50;
+		const MIN_RADIUS = 5, MAX_RADIUS = 50, MIN_ZOOM = 0.5;
 		var camera, scene, renderer, labelRenderer, aspect, cameraTween;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
@@ -174,7 +174,7 @@ HTMLWidgets.widget({
 					requestAnimationFrame(render);
 					if(cameraTween) cameraTween.stop();
 					cameraTween = new TWEEN.Tween({value: camera.zoom});
-					cameraTween.to({value: zoomTarget}, duration);
+					cameraTween.to({value: Math.max(MIN_ZOOM, zoomTarget)}, duration);
 					cameraTween.onUpdate(function() {
 						requestAnimationFrame(render);
 						camera.zoom = this.value;
