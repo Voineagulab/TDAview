@@ -6,4 +6,6 @@ dependencies:
   - name: THREE
     version: 95
     src: "htmlwidgets/lib/THREE"
-    script: three.min.js
+    script: 
+      - three.min.js
+      - css2drenderer.js

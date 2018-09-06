@@ -3,7 +3,7 @@ HTMLWidgets.widget({
 	type: 'output',
 	
 	factory: function(element, width, height) {
-	var camera, scene, renderer, aspect;
+	var camera, scene, renderer, labelRenderer, aspect;
 	var frustumSize = 1000;
 	var raycaster = new THREE.Raycaster();
 	var mouse = new THREE.Vector2();
@@ -16,11 +16,18 @@ HTMLWidgets.widget({
 			camera.position.z = 400;
 			scene = new THREE.Scene();
 			scene.background = new THREE.Color(0x4b515b);
-			
-			//Create renderer
+      
+			//Create graph renderer
 			renderer = new THREE.WebGLRenderer({ antialias: true });
 			renderer.setSize(width, height);
 			element.appendChild(renderer.domElement);
+      
+			//Create label renderer
+			labelRenderer = new THREE.CSS2DRenderer();
+			labelRenderer.setSize(width, height);
+			labelRenderer.domElement.style.position = 'absolute';
+			labelRenderer.domElement.style.top = 0;
+			element.appendChild(labelRenderer.domElement);
 
 			//Create dropdown
 			var selector = document.createElement("SELECT");
@@ -40,15 +47,42 @@ HTMLWidgets.widget({
 			//Add dropdown to sidebar
 			document.getElementById("sidebar-controls").appendChild(selector);
 			
+          	//Add notes to sidebar
+			var notes = document.createElement('div');
+			notes.innerHTML = "<br><br>Notes:<br>-->\
+								Node size is proportional to data contained.<br>-->\
+								Node and edge colour is determined by metadata variables.";
+			document.getElementById("sidebar-controls").appendChild(notes);
 
 			//Parse and meshify nodes
-			var circleGeom = new THREE.CircleGeometry(10, 32);
+      /*
+      var sizes = [];
+			for(let i=0; i<x.mapper.points_in_vertex.length; i++) {
+				sizes.push(x.mapper.points_in_vertex[i].length);
+			}
+			var max_radius = sizes.reduce(function(a, b) {
+				return Math.max(a, b);
+			});
+			var min_radius = sizes.reduce(function(a, b) {
+				return Math.min(a, b);
+			});
+      */
+      
 			var nodes = new Array(x.mapper.num_vertices);
 			for(let i=0; i<nodes.length; i++) {
+        var circleGeom = new THREE.CircleGeometry(x.mapper.points_in_vertex[i].length, 32);
 				var circleMat = new THREE.MeshBasicMaterial();
 				nodes[i] = new node(i, x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i], circleGeom, circleMat);
 				scene.add(nodes[i]);
-			}
+        
+        var nodeDiv = document.createElement('div');
+        nodeDiv.className = 'label';
+        nodeDiv.textContent = 'THIS IS A TEST!!';
+        nodeDiv.style.marginTop = '-1em';
+        var nodeLabel = new THREE.CSS2DObject(nodeDiv);
+        nodeLabel.position.set(0, x.mapper.points_in_vertex[i].length, 0);
+      	nodes[i].add(nodeLabel);
+      }
 			
 			//Parse and meshify links
 			var num = 0;
@@ -129,6 +163,7 @@ HTMLWidgets.widget({
 			//Render loop, called on simulation tick or zoom
 			function render() {
 				renderer.render(scene, camera);
+        labelRenderer.render(scene, camera);
 			}
 			
 			//Mouse events
