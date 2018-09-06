@@ -3,6 +3,7 @@ HTMLWidgets.widget({
 	type: 'output',
 	
 	factory: function(element, width, height) {
+		const MIN_RADIUS = 5, MAX_RADIUS = 50;
 		var camera, scene, renderer, labelRenderer, aspect;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
@@ -54,18 +55,23 @@ HTMLWidgets.widget({
 									Node and edge colour is determined by metadata variables.";
 				document.getElementById("sidebar-controls").appendChild(notes);
 
+				//Create group to store graph 
+				var graph = new THREE.Group();
+
 				//Parse and meshify nodes
 				var nodes = new Array(x.mapper.num_vertices);
 				for(let i=0; i<nodes.length; i++) {
-					var circleGeom = new THREE.CircleGeometry(x.mapper.points_in_vertex[i].length, 32);
+					var radius = MIN_RADIUS + x.mapper.points_in_vertex[i].length / x.data[metaVars[0]].length * (MAX_RADIUS - MIN_RADIUS);
+					var circleGeom = new THREE.CircleGeometry(radius, 32);
 					var circleMat = new THREE.MeshBasicMaterial();
 					nodes[i] = new node(i, x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i], circleGeom, circleMat);
-					scene.add(nodes[i]);
+					graph.add(nodes[i]);
 			
 					var nodeDiv = document.createElement('div');
 					nodeDiv.className = 'label';
-					nodeDiv.textContent = 'THIS IS A TEST!!';
+					nodeDiv.textContent = 'Node ' + i;
 					nodeDiv.style.marginTop = '-1em';
+					nodeDiv.style.fontWeight = "100";
 					nodeDiv.style["-webkit-touch-callout"] = "none";
 					nodeDiv.style["-webkit-user-select"] = "none";
 					nodeDiv.style["-khtml-user-select"] = "none";
@@ -74,7 +80,7 @@ HTMLWidgets.widget({
 					nodeDiv.style["user-select"] = "none";
 					
 					var nodeLabel = new THREE.CSS2DObject(nodeDiv);
-					nodeLabel.position.set(0, x.mapper.points_in_vertex[i].length, 0);
+					nodeLabel.position.set(0, radius, 0);
 					nodes[i].add(nodeLabel);
 				}
 			
@@ -89,7 +95,7 @@ HTMLWidgets.widget({
 							var lineGeom = new THREE.Geometry();
 							lineGeom.vertices = [new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1)];
 							links[num] = new link(nodes[i], nodes[j], lineGeom, lineMat);
-							scene.add(links[num]);
+							graph.add(links[num]);
 							++num;
 						}
 					}
@@ -132,6 +138,8 @@ HTMLWidgets.widget({
 					requestAnimationFrame(render);
 				}
 
+				scene.add(graph);
+
 				//Set colours
 				updateColours(Object.keys(x.data)[0]);
 				
@@ -143,19 +151,36 @@ HTMLWidgets.widget({
 				.on("tick", function () {
 					requestAnimationFrame(render);
 					for(var i=0; i<links.length; i++) {
-						var source = links[i].source;
-						var target = links[i].target;
-						var line = links[i];
-						line.geometry.vertices[0].x = source.position.x = source.x;
-						line.geometry.vertices[0].y = source.position.y = source.y;
-						line.geometry.vertices[1].x = target.position.x = target.x;
-						line.geometry.vertices[1].y = target.position.y = target.y;
-						line.geometry.verticesNeedUpdate = true;
+						links[i].geometry.vertices[0].x = links[i].source.x;
+						links[i].geometry.vertices[0].y = links[i].source.y;
+						links[i].geometry.vertices[1].x = links[i].target.x;
+						links[i].geometry.vertices[1].y = links[i].target.y;
+						links[i].geometry.verticesNeedUpdate = true;
 					}
+					for(var i=0; i<nodes.length; i++) {
+						nodes[i].position.x = nodes[i].x;
+						nodes[i].position.y = nodes[i].y;
+					}
+				})
+				.on("end", function() {
+					requestAnimationFrame(render);
+					var box = new THREE.Box3().setFromObject(graph);
+					var zoomTarget = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y));
+					var tween = new TWEEN.Tween({value: camera.zoom});
+					tween.to({value: zoomTarget}, 1000);
+					tween.onUpdate(function() {
+						console.log(this.value);
+						requestAnimationFrame(render);
+						camera.zoom = this.value;
+						camera.updateProjectionMatrix();
+					});
+					tween.easing(TWEEN.Easing.Quadratic.Out);
+					tween.start();
 				});
 			
 				//Render loop, called on simulation tick or zoom
 				function render() {
+					TWEEN.update()
 					renderer.render(scene, camera);
 					labelRenderer.render(scene, camera);
 				}

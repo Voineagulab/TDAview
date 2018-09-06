@@ -25,5 +25,11 @@ devtools::install()
 library(tdaview) #only required once
 tdaview(First.Example.mapper, First.Example.data)
 
-#First.Example.temp<-First.Example.data[0]
 
+#This works in r viewer?!------------------------------------------------------------------------------
+devtools::install_github("bwlewis/rthreejs")
+library(threejs)
+z <- seq(-10, 10, 0.01)
+x <- cos(z)
+y <- sin(z)
+scatterplot3js(x,y,z, color=rainbow(length(z)))
