@@ -4,7 +4,7 @@ HTMLWidgets.widget({
 	
 	factory: function(element, width, height) {
 		const MIN_RADIUS = 5, MAX_RADIUS = 50;
-		var camera, scene, renderer, labelRenderer, aspect;
+		var camera, scene, renderer, labelRenderer, aspect, cameraTween;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
@@ -163,20 +163,24 @@ HTMLWidgets.widget({
 					}
 				})
 				.on("end", function() {
-					requestAnimationFrame(render);
 					var box = new THREE.Box3().setFromObject(graph);
-					var zoomTarget = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y));
-					var tween = new TWEEN.Tween({value: camera.zoom});
-					tween.to({value: zoomTarget}, 1000);
-					tween.onUpdate(function() {
-						console.log(this.value);
+					var zoomTarget = Math.min(width / (box.max.x - box.min.x + MAX_RADIUS), height / (box.max.y - box.min.y + MAX_RADIUS)) * 2;
+					zoomCameraSmooth(zoomTarget, 1000);
+				});
+
+				function zoomCameraSmooth(zoomTarget, duration) {
+					requestAnimationFrame(render);
+					if(cameraTween) cameraTween.stop();
+					cameraTween = new TWEEN.Tween({value: camera.zoom});
+					cameraTween.to({value: zoomTarget}, duration);
+					cameraTween.onUpdate(function() {
 						requestAnimationFrame(render);
 						camera.zoom = this.value;
 						camera.updateProjectionMatrix();
 					});
-					tween.easing(TWEEN.Easing.Quadratic.Out);
-					tween.start();
-				});
+					cameraTween.easing(TWEEN.Easing.Quadratic.InOut);
+					cameraTween.start();
+				}
 			
 				//Render loop, called on simulation tick or zoom
 				function render() {
@@ -217,9 +221,8 @@ HTMLWidgets.widget({
 				}
 
 				function mouseZoom(event) {
-					requestAnimationFrame(render);
-					camera.zoom -= event.deltaY * 0.001;
-					camera.updateProjectionMatrix()
+					//camera.zoom -= event.deltaY * 0.001;
+					zoomCameraSmooth(camera.zoom - event.deltaY * 0.005, 100);
 				}
 				element.addEventListener('mousedown', mouseDown);
 				element.addEventListener('mousemove', mouseMove);
