@@ -105,6 +105,7 @@ HTMLWidgets.widget({
 				links.length = num;
 
 				//Declare method for changing color by mean
+				var lut = new THREE.Lut('rainbow', '1024');
 				function updateColours(metaVar) {
 					var means = new Array(x.mapper.num_vertices).fill(0);
 					var min = Infinity;
@@ -120,19 +121,20 @@ HTMLWidgets.widget({
 							means[i] /= x.mapper.points_in_vertex[i].length;
 						}
 					}
-					
-					//Normalise means
-					for(var i=0; i<means.length; i++) {
-						means[i] = (means[i] - min) / (max - min);
-					}
-					
+
+					lut.setMin(min);
+					lut.setMax(max);
+
 					//Update colours
 					for(let i=0; i<nodes.length; i++) {
-						nodes[i].material.color.setHSL(means[i], 1, 0.5);
+						nodes[i].material.color = lut.getColor(means[i]);
 						nodes[i].geometry.colorsNeedUpdate = true;
 					}
 					for(let i=0; i<links.length; i++){
-						links[i].material.color.setHSL((means[links[i].source.index]+means[links[i].target.index])/2, 1, 0.5);
+						links[i].material.color = new THREE.Color(
+							(links[i].source.material.color.r + links[i].target.material.color.r)/2, 
+							(links[i].source.material.color.g + links[i].target.material.color.g)/2, 
+							(links[i].source.material.color.b + links[i].target.material.color.b)/2);
 						links[i].geometry.colorsNeedUpdate = true;
 					}
 					requestAnimationFrame(render);
