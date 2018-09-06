@@ -68,7 +68,7 @@ tdaview_html <- function(id, style, class, ...){
       # Main panel for displaying outputs ----
       mainPanel(
         # adding the new div tag to the sidebar            
-        tags$div(class=class, id=id)
+        tags$div(class=class, id=id, style=style)
       )
     )
   )
