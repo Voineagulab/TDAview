@@ -3,7 +3,7 @@ HTMLWidgets.widget({
 	type: 'output',
 	
 	factory: function(element, width, height) {
-		const MIN_RADIUS = 5, MAX_RADIUS = 50, MIN_ZOOM = 0.5;
+		const MIN_RADIUS = 5, MAX_RADIUS = 50, MIN_ZOOM = 0.5, LINE_WIDTH = 1;
 		var camera, scene, renderer, labelRenderer, aspect, cameraTween;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
@@ -64,7 +64,7 @@ HTMLWidgets.widget({
 					var radius = MIN_RADIUS + x.mapper.points_in_vertex[i].length / x.data[metaVars[0]].length * (MAX_RADIUS - MIN_RADIUS);
 					var circleGeom = new THREE.CircleGeometry(radius, 32);
 					var circleMat = new THREE.MeshBasicMaterial();
-					nodes[i] = new node(i, x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i], circleGeom, circleMat);
+					nodes[i] = new node(i, x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i], radius, circleGeom, circleMat);
 					graph.add(nodes[i]);
 			
 					var nodeDiv = document.createElement('div');
@@ -91,9 +91,10 @@ HTMLWidgets.widget({
 					let row = x.mapper.adjacency[i];
 					for(let j=0; j<x.mapper.num_vertices; j++) {
 						if(row[j]) {
-							var lineMat = new THREE.LineBasicMaterial( );
+							var lineMat = new THREE.MeshBasicMaterial();//{vertexColors:  THREE.VertexColors});
 							var lineGeom = new THREE.Geometry();
-							lineGeom.vertices = [new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1)];
+							lineGeom.vertices = [new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1)];
+							lineGeom.faces = [new THREE.Face3(0, 1, 2), new THREE.Face3(0, 2, 3)];
 							links[num] = new link(nodes[i], nodes[j], lineGeom, lineMat);
 							graph.add(links[num]);
 							++num;
@@ -105,7 +106,7 @@ HTMLWidgets.widget({
 				links.length = num;
 
 				//Declare method for changing color by mean
-				var lut = new THREE.Lut('rainbow', '1024');
+				var lut = new THREE.Lut('blackbody', '1024'); //Options: rainbow, cooltowarm, blackbody
 				function updateColours(metaVar) {
 					var means = new Array(x.mapper.num_vertices).fill(0);
 					var min = Infinity;
@@ -151,17 +152,36 @@ HTMLWidgets.widget({
 				.force('center', d3.forceCenter())
 				.force("charge", d3.forceManyBody().strength(-100))
 				.on("tick", function () {
-					requestAnimationFrame(render);
-					for(var i=0; i<links.length; i++) {
-						links[i].geometry.vertices[0].x = links[i].source.x;
-						links[i].geometry.vertices[0].y = links[i].source.y;
-						links[i].geometry.vertices[1].x = links[i].target.x;
-						links[i].geometry.vertices[1].y = links[i].target.y;
-						links[i].geometry.verticesNeedUpdate = true;
-					}
 					for(var i=0; i<nodes.length; i++) {
 						nodes[i].position.x = nodes[i].x;
 						nodes[i].position.y = nodes[i].y;
+					}
+
+					for(var i=0; i<links.length; i++) {
+						var sourceNode = links[i].source;
+						var targetNode = links[i].target;
+						var lineGeom = links[i].geometry;
+
+						var cross = new THREE.Vector2(-(targetNode.y - sourceNode.y), targetNode.x - sourceNode.x).normalize();
+
+						var p0 = cross.clone().multiplyScalar(sourceNode.radius * LINE_WIDTH).add(sourceNode.position);
+						var p1 = cross.clone().multiplyScalar(sourceNode.radius * -LINE_WIDTH).add(sourceNode.position);
+						var p2 = cross.clone().multiplyScalar(targetNode.radius * -LINE_WIDTH).add(targetNode.position);
+						var p3 = cross.clone().multiplyScalar(targetNode.radius * LINE_WIDTH).add(targetNode.position);
+
+						console.log(cross);
+
+						lineGeom.vertices[0].x = p0.x;
+						lineGeom.vertices[0].y = p0.y;
+						lineGeom.vertices[1].x = p1.x;
+						lineGeom.vertices[1].y = p1.y;
+						lineGeom.vertices[2].x = p2.x;
+						lineGeom.vertices[2].y = p2.y;
+						lineGeom.vertices[3].x = p3.x;
+						lineGeom.vertices[3].y = p3.y;
+
+						links[i].geometry.verticesNeedUpdate = true;
+						requestAnimationFrame(render);
 					}
 				})
 				.on("end", function() {
@@ -247,15 +267,16 @@ HTMLWidgets.widget({
 	
 	
 class node extends THREE.Mesh {
-	constructor(index, level, points, geometry, material) {
+	constructor(index, level, points, radius, geometry, material) {
 	super(geometry, material);
 		this.index = index;
 		this.level = level;
 		this.points = points;
+		this.radius = radius;
 	}
 }
 	
-class link extends THREE.Line {
+class link extends THREE.Mesh {
 	constructor(source, target, geometry, material) {
 		super(geometry, material);
 		this.source = source;
