@@ -95,6 +95,8 @@ HTMLWidgets.widget({
 							var lineGeom = new THREE.Geometry();
 							lineGeom.vertices = [new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1)];
 							lineGeom.faces = [new THREE.Face3(0, 1, 2), new THREE.Face3(0, 2, 3)];
+							lineGeom.faces[0].vertexColors = [new THREE.Color(), new THREE.Color(), new THREE.Color()];
+							lineGeom.faces[1].vertexColors = [new THREE.Color(), new THREE.Color(), new THREE.Color()];
 							links[num] = new link(nodes[i], nodes[j], lineGeom, lineMat);
 							graph.add(links[num]);
 							++num;
@@ -132,10 +134,19 @@ HTMLWidgets.widget({
 						nodes[i].geometry.colorsNeedUpdate = true;
 					}
 					for(let i=0; i<links.length; i++){
+						var lineFaces = links[i].geometry.faces;
 						var sourceColor = links[i].source.material.color;
 						var targetColor = links[i].target.material.color;
-						links[i].geometry.faces[0].vertexColors = [sourceColor, sourceColor, targetColor];
-						links[i].geometry.faces[1].vertexColors = [sourceColor, targetColor, targetColor];
+
+						lineFaces[0].vertexColors[0].set(sourceColor); 
+						lineFaces[0].vertexColors[1].set(sourceColor); 
+						lineFaces[1].vertexColors[0].set(sourceColor);
+
+						lineFaces[0].vertexColors[2].set(targetColor);
+						lineFaces[1].vertexColors[1].set(targetColor);
+						lineFaces[1].vertexColors[2].set(targetColor);
+
+						links[i].geometry.colorsNeedUpdate = true;
 					}
 					requestAnimationFrame(render);
 				}
@@ -167,8 +178,6 @@ HTMLWidgets.widget({
 						var p1 = cross.clone().multiplyScalar(sourceNode.radius * -LINE_WIDTH).add(sourceNode.position);
 						var p2 = cross.clone().multiplyScalar(targetNode.radius * -LINE_WIDTH).add(targetNode.position);
 						var p3 = cross.clone().multiplyScalar(targetNode.radius * LINE_WIDTH).add(targetNode.position);
-
-						console.log(cross);
 
 						lineGeom.vertices[0].x = p0.x;
 						lineGeom.vertices[0].y = p0.y;
