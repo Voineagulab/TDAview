@@ -3,7 +3,7 @@ HTMLWidgets.widget({
 	type: 'output',
 	
 	factory: function(element, width, height) {
-		const MIN_RADIUS = 5, MAX_RADIUS = 50, MIN_ZOOM = 0.5, LINE_WIDTH = 1;
+		const MIN_RADIUS = 5, MAX_RADIUS = 50, MIN_ZOOM = 0.5, LINE_WIDTH = 0.3;
 		var camera, scene, renderer, labelRenderer, aspect, cameraTween;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
@@ -91,7 +91,7 @@ HTMLWidgets.widget({
 					let row = x.mapper.adjacency[i];
 					for(let j=0; j<x.mapper.num_vertices; j++) {
 						if(row[j]) {
-							var lineMat = new THREE.MeshBasicMaterial();//{vertexColors:  THREE.VertexColors});
+							var lineMat = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
 							var lineGeom = new THREE.Geometry();
 							lineGeom.vertices = [new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1)];
 							lineGeom.faces = [new THREE.Face3(0, 1, 2), new THREE.Face3(0, 2, 3)];
@@ -132,11 +132,10 @@ HTMLWidgets.widget({
 						nodes[i].geometry.colorsNeedUpdate = true;
 					}
 					for(let i=0; i<links.length; i++){
-						links[i].material.color = new THREE.Color(
-							(links[i].source.material.color.r + links[i].target.material.color.r)/2, 
-							(links[i].source.material.color.g + links[i].target.material.color.g)/2, 
-							(links[i].source.material.color.b + links[i].target.material.color.b)/2);
-						links[i].geometry.colorsNeedUpdate = true;
+						var sourceColor = links[i].source.material.color;
+						var targetColor = links[i].target.material.color;
+						links[i].geometry.faces[0].vertexColors = [sourceColor, sourceColor, targetColor];
+						links[i].geometry.faces[1].vertexColors = [sourceColor, targetColor, targetColor];
 					}
 					requestAnimationFrame(render);
 				}
