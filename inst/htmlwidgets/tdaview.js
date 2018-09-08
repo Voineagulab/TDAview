@@ -50,13 +50,46 @@ HTMLWidgets.widget({
 				
 				//Add notes to sidebar
 				var notes = document.createElement('div');
-				notes.innerHTML = "<br><br>Notes:<br>-->\
+				notes.innerHTML = "<br>Notes:<br>-->\
 									Node size is proportional to data contained.<br>-->\
-									Node and edge colour is determined by metadata variables.";
+									Node and edge colour is determined by metadata variables.<br><br>";
 				document.getElementById("sidebar-controls").appendChild(notes);
+
+				/*	TODO FOR GRAPH EXPORT
+					
+					1. Add canvas2image to .yaml
+					2. Add listener to button:
+						-> Canvas2Image.convertToImage(canvas, width, height, type)
+						-> Canvas2Image.saveAsImage(canvas, width, height, type)
+					3. Add dropdown - "Export as: " [PNG, JPEG, ect..]
+					4. Listener takes dropdown value and converts/exports on button click
+				
+				*/
+
+				//Create export button
+				var button = document.createElement("INPUT");
+				button.setAttribute("type", "submit");
+				button.setAttribute("value", "Export Graph");
+				button.innerHTML = "Export-Graph";
+
+				//Add listener to button
+
+
+				//Add button to sidebar
+				document.getElementById("sidebar-controls").appendChild(button);
 
 				//Create group to store graph 
 				var graph = new THREE.Group();
+
+				/*	TODO FOR NODE SIZE DISPLAY
+
+					1. Create new div element -> nodeDivSize
+					2. nodeDivSize.textContent = x.mapper.points_in_vertex[i].length
+					3. nodeLabelSize.position.set(0, -2, 0) to put in centre of node
+					4. Format font, size, colour
+					5. Scale size with node size
+				
+				*/
 
 				//Parse and meshify nodes
 				var nodes = new Array(x.mapper.num_vertices);
