@@ -78,8 +78,7 @@ HTMLWidgets.widget({
 				//Add button to sidebar
 				document.getElementById("sidebar-controls").appendChild(button);
 
-				//Create group to store graph 
-				var graph = new THREE.Group();
+				
 
 				/*	TODO FOR NODE SIZE DISPLAY
 
@@ -90,6 +89,9 @@ HTMLWidgets.widget({
 					5. Scale size with node size
 				
 				*/
+
+				//Create group to store graph 
+				var graph = new THREE.Group();
 
 				//Parse and meshify nodes
 				var nodes = new Array(x.mapper.num_vertices);
@@ -140,8 +142,42 @@ HTMLWidgets.widget({
 				//Truncate links array
 				links.length = num;
 
+				//Create legend
+				const legendColumns = 20;
+				const legendWidth = 100;
+				const legendHeight = 20;
+				const legendColumnGap = 0.25;
+				var legendColumnWidth = legendWidth/legendColumns;
+				var legend = new THREE.Group();
+				
+				for(let i=0; i<legendColumns; i++) {
+					var colMat = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
+					var colGeom = new THREE.PlaneGeometry(legendColumnWidth * legendColumnGap, 1, 1);
+					colGeom.faces[0].vertexColors = [new THREE.Color(0x000000), new THREE.Color(0x000000), new THREE.Color(0x555555)];
+					colGeom.faces[1].vertexColors = [new THREE.Color(0x000000), new THREE.Color(0x555555), new THREE.Color(0x555555)];
+					var colMesh = new THREE.Mesh(colGeom, colMat);
+					colMesh.position.set(i * legendColumnWidth, legendHeight/2, 1);
+					legend.add(colMesh);
+				}
+
+				//Add legend labels
+				var minDiv = document.createElement('div');
+				var maxDiv = document.createElement('div');
+				minDiv.style.fontWeight = "100";
+				minDiv.style.textAlign = "right"
+				maxDiv.style.fontWeight = "100";
+				minDiv.style.textAlign = "left"
+				var minLabel = new THREE.CSS2DObject(minDiv);
+				minLabel.position.set(0, 0, 0);
+				var maxLabel = new THREE.CSS2DObject(maxDiv);
+				maxLabel.position.set(legendWidth, 0, 0);
+				legend.add(minLabel);
+				legend.add(maxLabel);
+
+				legend.position.set(100, -100, 1);
+
 				//Declare method for changing color by mean
-				var lut = new THREE.Lut('blackbody', '1024'); //Options: rainbow, cooltowarm, blackbody
+				var lut = new THREE.Lut('rainbow', '1024'); //Options: rainbow, cooltowarm, blackbody
 				function updateColours(metaVar) {
 					var means = new Array(x.mapper.num_vertices).fill(0);
 					var min = Infinity;
@@ -181,10 +217,47 @@ HTMLWidgets.widget({
 
 						links[i].geometry.colorsNeedUpdate = true;
 					}
+					
+					//Update legend
+					console.log(min);
+					minDiv.textContent = min.toFixed(2);
+					maxDiv.textContent = max.toFixed(2);
+					var cols = new Array(legendColumns).fill(1);
+					var maxCol = 1;
+					for(let i=0; i<nodes.length; i++) {
+						var col = Math.round((means[i] - min)/(max - min) * (legendColumns));
+						cols[col]++;
+						if(cols[col] >= maxCol) {
+							maxCol = cols[col];
+						}
+					}
+
+					lut.setMin(0);
+					lut.setMax(legendColumns);
+					for(let i=0; i<legendColumns; i++) {
+						let h = cols[i]/maxCol * legendHeight;
+						var childFaces = legend.children[i].geometry.faces;
+						var fromColor = lut.getColor(i);
+						var toColor = lut.getColor(i+1);
+
+						legend.children[i].scale.y = h;
+						legend.children[i].position.setY(h/2);
+						
+						childFaces[0].vertexColors[0].set(fromColor);
+						childFaces[0].vertexColors[1].set(fromColor);
+						childFaces[1].vertexColors[0].set(fromColor);
+
+						childFaces[0].vertexColors[2].set(toColor);
+						childFaces[1].vertexColors[1].set(toColor);
+						childFaces[1].vertexColors[2].set(toColor);
+
+						legend.children[i].geometry.colorsNeedUpdate = true;
+					}
 					requestAnimationFrame(render);
 				}
 
 				scene.add(graph);
+				scene.add(legend);
 
 				//Set colours
 				updateColours(Object.keys(x.data)[0]);
@@ -234,6 +307,7 @@ HTMLWidgets.widget({
 				.on("end", function() {
 					cameraAutoZoom = false;
 				});
+
 
 				function zoomCameraSmooth(zoomTarget, duration) {
 					requestAnimationFrame(render);
