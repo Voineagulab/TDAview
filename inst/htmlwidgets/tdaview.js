@@ -3,7 +3,7 @@ HTMLWidgets.widget({
 	type: 'output',
 	
 	factory: function(element, width, height) {
-		const MIN_RADIUS = 5, MAX_RADIUS = 50, MIN_ZOOM = 0.5, LINE_WIDTH = 0.3;
+		const MIN_RADIUS = 5, MAX_RADIUS = 100, MIN_ZOOM = 0.5, LINE_WIDTH = 0.3;
 		var camera, scene, renderer, labelRenderer, aspect, cameraTween, cameraAutoZoom = true;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
@@ -191,9 +191,9 @@ HTMLWidgets.widget({
 				
 				//Start simulation loop
 				var simulation = d3.forceSimulation(nodes)
-				.force("link", d3.forceLink(links).distance(30))
+				.force("link", d3.forceLink(links))
 				.force('center', d3.forceCenter())
-				.force("charge", d3.forceManyBody().strength(-100))
+				.force("charge", d3.forceManyBody().strength(-1000))
 				.on("tick", function () {
 					for(var i=0; i<nodes.length; i++) {
 						nodes[i].position.x = nodes[i].x;
@@ -207,10 +207,10 @@ HTMLWidgets.widget({
 
 						var cross = new THREE.Vector2(-(targetNode.y - sourceNode.y), targetNode.x - sourceNode.x).normalize();
 
-						var p0 = cross.clone().multiplyScalar(sourceNode.radius * LINE_WIDTH).add(sourceNode.position);
-						var p1 = cross.clone().multiplyScalar(sourceNode.radius * -LINE_WIDTH).add(sourceNode.position);
-						var p2 = cross.clone().multiplyScalar(targetNode.radius * -LINE_WIDTH).add(targetNode.position);
-						var p3 = cross.clone().multiplyScalar(targetNode.radius * LINE_WIDTH).add(targetNode.position);
+						var p0 = cross.clone().multiplyScalar(sourceNode.r * LINE_WIDTH).add(sourceNode.position);
+						var p1 = cross.clone().multiplyScalar(sourceNode.r * -LINE_WIDTH).add(sourceNode.position);
+						var p2 = cross.clone().multiplyScalar(targetNode.r * -LINE_WIDTH).add(targetNode.position);
+						var p3 = cross.clone().multiplyScalar(targetNode.r * LINE_WIDTH).add(targetNode.position);
 
 						lineGeom.vertices[0].x = p0.x;
 						lineGeom.vertices[0].y = p0.y;
@@ -226,6 +226,7 @@ HTMLWidgets.widget({
 						if(cameraAutoZoom) {
 							var box = new THREE.Box3().setFromObject(graph);
 							camera.zoom = Math.min(width / (box.max.x - box.min.x + MAX_RADIUS), height / (box.max.y - box.min.y + MAX_RADIUS)) * 2;
+							camera.updateProjectionMatrix();
 						}
 						requestAnimationFrame(render);
 					}
@@ -244,7 +245,7 @@ HTMLWidgets.widget({
 						camera.zoom = this.value;
 						camera.updateProjectionMatrix();
 					});
-					cameraTween.easing(TWEEN.Easing.Quadratic.InOut);
+					cameraTween.easing(TWEEN.Easing.Linear.None);
 					cameraTween.start();
 				}
 			
@@ -288,8 +289,8 @@ HTMLWidgets.widget({
 				}
 
 				function mouseZoom(event) {
-					//camera.zoom -= event.deltaY * 0.001;
-					zoomCameraSmooth(camera.zoom - event.deltaY * 0.005, 100);
+					cameraAutoZoom = false;
+					zoomCameraSmooth(camera.zoom - event.deltaY * 0.0075, 100);
 				}
 				element.addEventListener('mousedown', mouseDown);
 				element.addEventListener('mousemove', mouseMove);
@@ -317,7 +318,7 @@ class node extends THREE.Mesh {
 		this.index = index;
 		this.level = level;
 		this.points = points;
-		this.radius = radius;
+		this.r = radius;
 	}
 }
 	
