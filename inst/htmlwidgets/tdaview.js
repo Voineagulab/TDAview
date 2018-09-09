@@ -107,6 +107,7 @@ HTMLWidgets.widget({
 					nodeDiv.textContent = 'Node ' + i;
 					nodeDiv.style.marginTop = '-1em';
 					nodeDiv.style.fontWeight = "100";
+					nodeDiv.style.opacity = "0.75";
 					nodeDiv.style["-webkit-touch-callout"] = "none";
 					nodeDiv.style["-webkit-user-select"] = "none";
 					nodeDiv.style["-khtml-user-select"] = "none";
@@ -163,14 +164,13 @@ HTMLWidgets.widget({
 				//Add legend labels
 				var minDiv = document.createElement('div');
 				var maxDiv = document.createElement('div');
-				minDiv.style.fontWeight = "100";
-				minDiv.style.textAlign = "right"
-				maxDiv.style.fontWeight = "100";
-				minDiv.style.textAlign = "left"
+				minDiv.style.fontWeight = maxDiv.style.fontWeight = "100";
+				minDiv.style.fontSize = maxDiv.style.fontSize = "10px";
+				minDiv.style.color = maxDiv.style.color = "white";
 				var minLabel = new THREE.CSS2DObject(minDiv);
-				minLabel.position.set(0, 0, 0);
+				minLabel.position.set(0, -10, 0);
 				var maxLabel = new THREE.CSS2DObject(maxDiv);
-				maxLabel.position.set(legendWidth, 0, 0);
+				maxLabel.position.set(legendWidth, -10, 0);
 				legend.add(minLabel);
 				legend.add(maxLabel);
 
