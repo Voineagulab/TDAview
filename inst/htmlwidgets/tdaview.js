@@ -4,7 +4,7 @@ HTMLWidgets.widget({
 	
 	factory: function(element, width, height) {
 		const MIN_RADIUS = 5, MAX_RADIUS = 50, MIN_ZOOM = 0.5, LINE_WIDTH = 0.3;
-		var camera, scene, renderer, labelRenderer, aspect, cameraTween;
+		var camera, scene, renderer, labelRenderer, aspect, cameraTween, cameraAutoZoom = true;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
@@ -222,13 +222,16 @@ HTMLWidgets.widget({
 						lineGeom.vertices[3].y = p3.y;
 
 						links[i].geometry.verticesNeedUpdate = true;
+						
+						if(cameraAutoZoom) {
+							var box = new THREE.Box3().setFromObject(graph);
+							camera.zoom = Math.min(width / (box.max.x - box.min.x + MAX_RADIUS), height / (box.max.y - box.min.y + MAX_RADIUS)) * 2;
+						}
 						requestAnimationFrame(render);
 					}
 				})
 				.on("end", function() {
-					var box = new THREE.Box3().setFromObject(graph);
-					var zoomTarget = Math.min(width / (box.max.x - box.min.x + MAX_RADIUS), height / (box.max.y - box.min.y + MAX_RADIUS)) * 2;
-					zoomCameraSmooth(zoomTarget, 1000);
+					cameraAutoZoom = false;
 				});
 
 				function zoomCameraSmooth(zoomTarget, duration) {
@@ -264,6 +267,7 @@ HTMLWidgets.widget({
 					if(intersects.length > 0) {
 						simulation.alphaTarget(0.3).restart();
 						selected = intersects[0].object;
+						cameraAutoZoom = false;
 						mouseMove(event);
 					}
 				}
