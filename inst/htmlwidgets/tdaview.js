@@ -14,6 +14,7 @@ HTMLWidgets.widget({
 		var selected = null;
 		var isMouseDown = false;
 		var dragOffset = new THREE.Vector2();
+		var selectedColor = new THREE.Color(0x999999);
 		
 		return {
 			renderValue: function(x) {
@@ -44,11 +45,11 @@ HTMLWidgets.widget({
 
 				//Create dropdown
 				var selector = document.createElement("SELECT");
-				var metaVars = Object.keys(x.data);
-				for(let i=0; i<metaVars.length; i++){
+				var variableNames = Object.keys(x.data);
+				for(let i=0; i<variableNames.length; i++){
 					var option = document.createElement("option");
-					option.setAttribute("value", metaVars[i]);
-					option.innerHTML = metaVars[i];
+					option.setAttribute("value", variableNames[i]);
+					option.innerHTML = variableNames[i];
 					selector.appendChild(option);
 				}
 				
@@ -62,10 +63,11 @@ HTMLWidgets.widget({
 				
 				//Add notes to sidebar
 				var notes = document.createElement('div');
-				notes.innerHTML = "<br>Notes:<br>-->\
-									Node size is proportional to data contained.<br>-->\
+				notes.innerHTML = "<br>Notes:<br>-\
+									Node size is proportional to number of points.<br>-\
 									Node and edge colour is determined by metadata variables.<br><br>";
 				document.getElementById("sidebar-controls").appendChild(notes);
+
 
 				/*	TODO FOR GRAPH EXPORT
 					
@@ -106,8 +108,6 @@ HTMLWidgets.widget({
 				document.getElementById("sidebar-controls").appendChild(button);
 				document.getElementById("sidebar-controls").appendChild(selectorExport);
 
-				
-
 				/*	TODO FOR NODE SIZE DISPLAY
 					1. Create new div element -> nodeDivSize
 					2. nodeDivSize.textContent = x.mapper.points_in_vertex[i].length
@@ -123,7 +123,7 @@ HTMLWidgets.widget({
 				//Parse and meshify nodes
 				var nodes = new Array(x.mapper.num_vertices);
 				for(let i=0; i<nodes.length; i++) {
-					var radius = MIN_RADIUS + x.mapper.points_in_vertex[i].length / x.data[metaVars[0]].length * (MAX_RADIUS - MIN_RADIUS);
+					var radius = MIN_RADIUS + x.mapper.points_in_vertex[i].length / x.data[variableNames[0]].length * (MAX_RADIUS - MIN_RADIUS);
 					var circleGeom = new THREE.CircleGeometry(radius, 32);
 					var circleMat = new THREE.MeshBasicMaterial();
 					nodes[i] = new node(i, x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i], radius, circleGeom, circleMat);
@@ -169,6 +169,44 @@ HTMLWidgets.widget({
 			
 				//Truncate links array
 				links.length = num;
+
+				//Create table
+				table = document.createElement("table");
+				table.style.width = "100%";
+				table.style.display = "none";
+				table.style.textAlign = "center";
+				
+				//Add header
+				var tr = table.insertRow(0);
+				for(var i=0; i<variableNames.length; i++) {
+					var headerCell = document.createElement('th');
+					headerCell.innerHTML = "<b>"+variableNames[i]+"</b>";
+					headerCell.style.border = "1px solid";
+					headerCell.style.textAlign = "center";
+					tr.appendChild(headerCell);
+				}
+				
+				//Find max points
+				var max = 0;
+				for(var i=0; i<nodes.length; i++) {
+					if(nodes[i].points.length > max) {
+						max = nodes[i].points.length;
+					}
+				}
+				
+				//Create hidden rows
+				var rows = new Array(max);
+				for(var i=0; i<max; i++) {
+					var row = table.insertRow(i+1);
+					rows[i] = row;
+					row.style.display = "none";
+					for(var j=0; j<variableNames.length; j++) {
+						var cell = row.insertCell(j);
+						cell.style.border = "1px solid";
+					}
+				}
+				document.getElementById("sidebar-controls").appendChild(table);
+				document.getElementById("sidebar-controls").style.overflowX = "scroll";
 
 				//Create legend
 				const legendColumns = 20;
@@ -258,7 +296,6 @@ HTMLWidgets.widget({
 					}
 					
 					//Update legend
-					console.log(min);
 					minDiv.textContent = min.toFixed(2);
 					maxDiv.textContent = max.toFixed(2);
 					var cols = new Array(legendColumns).fill(1);
@@ -405,11 +442,23 @@ HTMLWidgets.widget({
 				}
 
 				function onNodeSelect(node) {
-					node.material.color = new THREE.Color(0x000000);
+					node.material.color.add(selectedColor);
+					table.style.display = "";
+					for(var i=0; i<node.points.length; i++) {
+						var row = rows[i];
+						row.style.display = "";
+						for(var j=0; j<variableNames.length; j++) {
+							row.cells[j].innerHTML = x.data[variableNames[j]][node.points[i]-1].toFixed(2); //x.data["x"][1]
+						}
+					}
 				}
 
 				function onNodeDeselect(node) {
-					node.material.color = new THREE.Color(0xffffff);
+					node.material.color.sub(selectedColor);
+					table.style.display = "none";
+					for(var i=0; i<node.points.length; i++) {
+						rows[i].style.display = "none";
+					}
 				}
 				
 				//Mouse events
@@ -423,6 +472,7 @@ HTMLWidgets.widget({
 				}
 				
 				function mouseMove(event) {
+					console.log(isMouseDown);
 					mouse.x = event.clientX;
 					mouse.y = event.clientY;
 					if(isMouseDown && over) {
@@ -445,7 +495,6 @@ HTMLWidgets.widget({
 							over = null;
 						}
 					}
-					console.log(dragOffset);
 				}
 
 				function mouseUp(event) {
