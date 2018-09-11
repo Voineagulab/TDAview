@@ -414,11 +414,11 @@ HTMLWidgets.widget({
 				function mouseMove(event) {
 					mouse.x = event.clientX;
 					mouse.y = event.clientY;
-					var elem = renderer.domElement;
-					var boundingRect = elem.getBoundingClientRect();
-					if(isMouseDown) {
+					if(isMouseDown && over) {
 						onNodeDrag(over, mouse);
 					} else {
+						var elem = renderer.domElement;
+						var boundingRect = elem.getBoundingClientRect();
 						mouseWorld.x = ((mouse.x - boundingRect.left) * (elem.width / boundingRect.width))/width * 2 - 1;
 						mouseWorld.y = -((mouse.y - boundingRect.top) * (elem.height / boundingRect.height))/height * 2 + 1;
 						raycaster.setFromCamera(mouseWorld, camera);
@@ -443,8 +443,8 @@ HTMLWidgets.widget({
 						} else {
 							onNodeDragEnd(over);
 						}
-						isMouseDown = false;
 					}
+					isMouseDown = false;
 				}
 
 				function mouseZoom(event) {
