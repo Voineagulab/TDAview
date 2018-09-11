@@ -4,7 +4,7 @@ HTMLWidgets.widget({
 	
 	factory: function(element, width, height) {
 		const MIN_RADIUS = 5, MAX_RADIUS = 100, MIN_ZOOM = 0.5, LINE_WIDTH = 0.3;
-		var camera, scene, renderer, labelRenderer, aspect, cameraTween, cameraAutoZoom = true;
+		var camera, hudCamera, scene, hudScene, renderer, labelRenderer, aspect, cameraTween, cameraAutoZoom = true;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
 		var mouse = new THREE.Vector2();
@@ -16,12 +16,15 @@ HTMLWidgets.widget({
 				camera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
 				camera.position.z = 400;
 				scene = new THREE.Scene();
-				//scene.background = new THREE.Color(0x4b515b);
+				scene.background = new THREE.Color(0x4b515b);
+				hudScene = new THREE.Scene();
+				
 		
 				//Create graph renderer
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
 				renderer.setSize(width, height);
 				renderer.setClearColor(0x000000, 0);	// Transparent background
+				renderer.autoClear = false;
 				element.appendChild(renderer.domElement);
 		
 				//Create label renderer
@@ -30,6 +33,10 @@ HTMLWidgets.widget({
 				labelRenderer.domElement.style.position = 'absolute';
 				labelRenderer.domElement.style.top = 0;
 				element.appendChild(labelRenderer.domElement);
+
+				//Create legend hud
+				hudCamera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
+				hudCamera.position.z = 400;
 
 				//Create dropdown
 				var selector = document.createElement("SELECT");
@@ -161,19 +168,18 @@ HTMLWidgets.widget({
 
 				//Create legend
 				const legendColumns = 20;
-				const legendWidth = 100;
-				const legendHeight = 20;
+				const legendWidth = 300;
+				const legendHeight = 100;
 				const legendColumnGap = 0.25;
 				var legendColumnWidth = legendWidth/legendColumns;
 				var legend = new THREE.Group();
-				
 				for(let i=0; i<legendColumns; i++) {
 					var colMat = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
 					var colGeom = new THREE.PlaneGeometry(legendColumnWidth * legendColumnGap, 1, 1);
 					colGeom.faces[0].vertexColors = [new THREE.Color(0x000000), new THREE.Color(0x000000), new THREE.Color(0x555555)];
 					colGeom.faces[1].vertexColors = [new THREE.Color(0x000000), new THREE.Color(0x555555), new THREE.Color(0x555555)];
 					var colMesh = new THREE.Mesh(colGeom, colMat);
-					colMesh.position.set(i * legendColumnWidth, legendHeight/2, 1);
+					colMesh.position.set(i * legendColumnWidth, legendHeight/2, 0);
 					legend.add(colMesh);
 				}
 
@@ -202,7 +208,8 @@ HTMLWidgets.widget({
 				legend.add(minLabel);
 				legend.add(maxLabel);
 
-				legend.position.set(100, -100, 1);
+				hudScene.add(legend);
+				legend.position.set(-width + 50, -height + 50, 1);
 
 				//Declare method for changing color by mean
 				var lut = new THREE.Lut('rainbow', '1024'); //Options: rainbow, cooltowarm, blackbody
@@ -285,7 +292,7 @@ HTMLWidgets.widget({
 				}
 
 				scene.add(graph);
-				scene.add(legend);
+				
 
 				//Set colours
 				updateColours(Object.keys(x.data)[0]);
@@ -354,8 +361,13 @@ HTMLWidgets.widget({
 				//Render loop, called on simulation tick or zoom
 				function render() {
 					TWEEN.update()
+					renderer.clear();
 					renderer.render(scene, camera);
+					renderer.clearDepth();
+					renderer.render(hudScene, hudCamera);
 					labelRenderer.render(scene, camera);
+					labelRenderer.render(hudScene, hudCamera);
+					console.log(legend.position);
 				}
 				
 				//Mouse events
