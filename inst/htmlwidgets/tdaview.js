@@ -16,11 +16,12 @@ HTMLWidgets.widget({
 				camera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
 				camera.position.z = 400;
 				scene = new THREE.Scene();
-				scene.background = new THREE.Color(0x4b515b);
+				//scene.background = new THREE.Color(0x4b515b);
 		
 				//Create graph renderer
-				renderer = new THREE.WebGLRenderer({ antialias: true });
+				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
 				renderer.setSize(width, height);
+				renderer.setClearColor(0x000000, 0);	// Transparent background
 				element.appendChild(renderer.domElement);
 		
 				//Create label renderer
@@ -57,31 +58,46 @@ HTMLWidgets.widget({
 
 				/*	TODO FOR GRAPH EXPORT
 					
-					1. Add canvas2image to .yaml
-					2. Add listener to button:
-						-> Canvas2Image.convertToImage(canvas, width, height, type)
-						-> Canvas2Image.saveAsImage(canvas, width, height, type)
-					3. Add dropdown - "Export as: " [PNG, JPEG, ect..]
-					4. Listener takes dropdown value and converts/exports on button click
+					1. Export node labels with image.
 				
 				*/
 
-				//Create export button
-				var button = document.createElement("INPUT");
-				button.setAttribute("type", "submit");
+				//Create export button and dropdown
+				var button = document.createElement("a");
+				button.setAttribute("class", "button");
 				button.setAttribute("value", "Export Graph");
-				button.innerHTML = "Export-Graph";
+				button.innerHTML = "Export Graph as   ";
+				var selectorExport = document.createElement("SELECT");
+				selectorExport.setAttribute("id", "selectorExport");
+				var option1 = document.createElement("option");
+				var option2 = document.createElement("option");
+				option1.setAttribute("value", "JPEG");
+				option2.setAttribute("value", "PNG");
+				option1.innerHTML = "JPEG";
+				option2.innerHTML = "PNG";
+				selectorExport.appendChild(option1);
+				selectorExport.appendChild(option2);
 
 				//Add listener to button
-
+				button.addEventListener("click", function() {
+					var e = document.getElementById("selectorExport");
+					var imgtype = e.options[e.selectedIndex].value;
+					button.setAttribute("download", "graph."+imgtype.toLowerCase());
+					imgtype = "image/" + imgtype.toLowerCase();
+					var imgdata = renderer.domElement.toDataURL(imgtype);
+					imgdata = imgdata.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
+					imgdata = imgdata.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
+					button.setAttribute("href", imgdata);
+					//console.log(imgdata);
+				});
 
 				//Add button to sidebar
 				document.getElementById("sidebar-controls").appendChild(button);
+				document.getElementById("sidebar-controls").appendChild(selectorExport);
 
 				
 
 				/*	TODO FOR NODE SIZE DISPLAY
-
 					1. Create new div element -> nodeDivSize
 					2. nodeDivSize.textContent = x.mapper.points_in_vertex[i].length
 					3. nodeLabelSize.position.set(0, -2, 0) to put in centre of node
@@ -167,6 +183,18 @@ HTMLWidgets.widget({
 				minDiv.style.fontWeight = maxDiv.style.fontWeight = "100";
 				minDiv.style.fontSize = maxDiv.style.fontSize = "10px";
 				minDiv.style.color = maxDiv.style.color = "white";
+				minDiv.style["-webkit-touch-callout"] = "none";
+				minDiv.style["-webkit-user-select"] = "none";
+				minDiv.style["-khtml-user-select"] = "none";
+				minDiv.style["-moz-user-select"] = "none";
+				minDiv.style["-ms-user-select"] = "none";
+				minDiv.style["user-select"] = "none";
+				maxDiv.style["-webkit-touch-callout"] = "none";
+				maxDiv.style["-webkit-user-select"] = "none";
+				maxDiv.style["-khtml-user-select"] = "none";
+				maxDiv.style["-moz-user-select"] = "none";
+				maxDiv.style["-ms-user-select"] = "none";
+				maxDiv.style["user-select"] = "none";
 				var minLabel = new THREE.CSS2DObject(minDiv);
 				minLabel.position.set(0, -10, 0);
 				var maxLabel = new THREE.CSS2DObject(maxDiv);
