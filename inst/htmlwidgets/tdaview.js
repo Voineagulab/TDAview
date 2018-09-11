@@ -7,8 +7,11 @@ HTMLWidgets.widget({
 		var camera, hudCamera, scene, hudScene, renderer, labelRenderer, aspect, cameraTween, cameraAutoZoom = true;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
+		var mouseWorld = new THREE.Vector2();
 		var mouse = new THREE.Vector2();
-		var selected = null;
+		var mouseStart = new THREE.Vector2();
+		var over = null;
+		var isMouseDown = false;
 		
 		return {
 			renderValue: function(x) {
@@ -18,7 +21,6 @@ HTMLWidgets.widget({
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color(0x4b515b);
 				hudScene = new THREE.Scene();
-				
 		
 				//Create graph renderer
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -367,38 +369,81 @@ HTMLWidgets.widget({
 					renderer.render(hudScene, hudCamera);
 					labelRenderer.render(scene, camera);
 					labelRenderer.render(hudScene, hudCamera);
-					console.log(legend.position);
+				}
+
+				//Node events
+				function onNodeHoverStart(node) {
+					node.children[0].element.style.opacity = "1";
+				}
+
+				function onNodeHoverEnd(node) {
+					node.children[0].element.style.opacity = "0.75";
+				}
+
+				function onNodeDragStart(node, position) {
+					simulation.alphaTarget(0.3).restart();
+					cameraAutoZoom = false;
+				}
+
+				function onNodeDrag(node, position) {
+					var elem = renderer.domElement;
+					var boundingRect = elem.getBoundingClientRect();
+					node.fx = (+2 * (position.x - boundingRect.left) - width)/camera.zoom;
+					node.fy = (-2 * (position.y - boundingRect.top) + height)/camera.zoom;
+				}
+
+				function onNodeDragEnd(node) {
+					simulation.alphaTarget(0);
+					node.fx = node.fy = null;
+				}
+
+				function onNodeSelect(node) {
+
 				}
 				
 				//Mouse events
 				function mouseDown(event) {
-					var elem = renderer.domElement;
-					var boundingRect = elem.getBoundingClientRect();
-					mouse.x = ((event.clientX - boundingRect.left) * (elem.width / boundingRect.width))/width * 2 - 1;
-					mouse.y = -((event.clientY - boundingRect.top) * (elem.height / boundingRect.height))/height * 2 + 1;
-					raycaster.setFromCamera(mouse, camera);
-					var intersects = raycaster.intersectObjects(nodes, true);
-					
-					if(intersects.length > 0) {
-						simulation.alphaTarget(0.3).restart();
-						selected = intersects[0].object;
-						cameraAutoZoom = false;
-						mouseMove(event);
+					isMouseDown = true;
+					mouse.x = mouseStart.x = event.clientX;
+					mouse.y = mouseStart.y = event.clientY;
+					if(over) {
+						onNodeDragStart(over);
 					}
 				}
+				
 				function mouseMove(event) {
-					if(selected) {
-						var elem = renderer.domElement;
-						var boundingRect = elem.getBoundingClientRect();
-						selected.fx = (+2 * (event.clientX - boundingRect.left) - width)/camera.zoom;
-						selected.fy = (-2 * (event.clientY - boundingRect.top) + height)/camera.zoom;
+					mouse.x = event.clientX;
+					mouse.y = event.clientY;
+					var elem = renderer.domElement;
+					var boundingRect = elem.getBoundingClientRect();
+					if(isMouseDown) {
+						onNodeDrag(over, mouse);
+					} else {
+						mouseWorld.x = ((mouse.x - boundingRect.left) * (elem.width / boundingRect.width))/width * 2 - 1;
+						mouseWorld.y = -((mouse.y - boundingRect.top) * (elem.height / boundingRect.height))/height * 2 + 1;
+						raycaster.setFromCamera(mouseWorld, camera);
+						var intersects = raycaster.intersectObjects(nodes, true);
+						if(intersects.length > 0) {
+							if(over && intersects[0].object.id != over.id) {
+								onNodeHoverEnd(over);
+							}
+							over = intersects[0].object;
+							onNodeHoverStart(over);
+						} else if(over) {
+							onNodeHoverEnd(over);
+							over = null;
+						}
 					}
 				}
 
 				function mouseUp(event) {
-				if(selected) {
-					simulation.alphaTarget(0);
-					selected = selected.fx = selected.fy = null;
+					if(isMouseDown && over) {
+						if(mouse.distanceTo(mouseStart) < 0.01) {
+							onNodeSelect(over);
+						} else {
+							onNodeDragEnd(over);
+						}
+						isMouseDown = false;
 					}
 				}
 
