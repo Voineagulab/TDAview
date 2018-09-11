@@ -11,7 +11,9 @@ HTMLWidgets.widget({
 		var mouse = new THREE.Vector2();
 		var mouseStart = new THREE.Vector2();
 		var over = null;
+		var selected = null;
 		var isMouseDown = false;
+		var dragOffset = new THREE.Vector2();
 		
 		return {
 			renderValue: function(x) {
@@ -383,13 +385,18 @@ HTMLWidgets.widget({
 				function onNodeDragStart(node, position) {
 					simulation.alphaTarget(0.3).restart();
 					cameraAutoZoom = false;
+					var elem = renderer.domElement;
+					var boundingRect = elem.getBoundingClientRect();
+					dragOffset.x = node.x - (+2 * (position.x - boundingRect.left) - width)/camera.zoom;
+					dragOffset.y = node.y - (-2 * (position.y - boundingRect.top) + height)/camera.zoom;
+
 				}
 
 				function onNodeDrag(node, position) {
 					var elem = renderer.domElement;
 					var boundingRect = elem.getBoundingClientRect();
-					node.fx = (+2 * (position.x - boundingRect.left) - width)/camera.zoom;
-					node.fy = (-2 * (position.y - boundingRect.top) + height)/camera.zoom;
+					node.fx = (+2 * (position.x - boundingRect.left) - width)/camera.zoom + dragOffset.x;
+					node.fy = (-2 * (position.y - boundingRect.top) + height)/camera.zoom + dragOffset.y;
 				}
 
 				function onNodeDragEnd(node) {
@@ -398,7 +405,11 @@ HTMLWidgets.widget({
 				}
 
 				function onNodeSelect(node) {
+					node.material.color = new THREE.Color(0x000000);
+				}
 
+				function onNodeDeselect(node) {
+					node.material.color = new THREE.Color(0xffffff);
 				}
 				
 				//Mouse events
@@ -407,7 +418,7 @@ HTMLWidgets.widget({
 					mouse.x = mouseStart.x = event.clientX;
 					mouse.y = mouseStart.y = event.clientY;
 					if(over) {
-						onNodeDragStart(over);
+						onNodeDragStart(over, mouse);
 					}
 				}
 				
@@ -434,12 +445,22 @@ HTMLWidgets.widget({
 							over = null;
 						}
 					}
+					console.log(dragOffset);
 				}
 
 				function mouseUp(event) {
+					var prevSelected = selected;
+					if(prevSelected) {
+						onNodeDeselect(selected);
+						selected = null;
+					}
+					
 					if(isMouseDown && over) {
-						if(mouse.distanceTo(mouseStart) < 0.01) {
-							onNodeSelect(over);
+						if(mouse.distanceTo(mouseStart) < 1) {
+							if(!prevSelected || (prevSelected.id != over.id)) {
+								selected = over;
+								onNodeSelect(over);
+							}
 						} else {
 							onNodeDragEnd(over);
 						}
