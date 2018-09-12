@@ -14,4 +14,18 @@ dependencies:
       - three.min.js
       - css2drenderer.js
       - lut.js
+  - name: CSS
+    version: 1.0
+    src: "htmlwidgets/lib/CSS"
+    stylesheet: styles.css
+  - name: JQUERY
+    version: 3.3.1
+    src: "htmlwidgets/lib/JQUERY"
+    script: jquery.min.js
+  - name: HTML2CANVAS
+    version: 1.0.0
+    src: "htmlwidgets/lib/HTML2CANVAS"
+    script: html2canvas.min.js
+
+
 

@@ -43,6 +43,37 @@ HTMLWidgets.widget({
 				hudCamera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
 				hudCamera.position.z = 400;
 
+				element.style.height = "100%";
+
+				//Create sidebar
+				var sidebar = document.createElement('div');
+
+				var sidenav = document.createElement('div');
+				labelRenderer.domElement.appendChild(sidenav);
+				sidenav.className  = "sidenav";
+
+				var openButton = document.createElement('div');
+				openButton.className = "openbtn";
+				openButton.innerText = "☰ Settings";
+				openButton.addEventListener("click", function() {
+					sidenav.style.width = "250px";
+				});
+				element.appendChild(openButton);
+
+				var closeButton = document.createElement('div');
+				closeButton.className = "closebtn";
+				closeButton.innerText = "✕";
+				closeButton.addEventListener("click", function() {
+					sidenav.style.width = "0";
+				});
+				sidenav.appendChild(closeButton);
+
+
+				var notes = document.createElement('div');
+				notes.innerText = "Select variable:"
+				notes.className = "setting";
+				sidenav.appendChild(notes);
+
 				//Create dropdown
 				var selector = document.createElement("SELECT");
 				var variableNames = Object.keys(x.data);
@@ -57,17 +88,11 @@ HTMLWidgets.widget({
 				selector.addEventListener("change", function(event) {
 					updateColours(event.target.value);
 				});
+				selector.className = "setting";
 
 				//Add dropdown to sidebar
-				document.getElementById("sidebar-controls").appendChild(selector);
+				sidenav.appendChild(selector);
 				
-				//Add notes to sidebar
-				var notes = document.createElement('div');
-				notes.innerHTML = "<br>Notes:<br>-\
-									Node size is proportional to number of points.<br>-\
-									Node and edge colour is determined by metadata variables.<br><br>";
-				document.getElementById("sidebar-controls").appendChild(notes);
-
 
 				/*	TODO FOR GRAPH EXPORT
 					
@@ -105,8 +130,9 @@ HTMLWidgets.widget({
 				});
 
 				//Add button to sidebar
-				document.getElementById("sidebar-controls").appendChild(button);
-				document.getElementById("sidebar-controls").appendChild(selectorExport);
+				button.className = selectorExport.className = "setting";
+				sidenav.appendChild(button);
+				sidenav.appendChild(selectorExport);
 
 				/*	TODO FOR NODE SIZE DISPLAY
 					1. Create new div element -> nodeDivSize
@@ -130,7 +156,7 @@ HTMLWidgets.widget({
 					graph.add(nodes[i]);
 			
 					var nodeDiv = document.createElement('div');
-					nodeDiv.className = 'label';
+					nodeDiv.className = 'nlabel';
 					nodeDiv.textContent = 'Node ' + i;
 					nodeDiv.style.marginTop = '-1em';
 					nodeDiv.style.fontWeight = "100";
@@ -205,8 +231,9 @@ HTMLWidgets.widget({
 						cell.style.border = "1px solid";
 					}
 				}
-				document.getElementById("sidebar-controls").appendChild(table);
-				document.getElementById("sidebar-controls").style.overflowX = "scroll";
+				//table.className = "setting";
+				sidenav.appendChild(table);
+				sidebar.style.overflowX = "scroll";
 
 				//Create legend
 				const legendColumns = 20;
@@ -221,37 +248,23 @@ HTMLWidgets.widget({
 					colGeom.faces[0].vertexColors = [new THREE.Color(0x000000), new THREE.Color(0x000000), new THREE.Color(0x555555)];
 					colGeom.faces[1].vertexColors = [new THREE.Color(0x000000), new THREE.Color(0x555555), new THREE.Color(0x555555)];
 					var colMesh = new THREE.Mesh(colGeom, colMat);
-					colMesh.position.set(i * legendColumnWidth, legendHeight/2, 0);
+					colMesh.position.set(i * legendColumnWidth - legendWidth, legendHeight/2, 0);
 					legend.add(colMesh);
 				}
 
 				//Add legend labels
 				var minDiv = document.createElement('div');
 				var maxDiv = document.createElement('div');
-				minDiv.style.fontWeight = maxDiv.style.fontWeight = "100";
-				minDiv.style.fontSize = maxDiv.style.fontSize = "10px";
-				minDiv.style.color = maxDiv.style.color = "white";
-				minDiv.style["-webkit-touch-callout"] = "none";
-				minDiv.style["-webkit-user-select"] = "none";
-				minDiv.style["-khtml-user-select"] = "none";
-				minDiv.style["-moz-user-select"] = "none";
-				minDiv.style["-ms-user-select"] = "none";
-				minDiv.style["user-select"] = "none";
-				maxDiv.style["-webkit-touch-callout"] = "none";
-				maxDiv.style["-webkit-user-select"] = "none";
-				maxDiv.style["-khtml-user-select"] = "none";
-				maxDiv.style["-moz-user-select"] = "none";
-				maxDiv.style["-ms-user-select"] = "none";
-				maxDiv.style["user-select"] = "none";
+				minDiv.className = maxDiv.className = "label";
 				var minLabel = new THREE.CSS2DObject(minDiv);
-				minLabel.position.set(0, -10, 0);
+				minLabel.position.set(-legendWidth, -10, 0);
 				var maxLabel = new THREE.CSS2DObject(maxDiv);
-				maxLabel.position.set(legendWidth, -10, 0);
+				maxLabel.position.set(0, -10, 0);
 				legend.add(minLabel);
 				legend.add(maxLabel);
 
 				hudScene.add(legend);
-				legend.position.set(-width + 50, -height + 50, 1);
+				legend.position.set(width - 50, -height + 50, 1);
 
 				//Declare method for changing color by mean
 				var lut = new THREE.Lut('rainbow', '1024'); //Options: rainbow, cooltowarm, blackbody
@@ -519,7 +532,9 @@ HTMLWidgets.widget({
 
 				function mouseZoom(event) {
 					cameraAutoZoom = false;
-					zoomCameraSmooth(camera.zoom - event.deltaY * 0.0075, 100);
+					if(!selected) {
+						zoomCameraSmooth(camera.zoom - event.deltaY * 0.0075, 100);
+					}
 				}
 				element.addEventListener('mousedown', mouseDown);
 				element.addEventListener('mousemove', mouseMove);
@@ -535,6 +550,7 @@ HTMLWidgets.widget({
 				camera.bottom = - frustumSize/2;
 				camera.updateProjectionMatrix();
 				renderer.setSize(width, height);
+				labelRenderer.setSize(width, height);
 			}
 		};
 	}

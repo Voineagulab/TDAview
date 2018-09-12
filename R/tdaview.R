@@ -13,7 +13,11 @@ tdaview <- function(mapper, data = NULL, width = NULL, height = NULL, elementId 
     width = width,
     height = height,
     package = 'tdaview',
-    elementId = elementId
+    elementId = elementId,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      browser.padding = 0,
+      #browser.fill = TRUE #this breaks fx coordinate calculations, which seem to break for zoom anyway
+    )
   )
 }
 
@@ -43,33 +47,4 @@ tdaviewOutput <- function(outputId, width = '100%', height = '400px'){
 renderTdaview <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, tdaviewOutput, env, quoted = TRUE)
-}
-
-tdaview_html <- function(id, style, class, ...){
-  # Define UI for application that draws a histogram
-  fluidPage(
-
-    # App title ----
-    titlePanel("TDAView"),
-
-    # Sidebar layout with input and output definitions ----
-    sidebarLayout(
-
-      # Sidebar panel for inputs ----
-      sidebarPanel(id = "sidebar-controls",
-
-        # adding the new div tag to the sidebar            
-        tags$div(class="header", checked=NA,
-                tags$p("Select the metadata variable by which you want the graph coloured."),
-                tags$a(href="shiny.rstudio.com/tutorial", "")
-        )
-      ),
-
-      # Main panel for displaying outputs ----
-      mainPanel(
-        # adding the new div tag to the sidebar            
-        tags$div(class=class, id=id, style=style)
-      )
-    )
-  )
 }
