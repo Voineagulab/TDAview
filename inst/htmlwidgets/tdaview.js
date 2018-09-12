@@ -44,26 +44,31 @@ HTMLWidgets.widget({
 				hudCamera.position.z = 400;
 
 				//Create sidebar
-				var sidebar = document.createElement('div');
+				function openSideBar() {
+					sidenav.style.width = "250px";
+				}
 
+				function closeSideBar() {
+					sidenav.style.width = "0";
+				}
+
+				var sidebar = document.createElement('div');
 				var sidenav = document.createElement('div');
 				labelRenderer.domElement.appendChild(sidenav);
-				sidenav.className  = "sidenav";
+				sidenav.classList.add("unselectable");
+				sidenav.classList.add("sidenav");
 
 				var openButton = document.createElement('div');
-				openButton.className = "openbtn";
+				openButton.classList.add("unselectable");
+				openButton.classList.add("openbtn");
 				openButton.innerText = "☰ Settings";
-				openButton.addEventListener("click", function() {
-					sidenav.style.width = "250px";
-				});
+				openButton.addEventListener("click", openSideBar);
 				element.appendChild(openButton);
 
 				var closeButton = document.createElement('div');
 				closeButton.className = "closebtn";
 				closeButton.innerText = "✕";
-				closeButton.addEventListener("click", function() {
-					sidenav.style.width = "0";
-				});
+				closeButton.addEventListener("click", closeSideBar);
 				sidenav.appendChild(closeButton);
 
 				var notes = document.createElement('div');
@@ -153,7 +158,9 @@ HTMLWidgets.widget({
 					graph.add(nodes[i]);
 			
 					var nodeDiv = document.createElement('div');
-					nodeDiv.className = 'nlabel';
+					nodeDiv.classList.add('unselectable');
+					nodeDiv.classList.add('label');
+					nodeDiv.classList.add('nlabel');
 					nodeDiv.textContent = 'Node ' + i;
 					nodeDiv.style.marginTop = '-1em';
 					nodeDiv.style.fontWeight = "100";
@@ -252,7 +259,10 @@ HTMLWidgets.widget({
 				//Add legend labels
 				var minDiv = document.createElement('div');
 				var maxDiv = document.createElement('div');
-				minDiv.className = maxDiv.className = "label";
+				minDiv.classList.add('unselectable');
+				minDiv.classList.add('label');
+				maxDiv.classList.add('unselectable');
+				maxDiv.classList.add('label');
 				var minLabel = new THREE.CSS2DObject(minDiv);
 				minLabel.position.set(-legendWidth, -10, 0);
 				var maxLabel = new THREE.CSS2DObject(maxDiv);
@@ -461,6 +471,7 @@ HTMLWidgets.widget({
 							row.cells[j].innerHTML = x.data[variableNames[j]][node.points[i]-1].toFixed(2); //x.data["x"][1]
 						}
 					}
+					openSideBar();
 				}
 
 				function onNodeDeselect(node) {
@@ -507,20 +518,19 @@ HTMLWidgets.widget({
 
 				function mouseUp(event) {
 					var prevSelected = selected;
-					if(prevSelected) {
+					if(prevSelected && isMouseDown) {
 						onNodeDeselect(selected);
 						selected = null;
 					}
 					
-					if(isMouseDown && over) {
+					if(isMouseDown) {
 						if(mouse.distanceTo(mouseStart) < 1) {
-							if(!prevSelected || (prevSelected.id != over.id)) {
+							if(over && (!prevSelected || (prevSelected.id != over.id))) {
 								selected = over;
 								onNodeSelect(over);
 							}
-						} else {
-							onNodeDragEnd(over);
 						}
+						if(over) onNodeDragEnd(over);
 					}
 					isMouseDown = false;
 				}
@@ -529,19 +539,23 @@ HTMLWidgets.widget({
 					cameraAutoZoom = false;
 					zoomCameraSmooth(camera.zoom - event.deltaY * 0.0075, 100);
 				}
+
 				element.addEventListener('mousedown', mouseDown);
 				element.addEventListener('mousemove', mouseMove);
 				element.addEventListener('mouseup', mouseUp);
+				element.addEventListener('mouseleave', mouseUp);
 				element.addEventListener('wheel', mouseZoom);
 
 				function block(event) {
 					event.stopPropagation();
 				}
 
+
 				sidenav.addEventListener('mousedown', block);
-				//sidenav.addEventListener('mousemove', block);
-				//sidenav.addEventListener('mouseup', block);
+				sidenav.addEventListener('mousemove', block);
+				sidenav.addEventListener('mouseup', block);
 				sidenav.addEventListener('wheel', block);
+				sidenav.addEventListener('mouseenter', mouseUp);
 			},
 			
 			resize: function(width, height) {

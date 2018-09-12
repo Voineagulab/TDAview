@@ -44,7 +44,7 @@
     content: "☰ open";
 }
 
-.sidenav {
+.unselectable {
     user-select: none;
     -moz-user-select: none;
     -khtml-user-select: none;
@@ -53,25 +53,12 @@
 }
 
 .label {
-    user-select: none;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -o-user-select: none;
     font-size: 10px;
     font-weight: 100;
     color: white;
 }
 
 .nlabel {
-    user-select: none;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -o-user-select: none;
-    font-size: 10px;
-    font-weight: 100;
-    color: white;
     margin-top: -1em;
     opacity: 0.75;
 }
