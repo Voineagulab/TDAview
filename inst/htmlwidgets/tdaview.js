@@ -4,7 +4,7 @@ HTMLWidgets.widget({
 	
 	factory: function(element, width, height) {
 		const MIN_RADIUS = 5, MAX_RADIUS = 100, MIN_ZOOM = 0.5, LINE_WIDTH = 0.3;
-		var camera, hudCamera, scene, hudScene, renderer, labelRenderer, aspect, cameraTween, cameraAutoZoom = true;
+		var camera, hudCamera, scene, hudScene, renderer, labelRenderer, cameraTween, cameraAutoZoom = true;
 		var frustumSize = 1000;
 		var raycaster = new THREE.Raycaster();
 		var mouseWorld = new THREE.Vector2();
@@ -18,7 +18,7 @@ HTMLWidgets.widget({
 		
 		return {
 			renderValue: function(x) {
-				aspect = width / height;
+				var aspect = width / height;
 				camera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
 				camera.position.z = 400;
 				scene = new THREE.Scene();
@@ -28,7 +28,7 @@ HTMLWidgets.widget({
 				//Create graph renderer
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
 				renderer.setSize(width, height);
-				renderer.setClearColor(0x000000, 0);	// Transparent background
+				renderer.setClearColor(0x000000, 0);
 				renderer.autoClear = false;
 				element.appendChild(renderer.domElement);
 		
@@ -42,8 +42,6 @@ HTMLWidgets.widget({
 				//Create legend hud
 				hudCamera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
 				hudCamera.position.z = 400;
-
-				element.style.height = "100%";
 
 				//Create sidebar
 				var sidebar = document.createElement('div');
@@ -67,7 +65,6 @@ HTMLWidgets.widget({
 					sidenav.style.width = "0";
 				});
 				sidenav.appendChild(closeButton);
-
 
 				var notes = document.createElement('div');
 				notes.innerText = "Select variable:"
@@ -474,7 +471,6 @@ HTMLWidgets.widget({
 					}
 				}
 				
-				//Mouse events
 				function mouseDown(event) {
 					isMouseDown = true;
 					mouse.x = mouseStart.x = event.clientX;
@@ -485,7 +481,6 @@ HTMLWidgets.widget({
 				}
 				
 				function mouseMove(event) {
-					console.log(isMouseDown);
 					mouse.x = event.clientX;
 					mouse.y = event.clientY;
 					if(isMouseDown && over) {
@@ -532,25 +527,31 @@ HTMLWidgets.widget({
 
 				function mouseZoom(event) {
 					cameraAutoZoom = false;
-					if(!selected) {
-						zoomCameraSmooth(camera.zoom - event.deltaY * 0.0075, 100);
-					}
+					zoomCameraSmooth(camera.zoom - event.deltaY * 0.0075, 100);
 				}
 				element.addEventListener('mousedown', mouseDown);
 				element.addEventListener('mousemove', mouseMove);
 				element.addEventListener('mouseup', mouseUp);
 				element.addEventListener('wheel', mouseZoom);
+
+				function block(event) {
+					event.stopPropagation();
+				}
+
+				sidenav.addEventListener('mousedown', block);
+				//sidenav.addEventListener('mousemove', block);
+				//sidenav.addEventListener('mouseup', block);
+				sidenav.addEventListener('wheel', block);
 			},
 			
 			resize: function(width, height) {
-				aspect = width / height;
+				var aspect = width / height;
 				camera.left = - frustumSize * aspect/2;
 				camera.right = frustumSize * aspect/2;
 				camera.top = frustumSize/2;
 				camera.bottom = - frustumSize/2;
 				camera.updateProjectionMatrix();
 				renderer.setSize(width, height);
-				labelRenderer.setSize(width, height);
 			}
 		};
 	}
