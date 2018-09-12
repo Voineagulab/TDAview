@@ -5,7 +5,7 @@
     z-index: 1000;
     top: 0;
     left: 0;
-    background-color: #cccccc;
+    background-color: #202020;
     overflow-x: hidden;
     text-overflow: hidden;
     transition: 0.5s;
@@ -16,15 +16,22 @@
     margin-left: 32px;
     text-decoration: none;
     font-size: 12px;
-    color: #818181;
     display: block;
     transition: 0.3s;
     width: 100px;
 }
 
+.sidenav .light {
+    color: #ffffff;
+}
+
+.sidenav .dark {
+    color: #000000;
+}
+
 .sidenav {
-    color: #f1f1f1;
-    opacity: 0.95;
+    color: #3f3f3f;
+    opacity: 0.99;
     cursor: default;
     
 }
@@ -41,7 +48,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    content: "☰ open";
+    font-size: 36px;
 }
 
 .unselectable {
@@ -61,4 +68,10 @@
 .nlabel {
     margin-top: -1em;
     opacity: 0.75;
+}
+
+table {
+    width: 100%;
+	text-Align: "center";
+	color: #aaaaaa;
 }

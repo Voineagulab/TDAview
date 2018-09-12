@@ -52,7 +52,6 @@ HTMLWidgets.widget({
 					sidenav.style.width = "0";
 				}
 
-				var sidebar = document.createElement('div');
 				var sidenav = document.createElement('div');
 				labelRenderer.domElement.appendChild(sidenav);
 				sidenav.classList.add("unselectable");
@@ -61,7 +60,7 @@ HTMLWidgets.widget({
 				var openButton = document.createElement('div');
 				openButton.classList.add("unselectable");
 				openButton.classList.add("openbtn");
-				openButton.innerText = "☰ Settings";
+				openButton.innerText = "☰";
 				openButton.addEventListener("click", openSideBar);
 				element.appendChild(openButton);
 
@@ -72,8 +71,9 @@ HTMLWidgets.widget({
 				sidenav.appendChild(closeButton);
 
 				var notes = document.createElement('div');
-				notes.innerText = "Select variable:"
-				notes.className = "setting";
+				notes.innerText = "Select Color Source:"
+				notes.classList.add("setting");
+				notes.classList.add("light");
 				sidenav.appendChild(notes);
 
 				//Create dropdown
@@ -90,23 +90,17 @@ HTMLWidgets.widget({
 				selector.addEventListener("change", function(event) {
 					updateColours(event.target.value);
 				});
-				selector.className = "setting";
+				selector.classList.add("setting");
 
 				//Add dropdown to sidebar
 				sidenav.appendChild(selector);
-				
-
-				/*	TODO FOR GRAPH EXPORT
-					
-					1. Export node labels with image.
-				
-				*/
+				sidenav.appendChild(document.createElement("br"));
 
 				//Create export button and dropdown
 				var button = document.createElement("a");
 				button.setAttribute("class", "button");
 				button.setAttribute("value", "Export Graph");
-				button.innerHTML = "Export Graph as   ";
+				button.innerHTML = "Export Graph";
 				var selectorExport = document.createElement("SELECT");
 				selectorExport.setAttribute("id", "selectorExport");
 				var option1 = document.createElement("option");
@@ -128,22 +122,21 @@ HTMLWidgets.widget({
 					imgdata = imgdata.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
 					imgdata = imgdata.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
 					button.setAttribute("href", imgdata);
-					//console.log(imgdata);
 				});
 
 				//Add button to sidebar
-				button.className = selectorExport.className = "setting";
+				button.classList.add("setting");
+				button.classList.add("light");
+				selectorExport.className = "setting";
 				sidenav.appendChild(button);
 				sidenav.appendChild(selectorExport);
+				sidenav.appendChild(document.createElement("br"));
 
-				/*	TODO FOR NODE SIZE DISPLAY
-					1. Create new div element -> nodeDivSize
-					2. nodeDivSize.textContent = x.mapper.points_in_vertex[i].length
-					3. nodeLabelSize.position.set(0, -2, 0) to put in centre of node
-					4. Format font, size, colour
-					5. Scale size with node size
-				
-				*/
+				var tableTitle = document.createElement("div");
+				tableTitle.innerText = "Selected Node:"
+				tableTitle.classList.add("setting");
+				tableTitle.classList.add("light");
+				sidenav.appendChild(tableTitle);
 
 				//Create group to store graph 
 				var graph = new THREE.Group();
@@ -162,15 +155,6 @@ HTMLWidgets.widget({
 					nodeDiv.classList.add('label');
 					nodeDiv.classList.add('nlabel');
 					nodeDiv.textContent = 'Node ' + i;
-					nodeDiv.style.marginTop = '-1em';
-					nodeDiv.style.fontWeight = "100";
-					nodeDiv.style.opacity = "0.75";
-					nodeDiv.style["-webkit-touch-callout"] = "none";
-					nodeDiv.style["-webkit-user-select"] = "none";
-					nodeDiv.style["-khtml-user-select"] = "none";
-					nodeDiv.style["-moz-user-select"] = "none";
-					nodeDiv.style["-ms-user-select"] = "none";
-					nodeDiv.style["user-select"] = "none";
 					
 					var nodeLabel = new THREE.CSS2DObject(nodeDiv);
 					nodeLabel.position.set(0, radius, 0);
@@ -202,10 +186,7 @@ HTMLWidgets.widget({
 
 				//Create table
 				table = document.createElement("table");
-				table.style.width = "100%";
 				table.style.display = "none";
-				table.style.textAlign = "center";
-				
 				//Add header
 				var tr = table.insertRow(0);
 				for(var i=0; i<variableNames.length; i++) {
@@ -235,9 +216,7 @@ HTMLWidgets.widget({
 						cell.style.border = "1px solid";
 					}
 				}
-				//table.className = "setting";
 				sidenav.appendChild(table);
-				sidebar.style.overflowX = "scroll";
 
 				//Create legend
 				const legendColumns = 20;
@@ -468,7 +447,7 @@ HTMLWidgets.widget({
 						var row = rows[i];
 						row.style.display = "";
 						for(var j=0; j<variableNames.length; j++) {
-							row.cells[j].innerHTML = x.data[variableNames[j]][node.points[i]-1].toFixed(2); //x.data["x"][1]
+							row.cells[j].innerHTML = x.data[variableNames[j]][node.points[i]-1].toFixed(2);
 						}
 					}
 					openSideBar();
