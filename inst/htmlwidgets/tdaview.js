@@ -46,10 +46,15 @@ HTMLWidgets.widget({
 				//Create sidebar
 				function openSideBar() {
 					sidenav.style.width = "250px";
+					sidenav.style.opacity = 0.8;
+					openButton.innerText = "";
+					closeButton.innerText = "✕";
 				}
 
 				function closeSideBar() {
 					sidenav.style.width = "0";
+					openButton.innerText = "☰";
+					closeButton.innerText = "";
 				}
 
 				var sidenav = document.createElement('div');
@@ -155,9 +160,10 @@ HTMLWidgets.widget({
 					nodeDiv.classList.add('label');
 					nodeDiv.classList.add('nlabel');
 					nodeDiv.textContent = 'Node ' + i;
-					
+
 					var nodeLabel = new THREE.CSS2DObject(nodeDiv);
 					nodeLabel.position.set(0, radius, 0);
+					//html2canvas(nodeLabel, { canvas: renderer.domElement} );
 					nodes[i].add(nodeLabel);
 				}
 			
