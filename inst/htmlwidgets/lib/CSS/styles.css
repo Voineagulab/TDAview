@@ -1,5 +1,4 @@
 .sidenav {
-    height: 100%;
     width: 0;
     position: absolute;
     z-index: 1000;
@@ -9,7 +8,6 @@
     overflow-x: hidden;
     text-overflow: hidden;
     transition: 0.5s;
-    padding-top: 60px;
 }
 
 .sidenav .setting {
@@ -66,7 +64,7 @@
 }
 
 .nlabel {
-    margin-top: -1em;
+    /*margin-top: -1em; html2canvas does not support this?*/
     opacity: 0.75;
 }
 

@@ -24,20 +24,24 @@ HTMLWidgets.widget({
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color(0x4b515b);
 				hudScene = new THREE.Scene();
+
+				var exportDiv = document.createElement('div');
+				exportDiv.id = "export";
+				element.appendChild(exportDiv);
 		
 				//Create graph renderer
 				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
 				renderer.setSize(width, height);
 				renderer.setClearColor(0x000000, 0);
 				renderer.autoClear = false;
-				element.appendChild(renderer.domElement);
+				exportDiv.appendChild(renderer.domElement);
 		
 				//Create label renderer
 				labelRenderer = new THREE.CSS2DRenderer();
 				labelRenderer.setSize(width, height);
 				labelRenderer.domElement.style.position = 'absolute';
 				labelRenderer.domElement.style.top = 0;
-				element.appendChild(labelRenderer.domElement);
+				exportDiv.appendChild(labelRenderer.domElement);
 
 				//Create legend hud
 				hudCamera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
@@ -58,7 +62,11 @@ HTMLWidgets.widget({
 				}
 
 				var sidenav = document.createElement('div');
-				labelRenderer.domElement.appendChild(sidenav);
+				element.appendChild(sidenav);
+				sidenav.appendChild(document.createElement("br"));
+				sidenav.style.height = height + "px";
+				sidenav.style.position = 'absolute';
+				sidenav.style.top = 0;
 				sidenav.classList.add("unselectable");
 				sidenav.classList.add("sidenav");
 
@@ -119,14 +127,18 @@ HTMLWidgets.widget({
 
 				//Add listener to button
 				button.addEventListener("click", function() {
-					var e = document.getElementById("selectorExport");
-					var imgtype = e.options[e.selectedIndex].value;
-					button.setAttribute("download", "graph."+imgtype.toLowerCase());
-					imgtype = "image/" + imgtype.toLowerCase();
-					var imgdata = renderer.domElement.toDataURL(imgtype);
-					imgdata = imgdata.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
-					imgdata = imgdata.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
-					button.setAttribute("href", imgdata);
+					html2canvas(exportDiv, {
+						width: width,
+						height: height
+					}).then(function(canvas) {
+							var imgtype = selectorExport.options[selectorExport.selectedIndex].value.toLowerCase();
+							var imgdata = canvas.toDataURL("image/" + imgtype.toLowerCase());
+							imgdata = imgdata.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
+							imgdata = imgdata.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
+							button.setAttribute("download", "graph." + imgtype);
+							button.setAttribute("href", imgdata);
+						}
+					);
 				});
 
 				//Add button to sidebar
@@ -163,7 +175,6 @@ HTMLWidgets.widget({
 
 					var nodeLabel = new THREE.CSS2DObject(nodeDiv);
 					nodeLabel.position.set(0, radius, 0);
-					//html2canvas(nodeLabel, { canvas: renderer.domElement} );
 					nodes[i].add(nodeLabel);
 				}
 			
