@@ -1,3 +1,11 @@
+/*
+
+	-> Add label selector to sidebar
+	-> Selector - Display node: ['Name'|'Size']
+	-> Event listener to 
+
+*/
+
 HTMLWidgets.widget({
 	name: 'tdaview',
 	type: 'output',
@@ -22,7 +30,7 @@ HTMLWidgets.widget({
 				camera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
 				camera.position.z = 400;
 				scene = new THREE.Scene();
-				scene.background = new THREE.Color(0x4b515b);
+				//scene.background = new THREE.Color(0x4b515b);
 				hudScene = new THREE.Scene();
 
 				var exportDiv = document.createElement('div');
@@ -109,52 +117,6 @@ HTMLWidgets.widget({
 				sidenav.appendChild(selector);
 				sidenav.appendChild(document.createElement("br"));
 
-				//Create export button and dropdown
-				var button = document.createElement("a");
-				button.setAttribute("class", "button");
-				button.setAttribute("value", "Export Graph");
-				button.innerHTML = "Export Graph";
-				var selectorExport = document.createElement("SELECT");
-				selectorExport.setAttribute("id", "selectorExport");
-				var option1 = document.createElement("option");
-				var option2 = document.createElement("option");
-				option1.setAttribute("value", "JPEG");
-				option2.setAttribute("value", "PNG");
-				option1.innerHTML = "JPEG";
-				option2.innerHTML = "PNG";
-				selectorExport.appendChild(option1);
-				selectorExport.appendChild(option2);
-
-				//Add listener to button
-				button.addEventListener("click", function() {
-					html2canvas(exportDiv, {
-						width: width,
-						height: height
-					}).then(function(canvas) {
-							var imgtype = selectorExport.options[selectorExport.selectedIndex].value.toLowerCase();
-							var imgdata = canvas.toDataURL("image/" + imgtype.toLowerCase());
-							imgdata = imgdata.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
-							imgdata = imgdata.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
-							button.setAttribute("download", "graph." + imgtype);
-							button.setAttribute("href", imgdata);
-						}
-					);
-				});
-
-				//Add button to sidebar
-				button.classList.add("setting");
-				button.classList.add("light");
-				selectorExport.className = "setting";
-				sidenav.appendChild(button);
-				sidenav.appendChild(selectorExport);
-				sidenav.appendChild(document.createElement("br"));
-
-				var tableTitle = document.createElement("div");
-				tableTitle.innerText = "Selected Node:"
-				tableTitle.classList.add("setting");
-				tableTitle.classList.add("light");
-				sidenav.appendChild(tableTitle);
-
 				//Create group to store graph 
 				var graph = new THREE.Group();
 
@@ -174,10 +136,110 @@ HTMLWidgets.widget({
 					nodeDiv.textContent = 'Node ' + i;
 
 					var nodeLabel = new THREE.CSS2DObject(nodeDiv);
-					nodeLabel.position.set(0, radius, 0);
+					nodeLabel.position.set(0, radius+7, 0);
 					nodes[i].add(nodeLabel);
 				}
 			
+				//Preface for node label selection dropdown
+				var labelChoice = document.createElement('div');
+				labelChoice.innerText = "Node label as:";
+				labelChoice.classList.add("setting");
+				labelChoice.classList.add("light");
+				sidenav.appendChild(labelChoice);
+
+				//Create node label dropdown
+				var labelSelector = document.createElement("SELECT");
+				var optionName = document.createElement("option");
+				var optionSize = document.createElement("option");
+				optionName.setAttribute("value", "name");
+				optionSize.setAttribute("value", "size");
+				optionName.innerHTML = "Name";
+				optionSize.innerHTML = "Size";
+				labelSelector.appendChild(optionName);
+				labelSelector.appendChild(optionSize);
+
+				//Add listener to dropdown
+				labelSelector.addEventListener("change", function(event) {
+					if(event.target.value == "size") {
+						for(let i=0; i<nodes.length; i++) {
+							if(i==5) console.log(nodes[i]);
+							nodes[i].children[0].element.innerHTML = x.mapper.points_in_vertex[i].length;
+							if(i==5) console.log(nodes[i]);
+						}
+					} else {
+						for(let i=0; i<nodes.length; i++) {
+							nodes[i].children[0].element.innerHTML = 'Node ' + i;
+						}
+					}
+				});
+				labelSelector.classList.add("setting");
+
+				//Add dropdown to sidebar
+				sidenav.appendChild(labelSelector);
+				sidenav.appendChild(document.createElement('br'));
+
+				//Create export button and dropdown
+				var button = document.createElement("a");
+				button.setAttribute("class", "button");
+				button.setAttribute("value", "Export Graph");
+				button.innerHTML = "Export Graph";
+				var selectorExport = document.createElement("SELECT");
+				selectorExport.setAttribute("id", "selectorExport");
+				var optionJPEG = document.createElement("option");
+				var optionPNG = document.createElement("option");
+				optionJPEG.setAttribute("value", "JPEG");
+				optionPNG.setAttribute("value", "PNG");
+				optionJPEG.innerHTML = "JPEG";
+				optionPNG.innerHTML = "PNG";
+				selectorExport.appendChild(optionJPEG);
+				selectorExport.appendChild(optionPNG);
+
+				//Add listener to button
+				button.addEventListener("click", function() {
+					html2canvas(exportDiv, {
+						width: width,
+						height: height
+					}).then(function(canvas) {
+							var imgtype = selectorExport.options[selectorExport.selectedIndex].value.toLowerCase();
+							var imgdata = canvas.toDataURL("image/" + imgtype.toLowerCase());
+							imgdata = imgdata.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
+							imgdata = imgdata.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
+							button.setAttribute("download", "graph." + imgtype);
+							button.setAttribute("href", imgdata);
+						}
+					);
+				});
+
+				//Add button and dropdown to sidebar
+				button.classList.add("setting");
+				button.classList.add("light");
+				selectorExport.className = "setting";
+				sidenav.appendChild(button);
+				sidenav.appendChild(selectorExport);
+				sidenav.appendChild(document.createElement("br"));
+
+				var tableTitle = document.createElement("div");
+				tableTitle.innerText = "Selected Node:"
+				tableTitle.classList.add("setting");
+				tableTitle.classList.add("light");
+				sidenav.appendChild(tableTitle);
+				
+				
+
+				
+
+				/*	
+					CODE FOR PARSING AND MESHIFYING NODES WAS HERE.
+					I MOVED IT UP, BEFORE THE IMPLEMENTATION OF THE
+					NODE CUSTOMIZATION UI, BECAUSE I NEEDED TO
+					REFERENCE THE GRAPH AND NODES[] VARIABLES. WE
+					SHOULD PROBABLY CATEGORISE OUR CODE FOR EASY
+					ACCESS/LOOKUP, SINCE IT'S 1 BILLION LINES LONG.
+				*/
+
+
+
+
 				//Parse and meshify links
 				var num = 0;
 				var links = new Array(Math.pow(x.mapper.num_vertices, 2));
@@ -467,6 +529,46 @@ HTMLWidgets.widget({
 							row.cells[j].innerHTML = x.data[variableNames[j]][node.points[i]-1].toFixed(2);
 						}
 					}
+					/*
+					TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+					
+					var nodeSize = new document.createElement('div');
+					nodeSize.classList.add('unselectable');
+					nodeSize.classList.add('label');
+					nodeSize.classList.add('nlabel');
+					nodeSize.textContent = node.points.length;
+
+					var nodeSizeLabel = new THREE.CSS2DObject(nodeSize);
+					nodeSizeLabel.position.set(0, 0, 0);
+					*/
 					openSideBar();
 				}
 
