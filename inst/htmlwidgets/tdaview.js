@@ -169,15 +169,25 @@ HTMLWidgets.widget({
 					if(event.target.value == "size") {
 						for(let i=0; i<nodes.length; i++) {
 							nodes[i].children[0].element.classList.remove('hiddenlabel');
+							nodes[i].children[0].element.classList.add('unselectable');
+							nodes[i].children[0].element.classList.add('label');
+							nodes[i].children[0].element.classList.add('nlabel');
 							nodes[i].children[0].element.innerHTML = x.mapper.points_in_vertex[i].length;
 						}
 					} else if(event.target.value == "none") {
 						for(let i=0; i<nodes.length; i++) {
 							nodes[i].children[0].element.classList.add('hiddenlabel');
+							nodes[i].children[0].element.classList.remove('unselectable');
+							nodes[i].children[0].element.classList.remove('label');
+							nodes[i].children[0].element.classList.remove('nlabel');
+							nodes[i].children[0].element.innerHTML = "";
 						}
 					} else {
 						for(let i=0; i<nodes.length; i++) {
 							nodes[i].children[0].element.classList.remove('hiddenlabel');
+							nodes[i].children[0].element.classList.add('unselectable');
+							nodes[i].children[0].element.classList.add('label');
+							nodes[i].children[0].element.classList.add('nlabel');
 							nodes[i].children[0].element.innerHTML = 'Node ' + i;
 						}
 					}
@@ -539,46 +549,6 @@ HTMLWidgets.widget({
 							row.cells[j].innerHTML = x.data[variableNames[j]][node.points[i]-1].toFixed(2);
 						}
 					}
-					/*
-					TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-					
-					var nodeSize = new document.createElement('div');
-					nodeSize.classList.add('unselectable');
-					nodeSize.classList.add('label');
-					nodeSize.classList.add('nlabel');
-					nodeSize.textContent = node.points.length;
-
-					var nodeSizeLabel = new THREE.CSS2DObject(nodeSize);
-					nodeSizeLabel.position.set(0, 0, 0);
-					*/
 					openSideBar();
 				}
 
