@@ -1,9 +1,11 @@
 /*
-
-	-> Add label selector to sidebar
-	-> Selector - Display node: ['Name'|'Size']
-	-> Event listener to 
-
+	TODO - 
+	-> Pie-chart User Story:
+		-> Zoom in on node select
+		-> Display pie-chart data inside node
+	-> Import data (R binding)
+	-> Refactor code (HTML elements)
+	-> Maybe add option to hide all labels??
 */
 
 HTMLWidgets.widget({
