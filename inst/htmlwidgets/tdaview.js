@@ -243,22 +243,6 @@ HTMLWidgets.widget({
 				tableTitle.classList.add("setting");
 				tableTitle.classList.add("light");
 				sidenav.appendChild(tableTitle);
-				
-				
-
-				
-
-				/*	
-					CODE FOR PARSING AND MESHIFYING NODES WAS HERE.
-					I MOVED IT UP, BEFORE THE IMPLEMENTATION OF THE
-					NODE CUSTOMIZATION UI, BECAUSE I NEEDED TO
-					REFERENCE THE GRAPH AND NODES[] VARIABLES. WE
-					SHOULD PROBABLY CATEGORISE OUR CODE FOR EASY
-					ACCESS/LOOKUP, SINCE IT'S 1 BILLION LINES LONG.
-				*/
-
-
-
 
 				//Parse and meshify links
 				var num = 0;
@@ -459,7 +443,7 @@ HTMLWidgets.widget({
 						nodes[i].position.x = nodes[i].x;
 						nodes[i].position.y = nodes[i].y;
 					}
-
+					
 					for(var i=0; i<links.length; i++) {
 						var sourceNode = links[i].source;
 						var targetNode = links[i].target;
@@ -478,14 +462,14 @@ HTMLWidgets.widget({
 						p[6] = p2.x; p[7] = p2.y;
 						p[9] = p3.x; p[10] = p3.y;
 						lineGeom.attributes.position.needsUpdate = true;
-						
-						if(cameraAutoZoom) {
-							var box = new THREE.Box3().setFromObject(graph);
-							camera.zoom = Math.min(width / (box.max.x - box.min.x + MAX_RADIUS), height / (box.max.y - box.min.y + MAX_RADIUS)) * 2;
-							camera.updateProjectionMatrix();
-						}
-						requestAnimationFrame(render);
 					}
+
+					if(cameraAutoZoom) {
+						var box = new THREE.Box3().setFromObject(graph);
+						camera.zoom = Math.min(width / (box.max.x - box.min.x + MAX_RADIUS), height / (box.max.y - box.min.y + MAX_RADIUS)) * 2;
+						camera.updateProjectionMatrix();
+					}
+					requestAnimationFrame(render);
 				})
 				.on("end", function() {
 					cameraAutoZoom = false;
