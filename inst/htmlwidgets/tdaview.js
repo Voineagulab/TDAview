@@ -5,7 +5,7 @@
 		-> Display pie-chart data inside node
 	-> Import data (R binding)
 	-> Refactor code (HTML elements)
-	-> Maybe add option to hide all labels??
+	-> 
 */
 
 HTMLWidgets.widget({
@@ -153,23 +153,31 @@ HTMLWidgets.widget({
 				var labelSelector = document.createElement("SELECT");
 				var optionName = document.createElement("option");
 				var optionSize = document.createElement("option");
+				var optionNone = document.createElement("option");
 				optionName.setAttribute("value", "name");
 				optionSize.setAttribute("value", "size");
+				optionNone.setAttribute("value", "none");
 				optionName.innerHTML = "Name";
 				optionSize.innerHTML = "Size";
+				optionNone.innerHTML = "None";
 				labelSelector.appendChild(optionName);
 				labelSelector.appendChild(optionSize);
+				labelSelector.appendChild(optionNone);
 
 				//Add listener to dropdown
 				labelSelector.addEventListener("change", function(event) {
 					if(event.target.value == "size") {
 						for(let i=0; i<nodes.length; i++) {
-							if(i==5) console.log(nodes[i]);
+							nodes[i].children[0].element.classList.remove('hiddenlabel');
 							nodes[i].children[0].element.innerHTML = x.mapper.points_in_vertex[i].length;
-							if(i==5) console.log(nodes[i]);
+						}
+					} else if(event.target.value == "none") {
+						for(let i=0; i<nodes.length; i++) {
+							nodes[i].children[0].element.classList.add('hiddenlabel');
 						}
 					} else {
 						for(let i=0; i<nodes.length; i++) {
+							nodes[i].children[0].element.classList.remove('hiddenlabel');
 							nodes[i].children[0].element.innerHTML = 'Node ' + i;
 						}
 					}
