@@ -268,11 +268,27 @@ HTMLWidgets.widget({
 					for(let j=0; j<x.mapper.num_vertices; j++) {
 						if(row[j]) {
 							var lineMat = new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors});
-							var lineGeom = new THREE.Geometry();
-							lineGeom.vertices = [new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 0, -1)];
-							lineGeom.faces = [new THREE.Face3(0, 1, 2), new THREE.Face3(0, 2, 3)];
-							lineGeom.faces[0].vertexColors = [new THREE.Color(), new THREE.Color(), new THREE.Color()];
-							lineGeom.faces[1].vertexColors = [new THREE.Color(), new THREE.Color(), new THREE.Color()];
+							var lineGeom = new THREE.BufferGeometry();
+							var indices = [0, 1, 2, 0, 2, 3];
+							var vertices = new Float32Array([
+								0.0, 0.0, -1.0,
+								0.0, 0.0, -1.0,
+								0.0, 0.0, -1.0,
+								0.0, 0.0, -1.0,
+							]);
+							var colors = new Float32Array([
+								0.0, 0.0, 0.0,
+								0.0, 0.0, 0.0,
+								0.0, 0.0, 0.0,
+
+								0.0, 0.0, 0.0,
+								0.0, 0.0, 0.0,
+								0.0, 0.0, 0.0,
+							]);
+							lineGeom.setIndex(indices);
+							lineGeom.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+							lineGeom.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+							
 							links[num] = new link(nodes[i], nodes[j], lineGeom, lineMat);
 							graph.add(links[num]);
 							++num;
@@ -378,19 +394,16 @@ HTMLWidgets.widget({
 						nodes[i].geometry.colorsNeedUpdate = true;
 					}
 					for(let i=0; i<links.length; i++){
-						var lineFaces = links[i].geometry.faces;
 						var sourceColor = links[i].source.material.color;
 						var targetColor = links[i].target.material.color;
-
-						lineFaces[0].vertexColors[0].set(sourceColor); 
-						lineFaces[0].vertexColors[1].set(sourceColor); 
-						lineFaces[1].vertexColors[0].set(sourceColor);
-
-						lineFaces[0].vertexColors[2].set(targetColor);
-						lineFaces[1].vertexColors[1].set(targetColor);
-						lineFaces[1].vertexColors[2].set(targetColor);
-
-						links[i].geometry.colorsNeedUpdate = true;
+						var c = links[i].geometry.attributes.color.array;
+						c[0] = c[3] = c[9] = sourceColor.r;
+						c[1] = c[4] = c[10] = sourceColor.g;
+						c[2] = c[5] = c[11] = sourceColor.b;
+						c[6] = c[12] = c[15] = targetColor.r;
+						c[7] = c[13] = c[16] = targetColor.g;
+						c[8] = c[12] = c[17] = targetColor.b;
+						links[i].geometry.attributes.color.needsUpdate = true;
 					}
 					
 					//Update legend
@@ -456,19 +469,15 @@ HTMLWidgets.widget({
 
 						var p0 = cross.clone().multiplyScalar(sourceNode.r * LINE_WIDTH).add(sourceNode.position);
 						var p1 = cross.clone().multiplyScalar(sourceNode.r * -LINE_WIDTH).add(sourceNode.position);
-						var p2 = cross.clone().multiplyScalar(targetNode.r * -LINE_WIDTH).add(targetNode.position);
-						var p3 = cross.clone().multiplyScalar(targetNode.r * LINE_WIDTH).add(targetNode.position);
+						var p2 = cross.clone().multiplyScalar(targetNode.r * LINE_WIDTH).add(targetNode.position);
+						var p3 = cross.clone().multiplyScalar(targetNode.r * -LINE_WIDTH).add(targetNode.position);
 
-						lineGeom.vertices[0].x = p0.x;
-						lineGeom.vertices[0].y = p0.y;
-						lineGeom.vertices[1].x = p1.x;
-						lineGeom.vertices[1].y = p1.y;
-						lineGeom.vertices[2].x = p2.x;
-						lineGeom.vertices[2].y = p2.y;
-						lineGeom.vertices[3].x = p3.x;
-						lineGeom.vertices[3].y = p3.y;
-
-						links[i].geometry.verticesNeedUpdate = true;
+						var p = lineGeom.attributes.position.array;
+						p[0] = p0.x; p[1] = p0.y;
+						p[3] = p1.x; p[4] = p1.y;
+						p[6] = p2.x; p[7] = p2.y;
+						p[9] = p3.x; p[10] = p3.y;
+						lineGeom.attributes.position.needsUpdate = true;
 						
 						if(cameraAutoZoom) {
 							var box = new THREE.Box3().setFromObject(graph);
