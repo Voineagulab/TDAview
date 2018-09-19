@@ -15,7 +15,7 @@
     text-decoration: none;
     font-size: 12px;
     display: block;
-    transition: 0.3s;
+    transition: 0.15s;
     width: 100px;
 }
 
@@ -65,15 +65,14 @@
 }
 
 .nlabel {
-    /*margin-top: -1em; html2canvas does not support this?*/
     opacity: 0.75;
-    /*outline: 2px solid black;*/
     text-shadow: 0px 0px 15px black;
     border-radius: 10px;
     background: #4B515B;
     border: 2px solid #4B515B;
-    padding: 2px; 
-    width: 30px;
+    padding: 3px;
+    text-align: center;
+    /*width: 30px;*/
 }
 
 table {
