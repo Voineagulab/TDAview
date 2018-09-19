@@ -75,6 +75,10 @@
     /*width: 30px;*/
 }
 
+.hiddenlabel {
+    opacity: 0;
+}
+
 table {
     width: 100%;
 	text-Align: "center";
