@@ -5,26 +5,25 @@ const height = 100;
 const gap = 0.25;
 
 module.exports = class Legend extends THREE.Group {
-	constructor(mapName = 'rainbow', n = 256) {
-		this.n = n;
+    constructor(mapName = 'rainbow', n = 256) {
+        this.n = n;
         this.material = new THREE.MeshBasicMaterial(); 
         this.table = new Array(this.n).fill(null);
 
-		//Set lut and material texture
-		this.changeColorMap(mapName);
+        //Set lut and material texture
+        this.changeColorMap(mapName);
 
-		//Create legend
-		let columnWidth = width * gap;
-		let scaledColumnWidth = columnWidth * gap;
-		this.legend = new THREE.Group();
-		for(let i=0; i<legendColumns; i++) {
-			var colGeom = new THREE.PlaneGeometry(scaledColumnWidth, 1, 1);
-			colGeom.faceVertexUvs[0][0][0] = colGeom.faceVertexUvs[0][0][2] = colGeom.faceVertexUvs[0][1][0] = new THREE.Vector2(i/cols, 0);
-			colGeom.faceVertexUvs[0][0][3] = colGeom.faceVertexUvs[0][1][2] = colGeom.faceVertexUvs[0][1][3] = new THREE.Vector2(i/cols + scaledColumnWidth/width, 0);
-			var colMesh = new THREE.Mesh(colGeom, this.material);
-			colMesh.position.set(i * columnWidth - width, height/2, 0);
-			this.legend.add(colMesh);
-		}
+        //Create legend
+        let columnWidth = width * gap;
+        let scaledColumnWidth = columnWidth * gap;
+        for(let i=0; i<legendColumns; i++) {
+            var colGeom = new THREE.PlaneGeometry(scaledColumnWidth, 1, 1);
+            colGeom.faceVertexUvs[0][0][0] = colGeom.faceVertexUvs[0][0][2] = colGeom.faceVertexUvs[0][1][0] = new THREE.Vector2(i/cols, 0);
+            colGeom.faceVertexUvs[0][0][3] = colGeom.faceVertexUvs[0][1][2] = colGeom.faceVertexUvs[0][1][3] = new THREE.Vector2(i/cols + scaledColumnWidth/width, 0);
+            var colMesh = new THREE.Mesh(colGeom, this.material);
+            colMesh.position.set(i * columnWidth - width, height/2, 0);
+            this.add(colMesh);
+        }
 
 		//Create legend labels
 		var minDiv = document.createElement('div');
@@ -76,7 +75,11 @@ module.exports = class Legend extends THREE.Group {
 		return this.material;
 	}
 
-	setLegendHeights(heights, min, max) {
+    getLegendCols() {
+        return cols;
+    }
+
+	setLegendColHeights(heights, min, max) {
 		for(let i=0; i<cols; i++) {
 			let h = (Math.round((heights[i] - min)/(max - min)) * (height - 1));
 			this.children[i].scale.y = h;
