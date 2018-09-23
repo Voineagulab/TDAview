@@ -1,28 +1,29 @@
 //Legend constants
 const cols = 20;
-const width = 300;
-const height = 100;
+const width = 500;
+const height = 50;
 const gap = 0.25;
 
-module.exports = class Legend extends THREE.Group {
+class ColorMap extends THREE.Group {
     constructor(mapName = 'rainbow', n = 256) {
+		super();
         this.n = n;
         this.material = new THREE.MeshBasicMaterial(); 
         this.table = new Array(this.n).fill(null);
 
-        //Set lut and material texture
+        //Set map and material texture
         this.changeColorMap(mapName);
 
         //Create legend
-        let columnWidth = width * gap;
+        let columnWidth = width / cols;
         let scaledColumnWidth = columnWidth * gap;
-        for(let i=0; i<legendColumns; i++) {
-            var colGeom = new THREE.PlaneGeometry(scaledColumnWidth, 1, 1);
-            colGeom.faceVertexUvs[0][0][0] = colGeom.faceVertexUvs[0][0][2] = colGeom.faceVertexUvs[0][1][0] = new THREE.Vector2(i/cols, 0);
-            colGeom.faceVertexUvs[0][0][3] = colGeom.faceVertexUvs[0][1][2] = colGeom.faceVertexUvs[0][1][3] = new THREE.Vector2(i/cols + scaledColumnWidth/width, 0);
-            var colMesh = new THREE.Mesh(colGeom, this.material);
-            colMesh.position.set(i * columnWidth - width, height/2, 0);
-            this.add(colMesh);
+        for(let i=0; i<cols; i++) {
+			var geometry = new THREE.PlaneGeometry(scaledColumnWidth, 1, 1);
+            geometry.faceVertexUvs[0][0][0] = geometry.faceVertexUvs[0][0][1] = geometry.faceVertexUvs[0][1][0] = new THREE.Vector2(i/(cols+1), 1);
+			geometry.faceVertexUvs[0][0][2] = geometry.faceVertexUvs[0][1][1] = geometry.faceVertexUvs[0][1][2] = new THREE.Vector2((i+1)/(cols+1), 1);
+			var mesh = new THREE.Mesh(geometry, this.material);
+            mesh.position.set(i * columnWidth - width, height/2, 0);
+            this.add(mesh);
         }
 
 		//Create legend labels
@@ -31,10 +32,10 @@ module.exports = class Legend extends THREE.Group {
 		minDiv.className = maxDiv.className = "unselectable label";
 		this.minLabel = new THREE.CSS2DObject(minDiv);
 		this.maxLabel = new THREE.CSS2DObject(maxDiv);
-		minLabel.position.set(-legendWidth, -10, 0);
-		maxLabel.position.set(0, -10, 0);
-		this.add(minLabel);
-		this.add(maxLabel);
+		this.minLabel.position.set(-width, -10, 0);
+		this.maxLabel.position.set(0, -10, 0);
+		this.add(this.minLabel);
+		this.add(this.maxLabel);
 	}
 
 	changeColorMap(mapName) {
@@ -51,15 +52,19 @@ module.exports = class Legend extends THREE.Group {
 					var minColor = new THREE.Color(0xffffff).setHex(map[j][1]);
 					var maxColor = new THREE.Color(0xffffff).setHex(map[j+1][1]);
 					var color = minColor.lerp(maxColor, (i-min)/(max-min));
-					data[stride++] = color.r;
-					data[stride++] = color.g;
-                    data[stride++] = color.b;
+					data[stride++] = Math.round(color.r * 255.0);
+					data[stride++] = Math.round(color.g * 255.0);
+					data[stride++] = Math.round(color.b * 255.0);
                     this.table[index++] = color; 
 				}
 			}
 		}
-		this.material.map = new THREE.DataTexture(data, this.n, 1, THREE.RGBFormat);
+		var dataTex = new THREE.DataTexture(data, this.n, 1, THREE.RGBFormat);
+		dataTex.needsUpdate = true;
+		this.material.map = dataTex;
 		this.material.needsUpdate = true;
+		console.log(dataTex);
+		console.log(this.table);
 	}
 
 	getColorByValue(value, min, max) {
@@ -71,8 +76,8 @@ module.exports = class Legend extends THREE.Group {
         return Math.round((value - min)/(max - min));
     }
 
-	getMaterial() {
-		return this.material;
+	getTexture() {
+		return this.material.map;
 	}
 
     getLegendCols() {
@@ -81,7 +86,7 @@ module.exports = class Legend extends THREE.Group {
 
 	setLegendColHeights(heights, min, max) {
 		for(let i=0; i<cols; i++) {
-			let h = (Math.round((heights[i] - min)/(max - min)) * (height - 1));
+			let h = (heights[i] - min)/(max - min) * height;
 			this.children[i].scale.y = h;
 			this.children[i].position.setY(h/2);
 		}

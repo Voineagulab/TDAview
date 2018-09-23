@@ -26,6 +26,15 @@ dependencies:
     version: 1.0.0
     src: "htmlwidgets/lib/HTML2CANVAS"
     script: html2canvas.min.js
+  - name: TDAVIEW
+    version: 1.0
+    src: "htmlwidgets/lib/TDAVIEW"
+    script:
+      - forceGraph.js
+      - node.js
+      - link.js
+      - colorMap.js
+      - event.js
 
 
 
