@@ -6,9 +6,23 @@ HTMLWidgets.widget({
 		var camera, hudCamera, aspect;
 		var renderer, labelRenderer;
 		var frustumSize = 1000;
+		var mouse = new THREE.Vector2();
 		
 		return {
 			renderValue: function(x) {
+				/*
+				//Overwrite with random data
+				x.mapper.num_vertices = 100;
+				var adjacency = new Array(x.mapper.num_vertices);
+				for(let i=0; i<adjacency.length; i++) {
+					adjacency[i] = new Array(x.mapper.num_vertices);
+					for(let j=0; j<adjacency[i].length; j++) {
+						adjacency[i][j] = Math.round(Math.random()*0.505);
+					}
+				}
+				x.mapper.adjacency = adjacency;
+				*/
+
 				//Update aspect
 				aspect = width / height;
 
@@ -26,6 +40,7 @@ HTMLWidgets.widget({
 				//Create renderers
 				renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true });
 				renderer.setSize(width, height);
+				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setClearColor(0x000000, 0);
 				renderer.autoClear = false;
 				labelRenderer = new THREE.CSS2DRenderer();
@@ -43,8 +58,8 @@ HTMLWidgets.widget({
 					bins[i] = new bin(x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i]);
 				}
 
-				var map = new ColorMap();
-				scene.add(map);
+				var map = new ColorMap('rainbow', 1024);
+				hudScene.add(map);
 				map.position.set(width - 10, -height + 10, 1);
 
 				//Give it random heights
@@ -54,7 +69,7 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
-				var graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture());
+				var graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), width, height);
 				scene.add(graph);
 
 				//Set graph colors
@@ -64,7 +79,6 @@ HTMLWidgets.widget({
 				}
 				graph.updateNodeColors();
 				graph.updateNodeScales();
-
 				
 				for(let i=0; i<graph.links.length; i++) {
 					graph.links[i].setGradientFromNodes();
@@ -72,12 +86,30 @@ HTMLWidgets.widget({
 				}
 
 				graph.eventSystem.addEventListener("onTick", function() {
+					var box = graph.getBoundingBox();
+					camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * 2;
+					camera.updateProjectionMatrix();
 					requestAnimationFrame(render);
+				});
+
+				graph.eventSystem.addEventListener("onNodeHover", function(node) {
+					console.log("Hovering over " + node);
+				});
+
+				window.addEventListener("mousemove", function(event) {
+					mouse.x = event.clientX;
+					mouse.y = event.clientY;
+					requestAnimationFrame( render );
 				});
 
 				function render() {
 					renderer.clear();
+					graph.findBuffer(renderer, camera, mouse);
+					renderer.clear();
 					renderer.render(scene, camera);
+					renderer.clearDepth();
+					renderer.render(hudScene, hudCamera);
+					labelRenderer.render(scene, camera);
 				}
 			},
 			
