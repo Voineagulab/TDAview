@@ -6,6 +6,9 @@ HTMLWidgets.widget({
 		var camera, hudCamera, aspect;
 		var renderer, labelRenderer;
 		var frustumSize = 1000;
+
+		var map;
+		var graph;
 		
 		return {
 			renderValue: function(x) {
@@ -69,7 +72,7 @@ HTMLWidgets.widget({
 					bins[i] = new bin(x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i]);
 				}
 
-				var map = new ColorMap('rainbow', 1024);
+				map = new ColorMap('rainbow', 256);
 				hudScene.add(map);
 				map.position.set(width - 10, -height + 10, 1);
 
@@ -80,7 +83,7 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
-				var graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
+				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
 				scene.add(graph);
 
 				//Set graph colors
@@ -107,6 +110,7 @@ HTMLWidgets.widget({
 				});
 
 				function render() {
+					map.animate();
 					renderer.clear();
 					renderer.render(scene, camera);
 					renderer.render(hudScene, hudCamera);

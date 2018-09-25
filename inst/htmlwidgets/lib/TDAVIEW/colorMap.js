@@ -3,10 +3,12 @@ const cols = 20;
 const width = 500;
 const height = 50;
 const gap = 0.25;
+const animTime = 0.5;
 
 class ColorMap extends THREE.Group {
     constructor(mapName = 'rainbow', n = 256) {
 		super();
+		this.clock = new THREE.Clock(false);
         this.n = n;
         this.material = new THREE.MeshBasicMaterial(); 
         this.table = new Array(this.n).fill(null);
@@ -85,6 +87,7 @@ class ColorMap extends THREE.Group {
     }
 
 	setLegendColHeights(heights, min, max) {
+		this.clock.start();
 		for(let i=0; i<cols; i++) {
 			let h = (heights[i] - min)/(max - min) * height;
 			this.children[i].scale.y = h;
@@ -95,7 +98,17 @@ class ColorMap extends THREE.Group {
 	setLegendLabels(min, max) {
 		this.minLabel.element.textContent = min;
 		this.maxLabel.element.textContent = max;
-    }
+	}
+	
+	animate() {
+		if(this.clock.running) {
+			if(this.clock.elapsedTime > animTime) {
+				this.clock.stop();
+			} else {
+				this.scale.y = THREE.Math.smoothstep(this.clock.getElapsedTime()/animTime, 0.0, 1.0);
+			}
+		}
+	}
 };
 
 ColorMapKeywords = {
