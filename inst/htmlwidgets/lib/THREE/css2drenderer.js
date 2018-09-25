@@ -135,27 +135,6 @@ THREE.CSS2DRenderer = function () {
 
 	};
 
-	var zOrder = function ( scene ) {
-
-		var sorted = filterAndFlatten( scene ).sort( function ( a, b ) {
-
-			var distanceA = cache.objects.get( a ).distanceToCameraSquared;
-			var distanceB = cache.objects.get( b ).distanceToCameraSquared;
-
-			return distanceA - distanceB;
-
-		} );
-
-		var zMax = sorted.length;
-
-		for ( var i = 0, l = sorted.length; i < l; i ++ ) {
-
-			sorted[ i ].element.style.zIndex = zMax - i;
-
-		}
-
-	};
-
 	this.render = function ( scene, camera ) {
 
 		scene.updateMatrixWorld();
@@ -166,7 +145,6 @@ THREE.CSS2DRenderer = function () {
 		viewProjectionMatrix.multiplyMatrices( camera.projectionMatrix, viewMatrix );
 
 		renderObject( scene, camera );
-		zOrder( scene );
 
 	};
 
