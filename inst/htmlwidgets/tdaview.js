@@ -6,23 +6,21 @@ HTMLWidgets.widget({
 		var camera, hudCamera, aspect;
 		var renderer, labelRenderer;
 		var frustumSize = 1000;
-		var mouse = new THREE.Vector2();
 		
 		return {
 			renderValue: function(x) {
-				/*
+				
 				//Overwrite with random data
 				x.mapper.num_vertices = 100;
 				var adjacency = new Array(x.mapper.num_vertices);
 				for(let i=0; i<adjacency.length; i++) {
 					adjacency[i] = new Array(x.mapper.num_vertices);
 					for(let j=0; j<adjacency[i].length; j++) {
-						adjacency[i][j] = Math.round(Math.random()*0.505);
+						adjacency[i][j] = Math.round(Math.random()*0.5125);
 					}
 				}
 				x.mapper.adjacency = adjacency;
-				*/
-
+				
 				//Update aspect
 				aspect = width / height;
 
@@ -42,6 +40,8 @@ HTMLWidgets.widget({
 				renderer.setSize(width, height);
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setClearColor(0x000000, 0);
+				renderer.depth = false;
+				renderer.sortObjects = false;
 				renderer.autoClear = false;
 				labelRenderer = new THREE.CSS2DRenderer();
 				labelRenderer.setSize(width, height);
@@ -51,6 +51,17 @@ HTMLWidgets.widget({
 				//Add to DOM
 				element.appendChild(renderer.domElement);
 				element.appendChild(labelRenderer.domElement);
+
+				//Mouse utility function
+				var mouseWorld = new THREE.Vector3();
+				function mouseToWorld(mouse) {
+					var size = renderer.getSize();
+					mouseWorld.x = mouse.x / size.width * 2 - 1;
+					mouseWorld.y = - mouse.y / size.height * 2 + 1;
+					mouseWorld.z = 0;
+					mouseWorld.unproject(camera);
+					return mouseWorld;
+				}
 
 				//Parse mapper into data objects
 				var bins = new Array(x.mapper.num_vertices);
@@ -69,7 +80,7 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
-				var graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), width, height);
+				var graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
 				scene.add(graph);
 
 				//Set graph colors
@@ -85,29 +96,19 @@ HTMLWidgets.widget({
 					graph.links[i].updateColor();
 				}
 
+				//Set graph listners
 				graph.eventSystem.addEventListener("onTick", function() {
-					var box = graph.getBoundingBox();
-					camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * 2;
-					camera.updateProjectionMatrix();
+					if(graph.initiallizing) {
+						var box = graph.getBoundingBox();
+						camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * 2;
+						camera.updateProjectionMatrix();
+					}
 					requestAnimationFrame(render);
-				});
-
-				graph.eventSystem.addEventListener("onNodeHover", function(node) {
-					console.log("Hovering over " + node);
-				});
-
-				window.addEventListener("mousemove", function(event) {
-					mouse.x = event.clientX;
-					mouse.y = event.clientY;
-					requestAnimationFrame( render );
 				});
 
 				function render() {
 					renderer.clear();
-					graph.findBuffer(renderer, camera, mouse);
-					renderer.clear();
 					renderer.render(scene, camera);
-					renderer.clearDepth();
 					renderer.render(hudScene, hudCamera);
 					labelRenderer.render(scene, camera);
 				}

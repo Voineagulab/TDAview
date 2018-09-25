@@ -3,11 +3,11 @@ class event {
         this.queue = {};
     }
 
-    addEventListener(event, callback, object = undefined) {
+    addEventListener(event, callback) {
         if(!this.queue[event]) {
             this.queue[event] = [];
         }
-        this.queue[event].push(callback.bind(object));
+        this.queue[event].push(callback);
     }
 
     invokeEvent(event, ...args) {

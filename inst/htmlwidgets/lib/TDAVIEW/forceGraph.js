@@ -1,18 +1,19 @@
 class forceGraph extends THREE.Group {
-    constructor(data, adjacency, texture, width, height) {
+    constructor(data, adjacency, texture, element, mouseToWorld) {
         super();
+        this.initiallizing = true;
 
-        //Setup pixel picking
-        this.pickScene = new THREE.Scene();
-        this.pixelBuffer = new Uint8Array(4);
-        this.pickRenderTarget = new THREE.WebGLRenderTarget(width, height);
-        this.pickRenderTarget.texture.generateMipmaps = false;
-        this.pickRenderTarget.texture.minFilter = THREE.NearestFilter;
+        //Cache element for mouse listening
+        this.mouseToWorld = mouseToWorld;
+        this.over = null;
+        this.isMouseDown = false;
+        this.mouseScreen = new THREE.Vector2();
+        this.mouseWorld;
         
-        //Create nodes
-        this.nodes = node.generateInstances(data, texture, this, this.pickScene, 128);
+        //Create nodes as single mesh
+        this.nodes = node.generateInstances(data, texture, this, 64);
 
-        //Create links
+        //Create links as separate meshes
         this.links = [];
         for(let i=0; i<adjacency[0].length; i++) {
             let row = adjacency[i];
@@ -25,71 +26,84 @@ class forceGraph extends THREE.Group {
 
         //Initiallise event system
         this.eventSystem = new event();
-        this.eventSystem.addEventListener("onTick", this.updatePositions, this);
+        this.eventSystem.addEventListener("onTick", this.updatePositions.bind(this));
         this.eventSystem.addEventListener("onTick", node.computeBoundingBox);
 
         //Initiallise simulation
-        var self = this;
         this.simulation = d3.forceSimulation(this.nodes)
             .force("link", d3.forceLink(this.links))
             .force('center', d3.forceCenter())
             .force("charge", d3.forceManyBody().strength(-1000))
-            .on("tick", () => {self.eventSystem.invokeEvent("onTick")})
-            .on("end", () => {self.eventSystem.invokeEvent("onEnd")});
+            .on("tick", function() {
+                this.eventSystem.invokeEvent("onTick");
+            }.bind(this))
+            .on("end", function() {
+                this.initiallizing = false;
+                this.eventSystem.invokeEvent("onEnd");
+            }.bind(this));
+
+        element.addEventListener('mousedown', this.onMouseDown.bind(this));
+        element.addEventListener('mousemove', this.onMouseMove.bind(this));
+        element.addEventListener('mouseup', this.onMouseUp.bind(this));
     }
 
-    //If graph is huge, this could be slow
-    findSearch(worldPos) {
-        for(let i=0; i<this.nodes.length; i++) {
-            let targ = this.nodes[i].getPosition();
-            let r = this.nodes[i].r;
-            if(worldPos.x > targ.x - r && 
-                worldPos.x < targ.x + r && 
-                worldPos.y > targ.y - r && 
-                worldPos.y < targ.y + r) {
-                    //In bounding box
-                    if(Math.pow(worldPos.x - targ.x, 2) + Math.pos(worldPos.y - targ.y, 2) < Math.pow(r, 2)) {
-                        //In bounding circle
-                        return this.nodes[i];
+    onNodeDragStart() {
+        this.simulation.alphaTarget(0.3).restart();
+        this.initiallizing = false;
+    }
+
+    onNodeDrag() {
+        this.over.fx = this.mouseWorld.x;
+        this.over.fy = this.mouseWorld.y;
+    }
+
+    onNodeDragEnd() {
+        this.simulation.alphaTarget(0);
+        this.over.fx = this.over.fy = null;
+    }
+
+    onMouseDown() {
+        this.isMouseDown = true;
+        if(this.over) {
+            this.onNodeDragStart();
+        }
+    }
+    
+    onMouseMove(event) {
+        //Update stored values
+        this.mouseScreen.x = event.clientX;
+        this.mouseScreen.y = event.clientY;
+        this.mouseWorld = this.mouseToWorld(this.mouseScreen);
+
+        if(this.isMouseDown && this.over) {
+            //Node already found
+            this.onNodeDrag();
+        } else {
+            //Iterate over nodes checking if they are at world position
+            for(let i=0; i<this.nodes.length; i++) {
+                let targ = this.nodes[i].getPosition();
+                let r = this.nodes[i].r;
+                //Check if inside bounding box;
+                if(this.mouseWorld.x >= targ.x - r && 
+                    this.mouseWorld.x <= targ.x + r && 
+                    this.mouseWorld.y >= targ.y - r && 
+                    this.mouseWorld.y <= targ.y + r) {
+                    //Check if inside circle
+                    if(Math.pow(this.mouseWorld.x - targ.x, 2) + Math.pow(this.mouseWorld.y - targ.y, 2) <= r*r) {
+                        this.over = this.nodes[i];
+                        return;
                     }
+                }
             }
-        }
-        return null;
-    }
-
-    //Raytracing doesn't work for instanced geometry! 
-    //Taken from https://threejs.org/examples/webgl_interactive_instances_gpu.html
-    //Adds an additional render pass / overhead but is proportional to screen size rather than node count
-    findBuffer(renderer, camera, mouse) {
-        renderer.render(this.pickScene, camera, this.pickRenderTarget);
-        renderer.readRenderTargetPixels(
-            this.pickRenderTarget,
-            mouse.x,
-            this.pickRenderTarget.height - mouse.y,
-            1,
-            1,
-            this.pixelBuffer
-        );
-
-        //Interpret pixel as node index
-        var index = ((this.pixelBuffer[0] << 16) | (this.pixelBuffer[1] << 8) | (this.pixelBuffer[2])) - 1;
-          
-        if(index > 0) {
-            var self = this;
-            self.eventSystem.invokeEvent("onNodeHover", this.nodes[index]);;
+            this.over = null;
         }
     }
-
-    updateFindBufferSize(width, height) {
-        this.pickRenderTarget.setSize(width, height, false);
-    }
-
-    setSimulationAlphaTarget(value) {
-        this.simulation.alphaTarget(value);
-    }
-
-    restartSimulation() {
-        this.simulation.restart();
+    
+    onMouseUp() {
+        if(this.isMouseDown && this.over) {
+            this.onNodeDragEnd();
+        }
+        this.isMouseDown = false;
     }
 
     getBoundingBox() {

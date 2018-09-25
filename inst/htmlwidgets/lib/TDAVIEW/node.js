@@ -88,7 +88,7 @@ class node {
         nodeMesh.geometry.attributes.u.needsUpdate = true;
     }
 
-    static generateInstances(data, texture, parent, pickParent, segments=32) {
+    static generateInstances(data, texture, parent, segments=32) {
         var geometry = new THREE.InstancedBufferGeometry();
         var vertices = new Float32Array(2*(segments+1));
         vertices[0] = vertices[1] = 0.0;
@@ -114,14 +114,6 @@ class node {
         geometry.addAttribute('translation', new THREE.InstancedBufferAttribute(translation, 2, 1).setDynamic(true));
         geometry.addAttribute('scale', new THREE.InstancedBufferAttribute(scale, 1, 1));
         geometry.addAttribute('u', new THREE.InstancedBufferAttribute(uv, 1, 1));
-
-        var pickColors = new THREE.InstancedBufferAttribute(new Float32Array(data.length * 3), 3, 1);
-        var col = new THREE.Color();
-        for(var i = 0, ul = pickColors.count; i < ul; i++) {
-            col.setHex(i + 1);
-            pickColors.setXYZ(i, col.r, col.g, col.b);
-        }
-        geometry.addAttribute('pickColor', pickColors);
 
         geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1);
         geometry.computeBoundingBox();
@@ -167,44 +159,8 @@ class node {
           side: THREE.FrontSide,
           transparent: false
         });
-
-        var pickMaterial = new THREE.RawShaderMaterial({
-            vertexShader: [
-                "precision highp float;",
-                "",
-                "uniform mat4 modelViewMatrix;",
-                "uniform mat4 projectionMatrix;",
-                "",
-                "attribute vec2 translation;",
-                "attribute float scale;",
-                "attribute vec2 position;",
-                "attribute vec3 pickColor;",
-                "varying vec3 vColor;",
-                "",
-                "void main() {",
-                "",
-                "   vColor = pickColor;",
-                "	gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position * scale + translation, 0.0, 1.0 );",
-                "",
-                "}"
-                ].join("\n"),
-            fragmentShader: [
-                "precision highp float;",
-                "",
-                "varying vec3 vColor;",
-                "",
-                "void main() {",
-                "",
-                "   gl_FragColor = vec4( vColor, 1.0 );",
-                "",
-                "}"
-                ].join("\n"),//vColor
-          side: THREE.FrontSide,
-          transparent: false
-        });
         
         nodeMesh = new THREE.Mesh(geometry, material);
-        pickParent.add(new THREE.Mesh(geometry, pickMaterial));
         parent.add(nodeMesh);
         
         var nodes = new Array(data.length);
