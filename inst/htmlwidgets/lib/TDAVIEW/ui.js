@@ -1,6 +1,7 @@
 class menu {
-	constructor(element) {
-		element.innerHTML = this.generateHTML();
+	constructor() {
+        this.domElement = document.createElement("div");
+        this.domElement.innerHTML = this.generateHTML();
 	}
 
 	generateHTML() {

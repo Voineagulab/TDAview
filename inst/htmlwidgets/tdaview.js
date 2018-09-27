@@ -85,9 +85,8 @@ HTMLWidgets.widget({
 				
 				
 				//Sidebar creation
-				var sidebar = new menu(element);
+				var sidebar = new menu();
 				element.appendChild(sidebar.domElement);
-
 
 				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
 				scene.add(graph);
