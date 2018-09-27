@@ -83,6 +83,12 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
+				
+				//Sidebar creation
+				var sidebar = new menu(element);
+				element.appendChild(sidebar.domElement);
+
+
 				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
 				scene.add(graph);
 
