@@ -11,7 +11,10 @@ class forceGraph extends THREE.Group {
         this.mouseWorld;
         
         //Create nodes as single mesh
-        this.nodes = node.generateInstances(data, texture, this, 64);
+        this.nodes = new Array(data.length);
+        for(let i=0; i<data.length; i++) {
+            this.nodes[i] = new node(i, "Node " + i, data[i], 0.0, texture, this);
+        }
 
         //Create links as separate meshes
         this.links = [];
@@ -27,7 +30,6 @@ class forceGraph extends THREE.Group {
         //Initiallise event system
         this.eventSystem = new event();
         this.eventSystem.addEventListener("onTick", this.updatePositions.bind(this));
-        this.eventSystem.addEventListener("onTick", node.computeBoundingBox);
 
         //Initiallise simulation
         this.simulation = d3.forceSimulation(this.nodes)
@@ -107,15 +109,18 @@ class forceGraph extends THREE.Group {
     }
 
     getBoundingBox() {
-        return node.getBoundingBox();
+        var box = new THREE.Box3();
+        for(let i=0; i<this.nodes.length; i++) {
+            //TODO something in model matrix is broken? expandByObject AND setFromObject don't work
+            box.expandByPoint(this.nodes[i].position); 
+        }
+        return box;
     }
 
     updateNodeColors() {
-        node.updateColors();
-    }
-
-    updateNodeScales() {
-        node.updateScales();
+        for(var i=0; i<this.nodes.length; i++) {
+            //TODO when pie/single are switchable
+        }
     }
 
     updateLinkColors() {
@@ -129,7 +134,6 @@ class forceGraph extends THREE.Group {
         for(var i=0; i<this.nodes.length; i++) {
             this.nodes[i].setPosition(this.nodes[i].x, this.nodes[i].y);
         }
-        node.updatePositions();
 
         //Update link positions
         for(var i=0; i<this.links.length; i++) {

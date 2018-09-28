@@ -83,7 +83,6 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
-				
 				//Sidebar creation
 				var sidebar = new menu();
 				element.appendChild(sidebar.domElement);
@@ -97,7 +96,6 @@ HTMLWidgets.widget({
 					graph.nodes[i].setRadius(10 + Math.random() * 20);
 				}
 				graph.updateNodeColors();
-				graph.updateNodeScales();
 				
 				for(let i=0; i<graph.links.length; i++) {
 					graph.links[i].setGradientFromNodes();

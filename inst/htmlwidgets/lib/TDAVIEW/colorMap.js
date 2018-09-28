@@ -64,9 +64,8 @@ class ColorMap extends THREE.Group {
 		var dataTex = new THREE.DataTexture(data, this.n, 1, THREE.RGBFormat);
 		dataTex.needsUpdate = true;
 		this.material.map = dataTex;
+		this.material.magFilter = this.material.minFilter = THREE.NearestFilter;
 		this.material.needsUpdate = true;
-		console.log(dataTex);
-		console.log(this.table);
 	}
 
 	getColorByValue(value, min, max) {
