@@ -87,6 +87,22 @@ HTMLWidgets.widget({
 				var sidebar = new menu();
 				element.appendChild(sidebar.domElement);
 
+				//Event listeners for accordion in sidebar
+				var accItem = document.getElementsByClassName("accordion-item");
+				var accHD = document.getElementsByClassName("accordion-item-heading");
+				for(let i=0; i<accHD.length; i++) {
+					accHD[i].addEventListener('click', toggleItem, false);
+				}
+				function toggleItem() {
+					var itemClass = this.parentNode.className;
+					for(let i=0; i<accItem.length; i++) {
+						accItem[i].className = 'accordion-item close';
+					}
+					if(itemClass == 'accordion-item close') {
+						this.parentNode.className = 'accordion-item open';
+					}
+				}
+
 				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
 				scene.add(graph);
 
