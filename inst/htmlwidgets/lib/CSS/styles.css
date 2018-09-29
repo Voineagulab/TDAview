@@ -1,10 +1,14 @@
+@import url("https://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css");
+
+/* Sidebar styling */
+
 .sidenav {
     width: 0;
     position: absolute;
     z-index: 1000;
     top: 0;
     left: 0;
-    background-color: #202020;
+    background-color: gray; /*#202020;*/
     overflow-x: hidden;
     text-overflow: hidden;
     transition: 0.5s;
@@ -57,6 +61,8 @@
     -o-user-select: none;
 }
 
+/* Node label styling */
+
 .label {
     font-size: 10px;
     font-weight: 100;
@@ -79,8 +85,253 @@
     opacity: 0;
 }
 
+/* Table styling */
+
 table {
     width: 100%;
 	text-Align: "center";
 	color: #aaaaaa;
+}
+
+/* CSS for accordion in sidebar */
+/*
+:before,
+:after {
+    content: '';
+    display: block;
+    position: absolute;
+    box-sizing: border-box;
+}
+
+.panel-title {
+    position: relative;
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 10px;
+    font-size: 14px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.5);
+    background: #2e4155;
+    cursor: pointer;
+    /*font-color: white;
+}
+
+.panel-title:hover {
+    background: #1f2d3a;
+}
+
+.panel-title:after {
+    content: '\f078';
+    top: 0px;
+    right: 20px;
+    font-family: fontawesome;
+}
+
+.panel-body {
+    /*height: 0;
+    overflow: hidden;
+    margin: 15px 0;
+    padding: 0 20px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8)
+}
+
+.panel-heading {
+    position: relative;
+    opacity: 1;
+}
+
+.panel-heading:collapse ~ .panel-title {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.panel-heading:collapse ~ .panel-title:after {
+    transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+}
+
+.panel-heading:collapse ~ .panel-body {
+    height: 150px;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}
+
+.in .panel-collapse {
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    width: 100%;
+    margin: 0px 0px 10px 0px;
+    display:block;
+    -webkit-transform: scaleY(1);
+    -o-transform: scaleY(1);
+    -ms-transform: scaleY(1);
+    transform: scaleY(1);
+    -webkit-transform-origin: top;
+    -o-transform-origin: top;
+    -ms-transform-origin: top;
+    transform-origin: top;
+
+    -webkit-transition: -webkit-transform 0.4s ease-out;
+    -o-transition: -o-transform 0.4s ease;
+    -ms-transition: -ms-transform 0.4s ease;
+    transition: transform 0.4s ease;
+    box-sizing: border-box;
+}
+*/
+
+/* Accordion in sidebar styling */
+
+body {
+    background: -webkit-linear-gradient(left, #25c481, #25b7c4);
+    background: linear-gradient(to right, #25c481, #25b7c4);
+}
+
+.accordion-wrapper {
+    padding: 30px 5px 5px 5px;
+    background: gray;
+    float: left;
+    width: 100%;
+    /*height: 100%;*/
+    box-sizing: border-box;
+    box-shadow: 0 1.5em 85px 0 rgba(0, 0, 0, 0.2);
+}
+
+.accordion-item {
+    float: left;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Open-sans', Arial, sans-serif;
+    transition: 0.4s;
+}
+
+.accordion-item-heading:hover {
+	background-color: #ccc;
+}
+
+.accordion-item-heading {
+    cursor: pointer;
+    margin: 0px 0px 10px 0px;
+    padding: 10px;
+    background: #eee;
+    color: #444;  /* #444 */
+    width: 100%;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+.close .accordion-item-content {
+    height: 0px;
+    transition: height 0.5s ease-out;
+    -webkit-transform: scaleY(0);
+    -o-transform: scaleY(0);
+    -ms-transform: scaleY(0);
+    transform: scaleY(0);
+    float: left;
+    display: block;
+}
+
+.open .accordion-item-content {
+    padding: 20px;
+    background-color: #f2f2f2;  /* #fff | #DCDCDC */
+    border: 1px solid #ddd;
+    width: 100%;
+    margin: 0px 0px 10px 0px;
+    display: block;
+    -webkit-transform: scaleY(1);
+    -o-transform: scaleY(1);
+    -ms-transform: scaleY(1);
+    transform: scaleY(1);
+    -webkit-transform-origin: top;
+    -o-transform-origin: top;
+    -ms-transform-origin: top;
+    transform-origin: top;
+
+    -webkit-transition: -webkit-transform 0.65s ease-out;
+    -o-transition: -o-transform 0.65s ease;
+    -ms-transition: -ms-transform 0.65s ease;
+    transition: transform 0.65s ease;
+    box-sizing: border-box;
+}
+
+.open .accordion-item-heading {
+    margin: 0px;
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-topright: 3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    -webkit-border-bottom-right-radius: 0px;
+    -webkit-border-bottom-left-radius: 0px;
+    -moz-border-radius-bottomright: 0px;
+    -moz-border-radius-bottomleft: 0px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    background-color: #bdc3c7;  /* #bdc3c7 */
+    color: #101314; /* #7f8c8d | gray | #008080 */
+}
+
+
+/* Button styling | https://www.bestcssbuttongenerator.com/#/36 */
+
+.myButton {
+	-moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
+	-webkit-box-shadow: inset 0px 1px 0px 0px #ffffff;
+	box-shadow: inset 0px 1px 0px 0px #ffffff;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf));
+	background: -moz-linear-gradient(top, #ededed 5%, #dfdfdf 100%);
+	background: -webkit-linear-gradient(top, #ededed 5%, #dfdfdf 100%);
+	background: -o-linear-gradient(top, #ededed 5%, #dfdfdf 100%);
+	background: -ms-linear-gradient(top, #ededed 5%, #dfdfdf 100%);
+	background: linear-gradient(to bottom, #ededed 5%, #dfdfdf 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf', GradientType=0);
+	background-color: #ededed;
+	-moz-border-radius: 12px;
+	-webkit-border-radius: 12px;
+	border-radius: 12px;
+	border: 1px solid #dcdcdc;
+	display: inline-block;
+	cursor: pointer;
+	color: #777777;
+	font-family: Arial;
+	font-size: 15px;
+	font-weight: bold;
+	padding: 7px 16px;
+	text-decoration: none;
+	text-shadow: 0px 1px 0px #ffffff;
+}
+
+.myButton:hover {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed));
+	background:-moz-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+	background:-webkit-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+	background:-o-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+	background:-ms-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+	background:linear-gradient(to bottom, #dfdfdf 5%, #ededed 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed',GradientType=0);
+	background-color:#dfdfdf;
+	border-color: #fff;
+}
+
+.myButton:active {
+	position:relative;
+	top:1px;
 }
