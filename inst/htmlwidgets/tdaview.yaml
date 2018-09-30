@@ -13,7 +13,6 @@ dependencies:
     script: 
       - three.min.js
       - css2drenderer.js
-      - lut.js 
   - name: JQUERY
     version: 3.3.1
     src: "htmlwidgets/lib/JQUERY"
@@ -22,7 +21,11 @@ dependencies:
     version: 1.0.0
     src: "htmlwidgets/lib/HTML2CANVAS"
     script: html2canvas.min.js
-  - name: TDAVIEW
+  - name: FONTAWESOME
+    version: 4.1.0
+    src: "htmlwidgets/lib/FONTAWESOME"
+    stylesheet: "font-awesome.css"
+  - name: tdaview-core
     version: 1.0
     src: "htmlwidgets/lib"
     stylesheet:
