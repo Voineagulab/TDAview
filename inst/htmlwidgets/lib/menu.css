@@ -53,37 +53,8 @@
     font-size: 36px;
 }
 
-.unselectable {
-    user-select: none;
-    -moz-user-select: none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -o-user-select: none;
-}
 
-/* Node label styling */
 
-.label {
-    font-size: 10px;
-    font-weight: 100;
-    color: white;
-    text-shadow: 2px 2px 2px black;
-}
-
-.nlabel {
-    opacity: 0.75;
-    text-shadow: 0px 0px 15px black;
-    border-radius: 10px;
-    background: #4B515B;
-    border: 2px solid #4B515B;
-    padding: 3px;
-    text-align: center;
-    /*width: 30px;*/
-}
-
-.hiddenlabel {
-    opacity: 0;
-}
 
 /* Table styling */
 
@@ -196,10 +167,7 @@ hr {
 
 /* Accordion in sidebar styling */
 
-body {
-    background: -webkit-linear-gradient(left, #25c481, #25b7c4);
-    background: linear-gradient(to right, #25c481, #25b7c4);
-}
+
 
 .accordion-wrapper {
     padding: 30px 5px 5px 5px;

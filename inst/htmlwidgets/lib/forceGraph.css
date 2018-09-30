@@ -1,0 +1,23 @@
+/* Node label styling */
+
+.label {
+    font-size: 10px;
+    font-weight: 100;
+    color: white;
+    text-shadow: 2px 2px 2px black;
+}
+
+.nlabel {
+    opacity: 0.75;
+    text-shadow: 0px 0px 15px black;
+    border-radius: 10px;
+    background: #4B515B;
+    border: 2px solid #4B515B;
+    padding: 3px;
+    text-align: center;
+    /*width: 30px;*/
+}
+
+.hiddenlabel {
+    opacity: 0;
+}

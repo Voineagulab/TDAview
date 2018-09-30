@@ -13,11 +13,7 @@ dependencies:
     script: 
       - three.min.js
       - css2drenderer.js
-      - lut.js
-  - name: CSS
-    version: 1.0
-    src: "htmlwidgets/lib/CSS"
-    stylesheet: styles.css
+      - lut.js 
   - name: JQUERY
     version: 3.3.1
     src: "htmlwidgets/lib/JQUERY"
@@ -28,14 +24,15 @@ dependencies:
     script: html2canvas.min.js
   - name: TDAVIEW
     version: 1.0
-    src: "htmlwidgets/lib/TDAVIEW"
+    src: "htmlwidgets/lib"
+    stylesheet:
+      - style.css
+      - menu.css
+      - forceGraph.css
     script:
       - forceGraph.js
       - node.js
       - link.js
       - colorMap.js
       - event.js
-      - ui.js
-
-
-
+      - menu.js
