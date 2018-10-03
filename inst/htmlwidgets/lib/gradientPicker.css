@@ -7,8 +7,8 @@
     position: relative;
     width: 187px;
     height: 10px;
-    cursor: pointer;
     margin-bottom: 10px;
+    cursor: e-resize;
 }
 
 .gradient-step {
@@ -19,6 +19,7 @@
     outline: 1px solid black;
     display: inline-block;
     vertical-align:top;
+    cursor: e-resize;
 }
 
 .color-input {
