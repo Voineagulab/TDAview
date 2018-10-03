@@ -7,7 +7,7 @@
     top: 0;
     left: 0;
     background-color: gray;
-    overflow-x: hidden;
+    overflow: hidden;
     text-overflow: hidden;
     transition: 0.5s;
 }
@@ -72,6 +72,7 @@ table {
     box-shadow: 0 1.5em 85px 0 rgba(0, 0, 0, 0.2);
     overflow: hidden;
     border-radius: 5px;
+    margin-bottom: 5px;
 }
 
 .accordion-item {
@@ -82,6 +83,7 @@ table {
     font-family: 'Open-sans', Arial, sans-serif;
     border-radius: 5px;
     margin-bottom: 0px;
+    margin-top: 0px;
 }
 
 .accordion-item-heading {
@@ -152,7 +154,7 @@ table {
 }
 
 .close .accordion-item-content {
-    padding: 0px;
+    padding-left: 20px;
     background-color: #f2f2f2;
     width: 100%;
     max-height: 0px;
@@ -162,6 +164,30 @@ table {
     float: left;
 
     transition: all 0.6s ease-out;
+}
+
+
+/* Heading styling */
+
+.subsection-heading {
+    margin: 5px;
+    color: #343434;
+    font-weight: bold;
+    font-family: 'Open-sans', Arial, sans-serif;
+    font-size: 20px;
+    text-align: center;
+}
+
+
+/* Divider styling */
+
+hr { 
+    height: 1px;
+    border: none;
+    background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0), #8c8b8b, rgba(0, 0, 0, 0));
+    background-image: -moz-linear-gradient(left, rgba(0, 0, 0, 0), #8c8b8b, rgba(0, 0, 0, 0));
+    background-image: -ms-linear-gradient(left, rgba(0, 0, 0, 0), #8c8b8b, rgba(0, 0, 0, 0));
+    background-image: -o-linear-gradient(left, rgba(0, 0, 0, 0), #8c8b8b, rgba(0, 0, 0, 0)); 
 }
 
 
@@ -203,10 +229,20 @@ table {
 	background: linear-gradient(to bottom, #dfdfdf 5%, #ededed 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed',GradientType=0);
 	background-color: #dfdfdf;
-	border-color: #fff;
 }
 
 .myButton:active {
 	position: relative;
 	top: 1px;
+}
+
+
+/* Canvas modification to avoid overlap -- TENTATIVE */
+
+canvas {
+    padding-left: 250px;
+}
+
+#labelcanvas {
+    padding-left: 250px;
 }

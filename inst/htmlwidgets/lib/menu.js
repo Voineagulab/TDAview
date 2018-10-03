@@ -1,45 +1,93 @@
+/*
+
+    TODO:
+    1. Add event listeners for sidebar
+        2. Always have one section open in accordion
+        3. Add +/- to open/closed sections
+        4. Add extra submenus, populate with content
+            <-> Node Labels
+            <-> Node Size
+            <-> Node Colour
+            <-> Edge Size
+            <-> Edge Colour
+            <-> Export
+
+*/
+
+
 class menu {
 	constructor(element) {
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML();
 	}
 
-	generateHTML() {
-		return /*html*/`
+generateHTML() {
+        return /*html*/`
         <div class="unselectable sidenav" style="width: 250px; height: 500px; position: absolute; top: 0px;">
             <br>
 
+            <h1 class="subsection-heading">Node Settings</h1>
+            <hr>
             <div class="accordion-wrapper">
-            	<div class="accordion-item close">
-            		<h4 class="accordion-item-heading">Select colour source</h4>
-            		<div class="accordion-item-content">
-            			Options for colour source go here..
-            		</div>
-            	</div>
+                <div class="accordion-item open">
+                    <h4 class="accordion-item-heading">Size</h4>
+                    <div class="accordion-item-content">
+                        Options for size functions go here..
+                    </div>
+                </div>
 
-            	<div class="accordion-item close">
-            		<h4 class="accordion-item-heading">Node label as</h4>
-            		<div class="accordion-item-content">
-            			<form action="">
-            				<input type="radio" name="labeltype" value="name" checked>Name<br>
-            				<input type="radio" name="labeltype" value="size">Size<br>
-            				<input type="radio" name="labeltype" value="none">None
-            			</form>
-            		</div>
-            	</div>
+                <div class="accordion-item close">
+                    <h4 class="accordion-item-heading">Colour</h4>
+                    <div class="accordion-item-content">
+                        Options for colour source go here..
+                    </div>
+                </div>
 
-            	<div class="accordion-item close">
-            		<h4 class="accordion-item-heading">Export graph</h4>
-            		<div class="accordion-item-content">
-            			<input type="radio" name="graphtype" value="png" checked>PNG<br>
-            			<input type="radio" name="graphtype" value="jpeg">JPEG<br><br>
-            			<a href="#" class="myButton">Export Graph</a>
-            		</div>
-            	</div>
+                <div class="accordion-item close">
+                    <h4 class="accordion-item-heading">Label</h4>
+                    <div class="accordion-item-content">
+                        <form action="">
+                            <input type="radio" name="labeltype" value="name" checked>Name<br>
+                            <input type="radio" name="labeltype" value="size">Size<br>
+                            <input type="radio" name="labeltype" value="none">None
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <h1 class="subsection-heading">Edge Settings</h1>
+            <hr>
+            <div class="accordion-wrapper">
+                <div class="accordion-item close">
+                    <h4 class="accordion-item-heading">Size</h4>
+                    <div class="accordion-item-content">
+                        Options for size functions go here..
+                    </div>
+                </div>
+
+                <div class="accordion-item close">
+                    <h4 class="accordion-item-heading">Colour</h4>
+                    <div class="accordion-item-content">
+                        Options for colour source go here..
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <h1 class="subsection-heading">Graph Settings</h1>
+            <hr>
+            <div class="accordion-wrapper">
+                <div class="accordion-item close">
+                    <h4 class="accordion-item-heading">Export graph</h4>
+                    <div class="accordion-item-content">
+                        <input type="radio" name="graphtype" value="png" checked>PNG<br>
+                        <input type="radio" name="graphtype" value="jpeg">JPEG<br><br>
+                        <a href="#" class="myButton">Export Graph</a>
+                    </div>
+                </div>
             </div>
 
         </div>`;
-	}
+    }
 
 }
 
