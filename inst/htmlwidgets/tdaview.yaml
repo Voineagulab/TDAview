@@ -25,13 +25,19 @@ dependencies:
     version: 4.1.0
     src: "htmlwidgets/lib/FONTAWESOME"
     stylesheet: "font-awesome.css"
-  - name: tdaview-core
+  - name: COLORPICKER
+    version: 4.1.0
+    src: "htmlwidgets/lib/COLORPICKER"
+    script: color-picker.min.js
+    stylesheet: color-picker.min.css
+  - name: "tdaview-core"
     version: 1.0
     src: "htmlwidgets/lib"
     stylesheet:
       - style.css
       - menu.css
       - forceGraph.css
+      - gradientPicker.css
     script:
       - forceGraph.js
       - node.js
@@ -39,3 +45,4 @@ dependencies:
       - colorMap.js
       - event.js
       - menu.js
+      - gradientPicker.js

@@ -12,7 +12,6 @@ HTMLWidgets.widget({
 		
 		return {
 			renderValue: function(x) {
-				
 				//Overwrite with random data
 				x.mapper.num_vertices = 100;
 				var adjacency = new Array(x.mapper.num_vertices);
@@ -86,6 +85,9 @@ HTMLWidgets.widget({
 				//Sidebar creation
 				var sidebar = new menu();
 				element.appendChild(sidebar.domElement);
+
+				var gradPicker = new gradientPicker(element);
+				//element.appendChild(gradPicker.domElement);
 
 				//Event listeners for accordion in sidebar
 				var accItem = document.getElementsByClassName("accordion-item");

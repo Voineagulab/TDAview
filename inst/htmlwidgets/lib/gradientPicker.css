@@ -1,0 +1,32 @@
+.gradient-container {
+    display : block;
+    position: relative;
+}
+
+.gradient-bar {
+    position: relative;
+    width: 187px;
+    height: 10px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.gradient-step {
+    position: absolute;
+    width: 5px;
+    height: 10px;
+    background-color: transparent;
+    outline: 1px solid black;
+    display: inline-block;
+    vertical-align:top;
+}
+
+.color-input {
+    display:none;
+    visibility:hidden;
+}
+
+.color-picker {
+    position: relative;
+    
+}
