@@ -49,6 +49,7 @@ HTMLWidgets.widget({
 				labelRenderer.setSize(width, height);
 				labelRenderer.domElement.style.position = 'absolute';
 				labelRenderer.domElement.style.top = 0;
+				labelRenderer.domElement.setAttribute("id", "labelcanvas");
 
 				//Add to DOM
 				element.appendChild(renderer.domElement);
@@ -100,9 +101,7 @@ HTMLWidgets.widget({
 					for(let i=0; i<accItem.length; i++) {
 						accItem[i].className = 'accordion-item close';
 					}
-					if(itemClass == 'accordion-item close') {
-						this.parentNode.className = 'accordion-item open';
-					}
+					this.parentNode.className = 'accordion-item open';
 				}
 
 				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
