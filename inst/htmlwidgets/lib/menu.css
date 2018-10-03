@@ -137,10 +137,10 @@ table {
     overflow: hidden;
     max-height: 0;
 
-    -webkit-transition: all 0.6s ease;
-    -o-transition: all 0.6s ease;
-    -ms-transition: all 0.6s ease;
-    transition: all .6s ease;
+    -webkit-transition: all .25s linear .25s;
+    -o-transition: all .25s linear .25s;
+    -ms-transition: all .25s linear .25s;
+    transition: all .25s linear .25s;
 }
 
 .open .accordion-item-content {
@@ -163,7 +163,7 @@ table {
     box-sizing: border-box;
     float: left;
 
-    transition: all 0.6s ease-out;
+    transition: all .25s linear;
 }
 
 
