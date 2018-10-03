@@ -13,10 +13,11 @@
 
 .gradient-step {
     position: absolute;
-    width: 5px;
-    height: 10px;
+    width: 4px;
+    height: 8px;
     background-color: transparent;
-    outline: 1px solid black;
+    border: 1px solid black;
+    border-radius: 2px ; 
     display: inline-block;
     vertical-align:top;
     cursor: e-resize;

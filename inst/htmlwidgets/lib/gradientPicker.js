@@ -107,10 +107,10 @@ class gradientPicker {
 
     setSelected(s) {
         if(this.selected) {
-            this.selected.element.style.outlineColor = "black";
+            this.selected.element.style.borderColor = "black";
         }
         this.picker.set("#" + s.color);
-        s.element.style.outlineColor = "white";
+        s.element.style.borderColor = "white";
         this.selected = s;
     }
 
