@@ -1,4 +1,4 @@
-const BAR_WIDTH = 187;
+const BAR_WIDTH = 185;
 const STEP_WIDTH = 5;
 let gradMouseDown = false;
 

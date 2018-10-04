@@ -4,8 +4,9 @@
 }
 
 .gradient-bar {
+    border: 1px solid black;
     position: relative;
-    width: 187px;
+    width: 185px;
     height: 10px;
     margin-bottom: 10px;
     cursor: e-resize;
