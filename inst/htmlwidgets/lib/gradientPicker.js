@@ -68,7 +68,6 @@ class gradientPicker {
         element.addEventListener("mousedown", function(event) {
             self.setSelected(s);
             gradMouseDown = true;
-            self.setStepTranslation(event.clientX);
             event.preventDefault();
         });
 
