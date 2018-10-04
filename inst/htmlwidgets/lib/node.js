@@ -1,8 +1,6 @@
 const segments = 64;
-class node extends THREE.Group {
+class node {
 	constructor(index, labelText, data, color, texture, parent) {
-        super();
-
         this.index = index;
         Object.assign(this, data);
 
@@ -74,8 +72,6 @@ class node extends THREE.Group {
 
         this.mesh = new THREE.Mesh(geometry, this.material);
         
-        this.add(this.mesh);
-        
         this.setRadius(100);
         this.setColor(color);
 
@@ -85,12 +81,13 @@ class node extends THREE.Group {
         nodeDiv.textContent = labelText;
         var nodeLabel = new THREE.CSS2DObject(nodeDiv);
         nodeLabel.position.set(0, 0, 0);
-        this.add(nodeLabel);
-        parent.add(this);
+        this.mesh.add(nodeLabel);
+
+        parent.add(this.mesh);
     }
 
     setRadius(value) {
-        this.scale.set(value, value, 1);
+        this.mesh.scale.set(value, value, 1);
         this.r = value;
     }
 
@@ -103,12 +100,12 @@ class node extends THREE.Group {
     }
 
     getPosition() {
-        return this.position;
+        return this.mesh.position;
     }
 
     setPosition(x, y) {
-        this.position.x = x;
-        this.position.y = y;
+        this.mesh.position.x = x;
+        this.mesh.position.y = y;
     }
 
     setLabelText(text) {

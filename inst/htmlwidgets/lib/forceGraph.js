@@ -112,8 +112,10 @@ class forceGraph extends THREE.Group {
         var box = new THREE.Box3();
         for(let i=0; i<this.nodes.length; i++) {
             //TODO something in model matrix is broken? expandByObject AND setFromObject don't work
-            box.expandByPoint(this.nodes[i].position); 
+            box.expandByPoint(this.nodes[i].getPosition());
         }
+        //TODO fix hardcoded margin
+        box.expandByScalar(100);
         return box;
     }
 
