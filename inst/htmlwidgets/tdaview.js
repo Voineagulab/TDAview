@@ -13,6 +13,7 @@ HTMLWidgets.widget({
 		return {
 			renderValue: function(x) {
 				//Overwrite with random data
+				/*
 				x.mapper.num_vertices = 100;
 				var adjacency = new Array(x.mapper.num_vertices);
 				for(let i=0; i<adjacency.length; i++) {
@@ -22,6 +23,7 @@ HTMLWidgets.widget({
 					}
 				}
 				x.mapper.adjacency = adjacency;
+				*/
 				
 				//Update aspect
 				aspect = width / height;
@@ -88,21 +90,6 @@ HTMLWidgets.widget({
 				element.appendChild(sidebar.domElement);
 
 				var gradPicker = new gradientPicker(element);
-				//element.appendChild(gradPicker.domElement);
-
-				//Event listeners for accordion in sidebar
-				var accItem = document.getElementsByClassName("accordion-item");
-				var accHD = document.getElementsByClassName("accordion-item-heading");
-				for(let i=0; i<accHD.length; i++) {
-					accHD[i].addEventListener('click', toggleItem, false);
-				}
-				function toggleItem() {
-					var itemClass = this.parentNode.className;
-					for(let i=0; i<accItem.length; i++) {
-						accItem[i].className = 'accordion-item close';
-					}
-					this.parentNode.className = 'accordion-item open';
-				}
 
 				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
 				scene.add(graph);

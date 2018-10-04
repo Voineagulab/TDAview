@@ -17,11 +17,32 @@
 
 class menu {
 	constructor(element) {
+        var self = this;
+
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML();
-	}
 
-generateHTML() {
+        this.accOpen = 0;
+        var accItem = this.domElement.getElementsByClassName("accordion-item");
+        var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
+        for(let i=0; i<accHD.length; i++) {
+            accHD[i].addEventListener('click', function() {
+                //Toggle accordian items
+                if(self.accOpen != i) {
+                    accItem[self.accOpen].className = 'accordion-item close';
+                    self.accOpen = i;
+                    accItem[self.accOpen].className = 'accordion-item open';
+                }
+            }, false);
+        }
+
+        this.eventSystem = new event();
+        //listen to buttons and call e.g. this.eventSystem.invoke("onNodeColorChange", color) - then in tdaview.js, menu.eventSystem.addEventListner("onNodeColorChange", function(color) {/*change forceGraph color*/})
+    }
+    
+
+
+    generateHTML() {
         return /*html*/`
         <div class="unselectable sidenav" style="width: 250px; height: 500px; position: absolute; top: 0px;">
             <br>
