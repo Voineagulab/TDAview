@@ -60,6 +60,7 @@ HTMLWidgets.widget({
 				//Mouse utility function
 				var mouseWorld = new THREE.Vector3();
 				function mouseToWorld(mouse) {
+					mouse.x -= 250;
 					var size = renderer.getSize();
 					mouseWorld.x = mouse.x / size.width * 2 - 1;
 					mouseWorld.y = - mouse.y / size.height * 2 + 1;
@@ -85,11 +86,9 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
-				//Sidebar creation
-				var sidebar = new menu();
-				element.appendChild(sidebar.domElement);
-
-				var gradPicker = new gradientPicker(element);
+				//Menu creation
+				var sidebar = new menu(element);
+				//something like sidebar.eventSystem.addEventListener("onNodeGradientChange", map.setSteps); need separate legend for pie charts though
 
 				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
 				scene.add(graph);

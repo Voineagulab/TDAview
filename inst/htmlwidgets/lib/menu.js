@@ -17,30 +17,29 @@
 
 class menu {
 	constructor(element) {
-        var self = this;
-
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML();
 
-        this.accOpen = 0;
+        element.appendChild(this.domElement);
+
+        var accOpen = 0;
         var accItem = this.domElement.getElementsByClassName("accordion-item");
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
         for(let i=0; i<accHD.length; i++) {
             accHD[i].addEventListener('click', function() {
                 //Toggle accordian items
-                if(self.accOpen != i) {
-                    accItem[self.accOpen].className = 'accordion-item close';
-                    self.accOpen = i;
-                    accItem[self.accOpen].className = 'accordion-item open';
+                if(accOpen != i) {
+                    accItem[accOpen].className = 'accordion-item close';
+                    accOpen = i;
+                    accItem[accOpen].className = 'accordion-item open';
                 }
             }, false);
         }
 
         this.eventSystem = new event();
-        //listen to buttons and call e.g. this.eventSystem.invoke("onNodeColorChange", color) - then in tdaview.js, menu.eventSystem.addEventListner("onNodeColorChange", function(color) {/*change forceGraph color*/})
+        var nodecolor = document.getElementById("node-color");
+        var nodeGradPicker = new gradientPicker(nodecolor, (steps) => this.eventSystem.invokeEvent("onNodeGradientChange", steps));
     }
-    
-
 
     generateHTML() {
         return /*html*/`
@@ -52,16 +51,14 @@ class menu {
             <div class="accordion-wrapper">
                 <div class="accordion-item open">
                     <h4 class="accordion-item-heading">Size</h4>
-                    <div class="accordion-item-content">
+                    <div id="node-size" class="accordion-item-content">
                         Options for size functions go here..
                     </div>
                 </div>
 
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Colour</h4>
-                    <div class="accordion-item-content">
-                        Options for colour source go here..
-                    </div>
+                    <div id="node-color" class="accordion-item-content"></div>
                 </div>
 
                 <div class="accordion-item close">

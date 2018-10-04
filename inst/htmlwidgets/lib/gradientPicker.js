@@ -3,7 +3,7 @@ const STEP_WIDTH = 5;
 let gradMouseDown = false;
 
 class gradientPicker {
-    constructor(parent) {
+    constructor(parent, gradientChangeCallback) {
         var self = this;
 
         //Counter for unique step ids
@@ -28,6 +28,7 @@ class gradientPicker {
         this.picker.on("change", function(color) {
             self.selected.color = color;
             self.setBarGradient();
+            gradientChangeCallback(color);
         });
         this.picker.enter();
 
@@ -38,6 +39,8 @@ class gradientPicker {
         this.bar.addEventListener("dblclick", function(event) {
             self.addStep(event.clientX);
         });
+
+        this.barRectLeft = this.bar.getBoundingClientRect().left;
 
         //Drop step
         window.addEventListener("mouseup", function() {
@@ -51,7 +54,7 @@ class gradientPicker {
             }
         });
     }
-    
+
     addStep(left) {
         var self = this;
 
@@ -61,7 +64,7 @@ class gradientPicker {
         this.bar.appendChild(element);
         
         //Click on step to select
-        var s = new step(this.counter++, element, "ff0000");
+        var s = new step(this.counter++, element, "ff0000", left/BAR_WIDTH);
         element.addEventListener("mousedown", function(event) {
             self.setSelected(s);
             gradMouseDown = true;
@@ -98,6 +101,7 @@ class gradientPicker {
     }
 
     setStepTranslation(left) {
+        left -= this.barRectLeft;
         if(left >= 0 && left <= BAR_WIDTH - STEP_WIDTH) {
             this.selected.element.style.left = left + "px";
             this.selected.percentage = left/BAR_WIDTH * 100;
@@ -115,6 +119,7 @@ class gradientPicker {
     }
 
     setBarGradient() {
+        console.log(this.steps);
         if(this.steps.length == 1) {
             //Set overall bar color since gradient requires more than one step
             this.bar.style.backgroundColor = "#" + this.steps[0].color;
