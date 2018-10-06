@@ -79,9 +79,10 @@ class node {
         var nodeDiv = document.createElement('div');
         nodeDiv.className = 'unselectable label nlabel';
         nodeDiv.textContent = labelText;
-        var nodeLabel = new THREE.CSS2DObject(nodeDiv);
-        nodeLabel.position.set(0, 0, 0);
-        this.mesh.add(nodeLabel);
+        
+        this.label = new THREE.CSS2DObject(nodeDiv);
+        this.label.position.set(0, 0, 0);
+        this.mesh.add(this.label);
 
         parent.add(this.mesh);
     }
