@@ -1,6 +1,7 @@
 const segments = 64;
 class node {
 	constructor(index, labelText, data, color, colormap, parent) {
+        console.log(colormap);
         this.index = index;
         Object.assign(this, data);
 

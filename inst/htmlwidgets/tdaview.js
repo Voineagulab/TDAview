@@ -90,7 +90,7 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
-				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
+				graph = new forceGraph(bins, x.mapper.adjacency, map, element, mouseToWorld);
 				scene.add(graph);
 
 				//Menu creation
@@ -108,7 +108,6 @@ HTMLWidgets.widget({
 					requestAnimationFrame(render);
 				});
 
-				graph = new forceGraph(bins, x.mapper.adjacency, map, element, mouseToWorld);
 				scene.add(graph);
 
 				//Set graph colors
