@@ -1,5 +1,5 @@
 class forceGraph extends THREE.Group {
-    constructor(data, adjacency, texture, element, mouseToWorld) {
+    constructor(data, adjacency, colormap, element, mouseToWorld) {
         super();
         this.initiallizing = true;
 
@@ -13,7 +13,7 @@ class forceGraph extends THREE.Group {
         //Create nodes as single mesh
         this.nodes = new Array(data.length);
         for(let i=0; i<data.length; i++) {
-            this.nodes[i] = new node(i, "Node " + i, data[i], 0.0, texture, this);
+            this.nodes[i] = new node(i, "Node " + i, data[i], 0.0, colormap, this);
         }
 
         //Create links as separate meshes
@@ -22,7 +22,7 @@ class forceGraph extends THREE.Group {
             let row = adjacency[i];
             for(let j=0; j<row.length; j++) {
                 if(row[j]) {
-                    this.links.push(new link(this.nodes[i], this.nodes[j], texture, this));
+                    this.links.push(new link(this.nodes[i], this.nodes[j], colormap, this));
                 }
             }
         }

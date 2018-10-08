@@ -1,6 +1,6 @@
 const segments = 64;
 class node {
-	constructor(index, labelText, data, color, texture, parent) {
+	constructor(index, labelText, data, color, colormap, parent) {
         this.index = index;
         Object.assign(this, data);
 
@@ -35,7 +35,7 @@ class node {
 
         this.material = new THREE.RawShaderMaterial({
             uniforms: {
-                texture: { type: "t", value: texture },
+                texture: { type: "t", value: colormap.getTexture() },
             },
             vertexShader: [
                 "precision highp float;",
@@ -50,7 +50,7 @@ class node {
                 "void main() {",
                 "",
                 "   vU = u;",
-                "	gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position , 0.0, 1.0 );",
+                "   gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position , 0.0, 1.0 );",
                 "",
                 "}"
                 ].join("\n"),
@@ -68,6 +68,13 @@ class node {
                 ].join("\n"),
           side: THREE.DoubleSide,
           transparent: false
+        });
+
+        var self = this;
+        colormap.eventSystem.addEventListener("onUpdate", function() {
+            //TODO: 1 material for all nodes, fix texture updating instead of copying? Possibly still uses same tex id underneath 
+            //self.material.needsUpdate = true;
+            self.material.uniforms.texture.value = colormap.getTexture(); 
         });
 
         this.mesh = new THREE.Mesh(geometry, this.material);
@@ -111,5 +118,13 @@ class node {
 
     setLabelText(text) {
         this.label.element.textContent = text;
+    }
+
+    addLabelClassName(className) {
+        this.label.element.classList.add(className);
+    }
+
+    removeLabelClassName(className) {
+        this.label.element.classList.remove(className);
     }
 }

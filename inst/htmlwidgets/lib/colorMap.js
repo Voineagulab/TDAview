@@ -11,10 +11,13 @@ class ColorMap extends THREE.Group {
 		this.clock = new THREE.Clock(false);
         this.n = n;
         this.material = new THREE.MeshBasicMaterial(); 
-        this.table = new Array(this.n).fill(null);
+		this.table = new Array(this.n).fill(null);
+		
+		//Event system for updating materials
+		this.eventSystem = new event();
 
         //Set map and material texture
-        this.changeColorMap(mapName);
+        this.changeColorMapByName(mapName);
 
         //Create legend
         let columnWidth = width / cols;
@@ -40,11 +43,10 @@ class ColorMap extends THREE.Group {
 		this.add(this.maxLabel);
 	}
 
-	changeColorMap(mapName) {
+	changeColorMap(map) {
 		var step = 1.0 / this.n;
         var index = 0;
         var stride = 0;
-		var map = ColorMapKeywords[mapName]
 		var data = new Uint8Array(3 * this.n);
 		for(var i = 0; i <= 1; i += step) {
 			for(var j = 0; j < map.length-1; ++j) {
@@ -66,6 +68,11 @@ class ColorMap extends THREE.Group {
 		this.material.map = dataTex;
 		this.material.magFilter = this.material.minFilter = THREE.NearestFilter;
 		this.material.needsUpdate = true;
+		this.eventSystem.invokeEvent("onUpdate");
+	}
+
+	changeColorMapByName(mapName) {
+		this.changeColorMap(ColorMapKeywords[mapName]);
 	}
 
 	getColorByValue(value, min, max) {

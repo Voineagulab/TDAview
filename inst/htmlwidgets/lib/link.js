@@ -1,7 +1,7 @@
 const LINE_WIDTH = 0.4;
 
 class link {
-	constructor(source, target, texture, parent) {
+	constructor(source, target, colormap, parent) {
 		this.source = source;
         this.target = target;
         
@@ -27,7 +27,7 @@ class link {
             uniforms: {
                 image: {
                     type: 't',
-                    value: texture
+                    value: colormap.getTexture()
                 }
             },
             vertexShader: [
@@ -61,6 +61,10 @@ class link {
                 ].join("\n"),
           side: THREE.DoubleSide,
           transparent: false
+        });
+
+        colormap.eventSystem.addEventListener("onUpdate", function() {
+            material.needsUpdate = true;
         });
 
         this.mesh = new THREE.Mesh(geometry, material);

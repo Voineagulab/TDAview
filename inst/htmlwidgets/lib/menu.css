@@ -60,6 +60,11 @@ table {
 	color: #aaaaaa;
 }
 
+/*select styling */
+select {
+    width: 5.5em
+}
+
 
 /* Accordion in sidebar styling */
 
@@ -100,6 +105,7 @@ table {
     -moz-transform: rotate(0deg);
     -webkit-transform: rotate(0deg);
     -ms-writing-mode: lr-tb;
+    writing-mode: lr-tb;
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0);
     margin-bottom: 0px;
 }

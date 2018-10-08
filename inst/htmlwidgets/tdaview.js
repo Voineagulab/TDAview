@@ -39,6 +39,10 @@ HTMLWidgets.widget({
 				var hudScene = new THREE.Scene();
 				scene.background = new THREE.Color(0x4b515b);
 
+				var exportDiv = document.createElement('div');
+				exportDiv.setAttribute("id", "export");
+				element.appendChild(exportDiv);
+
 				//Create renderers
 				renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true });
 				renderer.setSize(width, height);
@@ -54,8 +58,8 @@ HTMLWidgets.widget({
 				labelRenderer.domElement.setAttribute("id", "labelcanvas");
 
 				//Add to DOM
-				element.appendChild(renderer.domElement);
-				element.appendChild(labelRenderer.domElement);
+				exportDiv.appendChild(renderer.domElement);
+				exportDiv.appendChild(labelRenderer.domElement);
 
 				//Mouse utility function
 				var mouseWorld = new THREE.Vector3();
@@ -86,11 +90,25 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
+				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
+				scene.add(graph);
+
 				//Menu creation
 				var sidebar = new menu(element);
-				//something like sidebar.eventSystem.addEventListener("onNodeGradientChange", map.setSteps); need separate legend for pie charts though
+				sidebar.nodeGradPicker.eventSystem.addEventListener("onGradientChange", function(steps) {
+					//Parses step format into colormap array format and adds start/end steps. 
+					//TODO: Better to share base class (gradientPicker can extend it to include "element")
+					var array = new Array(steps.length+2);
+					array[0] = [0.0, "0x" + steps[0].color];
+					array[array.length-1] = [1.0, "0x" + steps[steps.length-1].color];
+					for(let i=0; i<steps.length; i++) {
+						array[i+1] = [steps[i].percentage/100, "0x" + steps[i].color];
+					}
+					map.changeColorMap(array);
+					requestAnimationFrame(render);
+				});
 
-				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
+				graph = new forceGraph(bins, x.mapper.adjacency, map, element, mouseToWorld);
 				scene.add(graph);
 
 				//Set graph colors
