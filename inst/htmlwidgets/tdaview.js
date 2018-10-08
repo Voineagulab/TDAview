@@ -94,7 +94,7 @@ HTMLWidgets.widget({
 				scene.add(graph);
 
 				//Menu creation
-				var sidebar = new menu(element);
+				var sidebar = new menu(graph, bins, element);
 				sidebar.nodeGradPicker.eventSystem.addEventListener("onGradientChange", function(steps) {
 					//Parses step format into colormap array format and adds start/end steps. 
 					//TODO: Better to share base class (gradientPicker can extend it to include "element")
