@@ -2,26 +2,20 @@
 
     TODO:
     1. Add event listeners for sidebar
-        2. Always have one section open in accordion
-        3. Add +/- to open/closed sections
-        4. Add extra submenus, populate with content
-            <-> Node Labels
-            <-> Node Size
-            <-> Node Colour
-            <-> Edge Size
-            <-> Edge Colour
-            <-> Export
 
 */
 
 
 class menu {
-	constructor(element) {
+	constructor(graph, bins, element) {
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML();
+        this.graph = graph;
+        this.bins = bins;
 
         element.appendChild(this.domElement);
 
+        //Accordion listeners
         var accOpen = 0;
         var accItem = this.domElement.getElementsByClassName("accordion-item");
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
@@ -36,6 +30,56 @@ class menu {
             }, false);
         }
 
+        //Node label customisation listeners
+        var labelradios = document.forms["labels"].elements["labeltype"];
+        for(let i=0; i<labelradios.length; i++) {
+            labelradios[i].onclick = function() {
+                if(this.value == "size") {
+                    for(let i=0; i<graph.nodes.length; i++) {
+                        graph.nodes[i].removeLabelClassName('hiddenlabel');
+                        graph.nodes[i].addLabelClassName('unselectable');
+                        graph.nodes[i].addLabelClassName('label');
+                        graph.nodes[i].addLabelClassName('nlabel');
+                        graph.nodes[i].setLabelText(bins[i].points.length);
+                    }
+                } else if (this.value == "none") {
+                    for(let i=0; i<graph.nodes.length; i++) {
+                        graph.nodes[i].addLabelClassName('hiddenlabel');
+                        graph.nodes[i].removeLabelClassName('unselectable');
+                        graph.nodes[i].removeLabelClassName('label');
+                        graph.nodes[i].removeLabelClassName('nlabel');
+                        graph.nodes[i].setLabelText("");
+                    }
+                } else {
+                    for(let i=0; i<graph.nodes.length; i++) {
+                        graph.nodes[i].removeLabelClassName('hiddenlabel');
+                        graph.nodes[i].addLabelClassName('unselectable');
+                        graph.nodes[i].addLabelClassName('label');
+                        graph.nodes[i].addLabelClassName('nlabel');
+                        graph.nodes[i].setLabelText("Node " + i);
+                    }
+                }
+            };
+        }
+
+        //Graph exportation listeners
+        var button = document.getElementById("graphexport");
+        var graphradios = document.forms["graphext"].elements["graphtype"];
+        button.addEventListener("click", function() {
+            html2canvas(document.getElementById("export"), {
+                width: width,
+                height: height
+            }).then(function(canvas) {
+                    var imgtype = graphradios.value;
+                    var imgdata = canvas.toDataURL("image/" + imgtype);
+                    imgdata = imgdata.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
+                    imgdata = imgdata.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
+                    button.setAttribute("download", "graph." + imgtype);
+                    button.setAttribute("href", imgdata);
+                }
+            );
+        });
+
         this.eventSystem = new event();
         var nodecolor = document.getElementById("node-color");
         var nodeGradPicker = new gradientPicker(nodecolor, (steps) => this.eventSystem.invokeEvent("onNodeGradientChange", steps));
@@ -43,7 +87,7 @@ class menu {
 
     generateHTML() {
         return /*html*/`
-        <div class="unselectable sidenav" style="width: 250px; height: 500px; position: absolute; top: 0px;">
+        <div class="unselectable sidenav">
             <br>
 
             <h1 class="subsection-heading">Node Settings</h1>
@@ -63,11 +107,14 @@ class menu {
 
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Label</h4>
-                    <div class="accordion-item-content">
-                        <form action="">
-                            <input type="radio" name="labeltype" value="name" checked>Name<br>
-                            <input type="radio" name="labeltype" value="size">Size<br>
-                            <input type="radio" name="labeltype" value="none">None
+                    <div id="labelselect" class="accordion-item-content">
+                        <form name="labels">
+                        <input type="radio" name="labeltype" value="name" id="name" checked />
+                        <label for="name">Name</label><br>
+                        <input type="radio" name="labeltype" value="size" id="size">
+                        <label for="size">Size</label><br>
+                        <input type="radio" name="labeltype" value="none" id="none">
+                        <label for="none">None</label>
                         </form>
                     </div>
                 </div>
@@ -97,9 +144,13 @@ class menu {
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Export graph</h4>
                     <div class="accordion-item-content">
-                        <input type="radio" name="graphtype" value="png" checked>PNG<br>
-                        <input type="radio" name="graphtype" value="jpeg">JPEG<br><br>
-                        <a href="#" class="myButton">Export Graph</a>
+                        <form name="graphext">
+                        <input type="radio" name="graphtype" value="png" id="png" checked />
+                        <label for="png">PNG</label><br>
+                        <input type="radio" name="graphtype" value="jpeg" id="jpeg">
+                        <label for="jpeg">JPEG</label><br><br>
+                        <a href="#" class="myButton" id="graphexport">Export Graph</a>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -149,52 +200,3 @@ class menu {
         `* /
 */
 
-
-// Code for the initial accordion format..
-/*
-        <div class="unselectable sidenav" style="width: 250px; height: 500px; position: absolute; top: 0px;">
-            <br>
-            <div class="closebtn">✕</div>
-            <div class="panel-group" id="accordion">
-            	<div class="panel panel-default">
-            		<div class="panel-heading">
-            			<h4 class="panel-title">
-            				<a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Select colour source:</a>
-            			</h4>
-            		</div>
-            		<div id="collapse1" class="panel-collapse collapse in">
-            			<div class="panel-body">
-            				Options for colour source go here..
-            			</div>
-            		</div>
-            	</div>
-            	<hr>
-            	<div class="panel panel-default">
-            		<div class="panel-heading">
-            			<h4 class="panel-title">
-            				<a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Node label as:</a>
-            			</h4>
-            		</div>
-            		<div id="collapse2" class="panel-collapse collapse">
-            			<div class="panel-body">
-            				Options for node labels go here..
-            			</div>
-            		</div>
-            	</div>
-            	<hr>
-            	<div class="panel panel-default">
-            		<div class="panel-heading">
-            			<h4 class="panel-title">
-            				<a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Export Graph</a>
-            			</h4>
-            		</div>
-            		<div id="collapse3" class="panel-collapse collapse">
-            			<div class="panel-body">
-            				Options for exporting graph go here..
-            			</div>
-            		</div>
-            	</div>
-            	<hr>
-            </div>
-        </div>`
-*/

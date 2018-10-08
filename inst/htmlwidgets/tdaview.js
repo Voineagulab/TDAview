@@ -39,6 +39,10 @@ HTMLWidgets.widget({
 				var hudScene = new THREE.Scene();
 				scene.background = new THREE.Color(0x4b515b);
 
+				var exportDiv = document.createElement('div');
+				exportDiv.setAttribute("id", "export");
+				element.appendChild(exportDiv);
+
 				//Create renderers
 				renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true });
 				renderer.setSize(width, height);
@@ -54,8 +58,8 @@ HTMLWidgets.widget({
 				labelRenderer.domElement.setAttribute("id", "labelcanvas");
 
 				//Add to DOM
-				element.appendChild(renderer.domElement);
-				element.appendChild(labelRenderer.domElement);
+				exportDiv.appendChild(renderer.domElement);
+				exportDiv.appendChild(labelRenderer.domElement);
 
 				//Mouse utility function
 				var mouseWorld = new THREE.Vector3();
@@ -86,12 +90,13 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
-				//Menu creation
-				var sidebar = new menu(element);
-				//something like sidebar.eventSystem.addEventListener("onNodeGradientChange", map.setSteps); need separate legend for pie charts though
-
 				graph = new forceGraph(bins, x.mapper.adjacency, map.getTexture(), element, mouseToWorld);
 				scene.add(graph);
+
+				//Menu creation
+				var sidebar = new menu(graph, bins, element);
+				//something like sidebar.eventSystem.addEventListener("onNodeGradientChange", map.setSteps); need separate legend for pie charts though
+
 
 				//Set graph colors
 				for(let i=0; i<graph.nodes.length; i++) {

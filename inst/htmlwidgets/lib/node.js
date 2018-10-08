@@ -1,6 +1,6 @@
 const segments = 64;
 class node {
-	constructor(index, labelText, data, color, texture, parent) {
+    constructor(index, labelText, data, color, texture, parent) {
         this.index = index;
         Object.assign(this, data);
 
@@ -50,7 +50,7 @@ class node {
                 "void main() {",
                 "",
                 "   vU = u;",
-                "	gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position , 0.0, 1.0 );",
+                "   gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position , 0.0, 1.0 );",
                 "",
                 "}"
                 ].join("\n"),
@@ -111,5 +111,13 @@ class node {
 
     setLabelText(text) {
         this.label.element.textContent = text;
+    }
+
+    addLabelClassName(className) {
+        this.label.element.classList.add(className);
+    }
+
+    removeLabelClassName(className) {
+        this.label.element.classList.remove(className);
     }
 }
