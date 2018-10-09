@@ -75,9 +75,6 @@ class node {
         geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-0.5, -0.5, 0), new THREE.Vector3(0.5, 0.5, 0));
 
         this.mesh = new THREE.Mesh(geometry, nodeMaterial);
-        
-        this.setRadius(100);
-        this.setColor(color);
 
         //Create label
         var nodeDiv = document.createElement('div');
@@ -85,8 +82,12 @@ class node {
         nodeDiv.textContent = labelText;
         
         this.label = new THREE.CSS2DObject(nodeDiv);
-        this.label.position.set(0, 0, 0);
+        
         this.mesh.add(this.label);
+        
+        this.label.position.setY(1);
+        this.setRadius(1);
+        this.setColor(color);
 
         parent.add(this.mesh);
     }
