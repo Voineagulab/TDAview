@@ -1,29 +1,9 @@
+var linkMaterial = null;
+
 const LINE_WIDTH = 0.4;
-
 class link {
-	constructor(source, target, colormap, parent) {
-		this.source = source;
-        this.target = target;
-        
-        var geometry = new THREE.BufferGeometry();
-        var indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
-        var vertices = new Float32Array([
-            0.0, 0.0,
-            0.0, 0.0,
-            0.0, 0.0,
-            0.0, 0.0,
-        ]);
-
-        var uv = new Float32Array(4).fill(0.0);
-
-        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-        geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 2).setDynamic(true)); //xy
-        geometry.addAttribute('u', new THREE.BufferAttribute(uv, 1)); //u
-
-        geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 0);
-        geometry.computeBoundingBox();
-
-        var material = new THREE.RawShaderMaterial({
+    static initMaterial(colormap) {
+        linkMaterial = new THREE.RawShaderMaterial({
             uniforms: {
                 image: {
                     type: 't',
@@ -59,15 +39,34 @@ class link {
                 "",
                 "}"
                 ].join("\n"),
-          side: THREE.DoubleSide,
-          transparent: false
+            side: THREE.DoubleSide,
+            transparent: false
         });
+    }
 
-        colormap.eventSystem.addEventListener("onUpdate", function() {
-            material.needsUpdate = true;
-        });
+	constructor(source, target, parent) {
+		this.source = source;
+        this.target = target;
+        
+        var geometry = new THREE.BufferGeometry();
+        var indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
+        var vertices = new Float32Array([
+            0.0, 0.0,
+            0.0, 0.0,
+            0.0, 0.0,
+            0.0, 0.0,
+        ]);
 
-        this.mesh = new THREE.Mesh(geometry, material);
+        var uv = new Float32Array(4).fill(0.0);
+
+        geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+        geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 2).setDynamic(true)); //xy
+        geometry.addAttribute('u', new THREE.BufferAttribute(uv, 1)); //u
+
+        geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 0);
+        geometry.computeBoundingBox();
+
+        this.mesh = new THREE.Mesh(geometry, linkMaterial);
         parent.add(this.mesh);
     }
 

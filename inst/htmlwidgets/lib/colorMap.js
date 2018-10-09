@@ -12,6 +12,9 @@ class ColorMap extends THREE.Group {
         this.n = n;
         this.material = new THREE.MeshBasicMaterial(); 
 		this.table = new Array(this.n).fill(null);
+
+		this.material.map = new THREE.DataTexture(new Uint8Array(3 * this.n).fill(0), this.n, 1, THREE.RGBFormat);
+		this.material.magFilter = this.material.minFilter = THREE.NearestFilter;
 		
 		//Event system for updating materials
 		this.eventSystem = new event();
@@ -47,7 +50,7 @@ class ColorMap extends THREE.Group {
 		var step = 1.0 / this.n;
         var index = 0;
         var stride = 0;
-		var data = new Uint8Array(3 * this.n);
+		var data = this.material.map.image.data;
 		for(var i = 0; i <= 1; i += step) {
 			for(var j = 0; j < map.length-1; ++j) {
 				if(i >= map[j][0] && i < map[j+1][0]) {
@@ -63,10 +66,7 @@ class ColorMap extends THREE.Group {
 				}
 			}
 		}
-		var dataTex = new THREE.DataTexture(data, this.n, 1, THREE.RGBFormat);
-		dataTex.needsUpdate = true;
-		this.material.map = dataTex;
-		this.material.magFilter = this.material.minFilter = THREE.NearestFilter;
+		this.material.map.needsUpdate = true;
 		this.material.needsUpdate = true;
 		this.eventSystem.invokeEvent("onUpdate");
 	}

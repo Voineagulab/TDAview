@@ -1,40 +1,9 @@
+var nodeMaterial = null;
+
 const segments = 64;
 class node {
-	constructor(index, labelText, data, color, colormap, parent) {
-        console.log(colormap);
-        this.index = index;
-        Object.assign(this, data);
-
-        //Create mesh
-        var geometry = new THREE.BufferGeometry();
-        var vertices = new Float32Array(6*segments);
-        for(let i=0, j=0, k=0; i<segments; i++, j+=6, k+=3) {
-            vertices[j] = vertices[j+1] = 0.0;
-            var theta = i/segments * Math.PI * 2;
-            vertices[j+2] = Math.sin(theta);
-            vertices[j+3] = Math.cos(theta);
-            theta = (i+1)/segments * Math.PI * 2;
-            vertices[j+4] = Math.sin(theta);
-            vertices[j+5] = Math.cos(theta);
-        }
-
-        //Generate random pie chart
-        var uvs = new Float32Array(3 * segments);
-        let curr = 0;
-        for(let j=0; j<3 * segments; j++) {
-            if(Math.random() < 0.02) {
-                curr = Math.min(curr + Math.random()/2, 1.0);
-            }
-            uvs[j] = curr;
-        }
-
-        geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2).setDynamic(true));
-        geometry.addAttribute("u", new THREE.BufferAttribute(uvs, 1));
-
-        geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1);
-        geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-0.5, -0.5, 0), new THREE.Vector3(0.5, 0.5, 0));
-
-        this.material = new THREE.RawShaderMaterial({
+    static intMaterial(colormap) {
+        nodeMaterial = new THREE.RawShaderMaterial({
             uniforms: {
                 texture: { type: "t", value: colormap.getTexture() },
             },
@@ -67,18 +36,45 @@ class node {
                 "",
                 "}"
                 ].join("\n"),
-          side: THREE.DoubleSide,
-          transparent: false
+            side: THREE.DoubleSide,
+            transparent: false
         });
+    }
 
-        var self = this;
-        colormap.eventSystem.addEventListener("onUpdate", function() {
-            //TODO: 1 material for all nodes, fix texture updating instead of copying? Possibly still uses same tex id underneath 
-            //self.material.needsUpdate = true;
-            self.material.uniforms.texture.value = colormap.getTexture(); 
-        });
+	constructor(index, labelText, data, color, parent) {
+        this.index = index;
+        Object.assign(this, data);
 
-        this.mesh = new THREE.Mesh(geometry, this.material);
+        //Create mesh
+        var geometry = new THREE.BufferGeometry();
+        var vertices = new Float32Array(6*segments);
+        for(let i=0, j=0, k=0; i<segments; i++, j+=6, k+=3) {
+            vertices[j] = vertices[j+1] = 0.0;
+            var theta = i/segments * Math.PI * 2;
+            vertices[j+2] = Math.sin(theta);
+            vertices[j+3] = Math.cos(theta);
+            theta = (i+1)/segments * Math.PI * 2;
+            vertices[j+4] = Math.sin(theta);
+            vertices[j+5] = Math.cos(theta);
+        }
+
+        //Generate random pie chart
+        var uvs = new Float32Array(3 * segments);
+        let curr = 0;
+        for(let j=0; j<3 * segments; j++) {
+            if(Math.random() < 0.02) {
+                curr = Math.min(curr + Math.random()/2, 1.0);
+            }
+            uvs[j] = curr;
+        }
+
+        geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2).setDynamic(true));
+        geometry.addAttribute("u", new THREE.BufferAttribute(uvs, 1));
+
+        geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1);
+        geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-0.5, -0.5, 0), new THREE.Vector3(0.5, 0.5, 0));
+
+        this.mesh = new THREE.Mesh(geometry, nodeMaterial);
         
         this.setRadius(100);
         this.setColor(color);

@@ -11,18 +11,20 @@ class forceGraph extends THREE.Group {
         this.mouseWorld;
         
         //Create nodes as single mesh
+        node.intMaterial(colormap);
         this.nodes = new Array(data.length);
         for(let i=0; i<data.length; i++) {
-            this.nodes[i] = new node(i, "Node " + i, data[i], 0.0, colormap, this);
+            this.nodes[i] = new node(i, "Node " + i, data[i], 0.0, this);
         }
 
         //Create links as separate meshes
         this.links = [];
+        link.initMaterial(colormap);
         for(let i=0; i<adjacency[0].length; i++) {
             let row = adjacency[i];
             for(let j=0; j<row.length; j++) {
                 if(row[j]) {
-                    this.links.push(new link(this.nodes[i], this.nodes[j], colormap, this));
+                    this.links.push(new link(this.nodes[i], this.nodes[j], this));
                 }
             }
         }
