@@ -41,6 +41,10 @@ class node {
         });
     }
 
+    static updateColorMap(colomap) {
+        nodeMaterial.uniforms.texture = colormap.getTexture();
+    }
+
 	constructor(index, labelText, data, color, parent) {
         this.index = index;
         Object.assign(this, data);
@@ -58,15 +62,8 @@ class node {
             vertices[j+5] = Math.cos(theta);
         }
 
-        //Generate random pie chart
-        var uvs = new Float32Array(3 * segments);
-        let curr = 0;
-        for(let j=0; j<3 * segments; j++) {
-            if(Math.random() < 0.02) {
-                curr = Math.min(curr + Math.random()/2, 1.0);
-            }
-            uvs[j] = curr;
-        }
+        
+        var uvs = new Float32Array(3 * segments).fill(color);
 
         geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2).setDynamic(true));
         geometry.addAttribute("u", new THREE.BufferAttribute(uvs, 1));
@@ -99,6 +96,24 @@ class node {
 
     setColor(value) {
         this.color = value;
+        this.mesh.geometry.attributes.u.array.fill(value);
+        this.mesh.geometry.attributes.u.needsUpdate = true;
+    }
+
+    //e.g. [0.1, 0.7, 0.2]
+    setColorPie(values) {
+        //TODO
+    }
+
+    setColorPieRandom() {
+        let uvs = this.mesh.geometry.attributes.u.array;
+        let curr = 0;
+        for(let j=0; j<3 * segments; j++) {
+            if(Math.random() < 0.02) {
+                curr = Math.min(curr + Math.random()/2, 1.0);
+            }
+            uvs[j] = curr;
+        }
     }
 
     getColor() {
