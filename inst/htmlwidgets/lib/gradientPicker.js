@@ -87,8 +87,8 @@ class gradientPicker {
     }
 
     removeStepAt(index) {
+        this.bar.removeChild(this.steps[index].element);
         this.steps.splice(index, 1);
-        this.bar.removeChild(s.element);
     }
 
     addStep(left=0) {
