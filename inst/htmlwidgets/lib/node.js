@@ -41,7 +41,7 @@ class node {
         });
     }
 
-    static updateColorMap(colomap) {
+    static updateColorMap(colormap) {
         nodeMaterial.uniforms.texture = colormap.getTexture();
     }
 

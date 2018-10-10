@@ -106,8 +106,7 @@ class menu {
                     <h4 class="accordion-item-heading">Colour</h4>
                     <div id="node-color" class="accordion-item-content">
                     <form name="node-color-meta">
-                        ${metaVars.map(v => `<input type="checkbox" name="node-color-meta" value="${v}" id="${v}" />
-                        <label for="${v}">${v}</label><br>`)}
+                        ${metaVars.map(v => `<input type="checkbox" name="node-color-meta" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
                     </form>
                     </div>
                 </div>
