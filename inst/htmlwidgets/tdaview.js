@@ -139,6 +139,11 @@ HTMLWidgets.widget({
 						
 						case 0: {
 							sidebar.nodeGradPicker.setStateSingle();
+							//Set link colors
+							for(let i=0; i<graph.links.length; i++) {
+								graph.links[i].setColor(0.5);
+								graph.links[i].updateColor();
+							}
 							break;
 						}
 						case 1: {
@@ -147,8 +152,12 @@ HTMLWidgets.widget({
 							for(let i=0; i<graph.nodes.length; i++) {
 								graph.nodes[i].setColor(graph.nodes[i].mean[meta]);
 							}
+							//Update link colors
+							for(let i=0; i<graph.links.length; i++) {
+								graph.links[i].setGradientFromNodes();
+								graph.links[i].updateColor();
+							}
 							break;
-
 						}
 						default: {
 							sidebar.nodeGradPicker.setStateFixedGradient(count);
@@ -166,6 +175,12 @@ HTMLWidgets.widget({
 									pie[j] /= sum;
 								}
 								graph.nodes[i].setColorPie(pie);
+							}
+
+							//Update link colors
+							for(let i=0; i<graph.links.length; i++) {
+								graph.links[i].setGradientFromNodes();
+								graph.links[i].updateColor();
 							}
 						}
 					}

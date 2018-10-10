@@ -102,6 +102,7 @@ class node {
 
     //e.g. [0.1, 0.7, 0.2]
     setColorPie(values) {
+        //Calculate segment colors
         let uvs = this.mesh.geometry.attributes.u.array;
         let currIndex = -1;
         let currVal = 0;
@@ -116,7 +117,16 @@ class node {
         }
         this.mesh.geometry.attributes.u.needsUpdate = true;
 
-        //this.color = Math.max(values);
+        //Calculate majority color
+        let maxVal = 0;
+        let maxIndex = 0;
+        for(let i=0; i<values.length; i++) {
+            if(values[i] > maxVal) {
+                maxVal = values[i];
+                maxIndex = i;
+            }
+        }
+        this.color = maxIndex/values.length;
     }
 
     setColorPieRandom() {
