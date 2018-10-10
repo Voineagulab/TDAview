@@ -91,7 +91,7 @@ HTMLWidgets.widget({
 				}
 				map.setLegendColHeights(heights, 0, 1);
 				
-				graph = new forceGraph(bins, x.mapper.adjacency, map, element, mouseToWorld);
+				graph = new forceGraph(bins, x.mapper.adjacency, map, exportDiv, mouseToWorld);
 				scene.add(graph);
 
 				//Menu creation

@@ -10,6 +10,8 @@
 
 class menu {
 	constructor(graph, element, metaVars) {
+        var self = this;
+
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML(metaVars);
         this.eventSystem = new event(); //TODO unused
@@ -67,9 +69,9 @@ class menu {
         var button = document.getElementById("graphexport");
         var graphradios = document.forms["graphext"].elements["graphtype"];
         button.addEventListener("click", function() {
-            html2canvas(document.getElementById("export"), {
-                width: width,
-                height: height
+            html2canvas(document.getElementById("export"), { //moving labels up with -1em glitches image, also not offsetted by sidebar
+                //width: width,
+                //height: height //These are undefined here, originally intended to fix slight overestimate
             }).then(function(canvas) {
                     var imgtype = graphradios.value;
                     var imgdata = canvas.toDataURL("image/" + imgtype);
@@ -81,9 +83,20 @@ class menu {
             );
         });
 
+        this.eventSystem.addEventListener("onColorMetaChange", function(checked) {console.log(checked)});
+
         //Node color customisation 
         this.nodeGradPicker = new gradientPicker(document.getElementById("node-color"));
-        this.nodeMetaPicker = document.getElementById("node-color-meta")
+        var nodeColorMeta = document.getElementById("node-color-meta");
+        var nodeColorMetaBoxes = nodeColorMeta.getElementsByClassName("node-color-meta-boxes");
+        var checked = {};
+        for(let i=0; i<nodeColorMetaBoxes.length; i++) {
+            checked[nodeColorMetaBoxes[i].value] = false;
+            nodeColorMetaBoxes[i].onclick = function() {
+                checked[this.value] = this.checked;
+                self.eventSystem.invokeEvent("onColorMetaChange", checked);
+            }
+        }
     }
 
     //TODO make metadata variables dynamically generated
@@ -105,8 +118,8 @@ class menu {
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Colour</h4>
                     <div id="node-color" class="accordion-item-content">
-                    <form name="node-color-meta">
-                        ${metaVars.map(v => `<input type="checkbox" name="node-color-meta" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
+                    <form id="node-color-meta">
+                        ${metaVars.map(v => `<input type="checkbox" class="node-color-meta-boxes" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
                     </form>
                     </div>
                 </div>
