@@ -188,7 +188,7 @@ HTMLWidgets.widget({
 
 				scene.add(graph);
 
-				//Set graph colors
+				//Set graph colors and node size
 				for(let i=0; i<graph.nodes.length; i++) {
 					graph.nodes[i].setColor(graph.nodes[i].mean["x"]);
 					graph.nodes[i].setRadius(10 + Math.random() * 20);

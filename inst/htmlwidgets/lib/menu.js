@@ -33,7 +33,46 @@ class menu {
             }, false);
         }
 
-        //Node label customisation listeners
+        //Node size customisation
+        //TODO Set size based on metadata variables..?
+        var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
+        for(let i=0; i<sizeradios.length; i++) {
+            sizeradios[i].onclick = function() {
+                if(this.value == "none") {
+                    for(let i=0; i<graph.nodes.length; i++) {
+                        graph.nodes[i].setRadius(18);
+                    }
+                } else if (this.value == "content") {
+                    for(let i=0; i<graph.nodes.length; i++) {
+                        graph.nodes[i].setRadius(graph.nodes[i].points.length);
+                    }
+                } else {  //For metadata variables
+                    for(let j=0; j<metaVars.length; j++) {
+                        if(this.value == `${metaVars[j]}size`) {
+                            console.log(`We have the meta-variable ${metaVars[j]}!`);
+                        }
+                    }
+                    console.log(metaVars);
+                }
+            }
+        }
+
+        //Node color customisation 
+        this.nodeGradPicker = new gradientPicker(document.getElementById("node-color"));
+        var nodeColorMeta = document.getElementById("node-color-meta");
+        var nodeColorMetaBoxes = nodeColorMeta.getElementsByClassName("node-color-meta-boxes");
+        var checked = {};
+        var count = 0;
+        for(let i=0; i<nodeColorMetaBoxes.length; i++) {
+            checked[nodeColorMetaBoxes[i].value] = false;
+            nodeColorMetaBoxes[i].onclick = function() {
+                checked[this.value] = this.checked;
+                count += this.checked ? 1 : -1;
+                self.eventSystem.invokeEvent("onColorMetaChange", checked, count);
+            }
+        }
+
+        //Node label customisation
         var labelradios = document.forms["labels"].elements["labeltype"];
         for(let i=0; i<labelradios.length; i++) {
             labelradios[i].onclick = function() {
@@ -83,20 +122,7 @@ class menu {
             );
         });
         
-        //Node color customisation 
-        this.nodeGradPicker = new gradientPicker(document.getElementById("node-color"));
-        var nodeColorMeta = document.getElementById("node-color-meta");
-        var nodeColorMetaBoxes = nodeColorMeta.getElementsByClassName("node-color-meta-boxes");
-        var checked = {};
-        var count = 0;
-        for(let i=0; i<nodeColorMetaBoxes.length; i++) {
-            checked[nodeColorMetaBoxes[i].value] = false;
-            nodeColorMetaBoxes[i].onclick = function() {
-                checked[this.value] = this.checked;
-                count += this.checked ? 1 : -1;
-                self.eventSystem.invokeEvent("onColorMetaChange", checked, count);
-            }
-        }
+
     }
 
     //TODO make metadata variables dynamically generated
@@ -111,16 +137,22 @@ class menu {
                 <div class="accordion-item open">
                     <h4 class="accordion-item-heading">Size</h4>
                     <div id="node-size" class="accordion-item-content">
-                        Options for size functions go here..
+                        <form name="node-size-meta">
+                        <input type="radio" name="nodesize" value="content" id="contentsize" checked />
+                        <label for="contentsize">Content</label><br>
+                        ${metaVars.map(v => `<input type="radio" name="nodesize" value="${v}size" id="${v}size"/><label for="${v}size">${v}</label><br>`).join('')}
+                        <input type="radio" name="nodesize" value="none" id="nonesize"/>
+                        <label for="nonesize">None</label><br>
+                        </form>
                     </div>
                 </div>
 
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Colour</h4>
                     <div id="node-color" class="accordion-item-content">
-                    <form id="node-color-meta">
+                        <form id="node-color-meta">
                         ${metaVars.map(v => `<input type="checkbox" class="node-color-meta-boxes" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
-                    </form>
+                        </form>
                     </div>
                 </div>
 
