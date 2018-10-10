@@ -1,17 +1,18 @@
 /*
-
+    btw, I don't think I can run this from my end
     TODO:
     1. Add event listeners for sidebar
+    2. Checkboxes for metadata variables
+    3. 
 
 */
 
 
 class menu {
-	constructor(graph, bins, element) {
+	constructor(graph, element, metaVars) {
 		this.domElement = document.createElement("div");
-        this.domElement.innerHTML = this.generateHTML();
-        this.graph = graph;
-        this.bins = bins;
+        this.domElement.innerHTML = this.generateHTML(metaVars);
+        this.eventSystem = new event(); //TODO unused
 
         element.appendChild(this.domElement);
 
@@ -21,7 +22,7 @@ class menu {
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
         for(let i=0; i<accHD.length; i++) {
             accHD[i].addEventListener('click', function() {
-                //Toggle accordian items
+                //Toggle accordion items
                 if(accOpen != i) {
                     accItem[accOpen].className = 'accordion-item close';
                     accOpen = i;
@@ -40,7 +41,7 @@ class menu {
                         graph.nodes[i].addLabelClassName('unselectable');
                         graph.nodes[i].addLabelClassName('label');
                         graph.nodes[i].addLabelClassName('nlabel');
-                        graph.nodes[i].setLabelText(bins[i].points.length);
+                        graph.nodes[i].setLabelText(graph.nodes[i].points.length);
                     }
                 } else if (this.value == "none") {
                     for(let i=0; i<graph.nodes.length; i++) {
@@ -80,12 +81,13 @@ class menu {
             );
         });
 
-        this.eventSystem = new event();
+        //Node color customisation 
         this.nodeGradPicker = new gradientPicker(document.getElementById("node-color"));
+        this.nodeMetaPicker = document.getElementById("node-color-meta")
     }
 
     //TODO make metadata variables dynamically generated
-    generateHTML() {
+    generateHTML(metaVars) {
         return /*html*/`
         <div class="unselectable sidenav">
             <br>
@@ -103,10 +105,10 @@ class menu {
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Colour</h4>
                     <div id="node-color" class="accordion-item-content">
-                    <select multiple size=2>
-                        <option value="x">x</option>
-                        <option value="y">y</option>
-                    </select>
+                    <form name="node-color-meta">
+                        ${metaVars.map(v => `<input type="checkbox" name="node-color-meta" value="${v}" id="${v}" />
+                        <label for="${v}">${v}</label><br>`)}
+                    </form>
                     </div>
                 </div>
 

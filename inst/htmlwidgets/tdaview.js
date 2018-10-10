@@ -78,6 +78,7 @@ HTMLWidgets.widget({
 				for(let i=0; i<bins.length; i++) {
 					bins[i] = new bin(x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i]);
 				}
+				//I reckon just use bins for parsing - I removed them from menu
 
 				map = new ColorMap('rainbow', 256);
 				hudScene.add(map);
@@ -94,7 +95,8 @@ HTMLWidgets.widget({
 				scene.add(graph);
 
 				//Menu creation
-				var sidebar = new menu(graph, bins, element);
+				var metaVars = Object.keys(x.data);//TODO Not technically metadata
+				var sidebar = new menu(graph, element, metaVars);
 				sidebar.nodeGradPicker.eventSystem.addEventListener("onGradientChange", function(steps) {
 					//Parses step format into colormap array format and adds start/end steps. 
 					//TODO: Better to share base class (gradientPicker can extend it to include "element")
