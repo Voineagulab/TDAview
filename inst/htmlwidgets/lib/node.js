@@ -109,8 +109,8 @@ class node {
         for(let j=0; j<3 * segments; j++) {
             if(j >= nextSeg) {
                 currIndex++;
+                currVal = j/3*segments;
                 nextSeg += values[currIndex] * 3 * segments;
-                currVal = values[currIndex];
             }
             uvs[j] = currVal;
         }
