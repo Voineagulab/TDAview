@@ -6,7 +6,7 @@
 .gradient-bar {
     border: 1px solid black;
     position: relative;
-    width: 185px;
+    width: 160px;
     height: 10px;
     margin-bottom: 10px;
     cursor: e-resize;

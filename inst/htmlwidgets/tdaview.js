@@ -78,7 +78,27 @@ HTMLWidgets.widget({
 				for(let i=0; i<bins.length; i++) {
 					bins[i] = new bin(x.mapper.level_of_vertex[i], x.mapper.points_in_vertex[i]);
 				}
-				//I reckon just use bins for parsing - I removed them from menu
+
+				//Calculate normalised means for each meta var
+				var metaVars = Object.keys(x.data);
+				for(let i=0; i<metaVars.length; i++) {
+					var max = -Infinity;
+					var min = Infinity;
+					for(let j=0; j<x.data[metaVars[i]].length; j++) {
+						var val = x.data[metaVars[i]][j];
+						if(val > max) max = val;
+						if(val < min) min = val;
+					}
+					
+					for(let j=0; j<x.mapper.num_vertices; j++) {
+						var sum = 0;
+						var count = x.mapper.points_in_vertex[j].length;
+						for(let k=0; k<count; k++) {
+							sum += x.data[metaVars[i]][x.mapper.points_in_vertex[j][k]-1];
+						}
+						bins[j].mean[metaVars[i]] = (sum/count - min)/(max - min);
+					}
+				}
 
 				map = new ColorMap('rainbow', 256);
 				hudScene.add(map);
@@ -95,8 +115,12 @@ HTMLWidgets.widget({
 				scene.add(graph);
 
 				//Menu creation
-				var metaVars = Object.keys(x.data);//TODO Not technically metadata
 				var sidebar = new menu(graph, element, metaVars);
+				sidebar.nodeGradPicker.eventSystem.addEventListener("onColorChange", function(color) {
+					map.changeColorMap([[0.0, "0x" + color], [1.0, "0x" + color]]);
+					requestAnimationFrame(render);
+				});
+
 				sidebar.nodeGradPicker.eventSystem.addEventListener("onGradientChange", function(steps) {
 					//Parses step format into colormap array format and adds start/end steps. 
 					//TODO: Better to share base class (gradientPicker can extend it to include "element")
@@ -110,11 +134,48 @@ HTMLWidgets.widget({
 					requestAnimationFrame(render);
 				});
 
+				sidebar.eventSystem.addEventListener("onColorMetaChange", function(checked, count) {
+					switch(count) {
+						
+						case 0: {
+							sidebar.nodeGradPicker.setStateSingle();
+							break;
+						}
+						case 1: {
+							sidebar.nodeGradPicker.setStateGradient();
+							var meta = Object.keys(checked).find(key => checked[key] === true);
+							for(let i=0; i<graph.nodes.length; i++) {
+								graph.nodes[i].setColor(graph.nodes[i].mean[meta]);
+							}
+							break;
+
+						}
+						default: {
+							sidebar.nodeGradPicker.setStateFixedGradient(count);
+							for(let i=0; i<graph.nodes.length; i++) {
+								var sum = 0;
+								var pie = new Array(metaVars.length);
+
+								//TODO this uses ALL metavars, not checked
+								//pass in array of ONLY checked instead rather than hash?
+								for(let j=0; j<metaVars.length; j++) { 
+									pie[j] = graph.nodes[i].mean[metaVars[j]];
+									sum += pie[j];
+								}
+								for(let j=0; j<metaVars.length; j++) {
+									pie[j] /= sum;
+								}
+								graph.nodes[i].setColorPie(pie);
+							}
+						}
+					}
+				});
+
 				scene.add(graph);
 
 				//Set graph colors
 				for(let i=0; i<graph.nodes.length; i++) {
-					graph.nodes[i].setColor(Math.random());
+					graph.nodes[i].setColor(graph.nodes[i].mean["x"]);
 					graph.nodes[i].setRadius(10 + Math.random() * 20);
 				}
 				graph.updateNodeColors();
@@ -161,5 +222,6 @@ class bin {
 	constructor(level, points) {
 		this.level = level;
 		this.points = points;
+		this.mean = {};
 	}
 }

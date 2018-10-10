@@ -82,19 +82,19 @@ class menu {
                 }
             );
         });
-
-        this.eventSystem.addEventListener("onColorMetaChange", function(checked) {console.log(checked)});
-
+        
         //Node color customisation 
         this.nodeGradPicker = new gradientPicker(document.getElementById("node-color"));
         var nodeColorMeta = document.getElementById("node-color-meta");
         var nodeColorMetaBoxes = nodeColorMeta.getElementsByClassName("node-color-meta-boxes");
         var checked = {};
+        var count = 0;
         for(let i=0; i<nodeColorMetaBoxes.length; i++) {
             checked[nodeColorMetaBoxes[i].value] = false;
             nodeColorMetaBoxes[i].onclick = function() {
                 checked[this.value] = this.checked;
-                self.eventSystem.invokeEvent("onColorMetaChange", checked);
+                count += this.checked ? 1 : -1;
+                self.eventSystem.invokeEvent("onColorMetaChange", checked, count);
             }
         }
     }

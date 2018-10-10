@@ -102,7 +102,21 @@ class node {
 
     //e.g. [0.1, 0.7, 0.2]
     setColorPie(values) {
-        //TODO
+        let uvs = this.mesh.geometry.attributes.u.array;
+        let currIndex = -1;
+        let currVal = 0;
+        let nextSeg = 0;
+        for(let j=0; j<3 * segments; j++) {
+            if(j >= nextSeg) {
+                currIndex++;
+                nextSeg += values[currIndex] * 3 * segments;
+                currVal = values[currIndex];
+            }
+            uvs[j] = currVal;
+        }
+        this.mesh.geometry.attributes.u.needsUpdate = true;
+
+        //this.color = Math.max(values);
     }
 
     setColorPieRandom() {
