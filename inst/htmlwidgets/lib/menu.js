@@ -36,24 +36,12 @@ class menu {
         //Node size customisation
         //TODO Set size based on metadata variables..?
         var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
+        var checkedsize = {};
         for(let i=0; i<sizeradios.length; i++) {
+            checkedsize[sizeradios[i].value] = false;
             sizeradios[i].onclick = function() {
-                if(this.value == "none") {
-                    for(let i=0; i<graph.nodes.length; i++) {
-                        graph.nodes[i].setRadius(18);
-                    }
-                } else if (this.value == "content") {
-                    for(let i=0; i<graph.nodes.length; i++) {
-                        graph.nodes[i].setRadius(graph.nodes[i].points.length);
-                    }
-                } else {  //For metadata variables
-                    for(let j=0; j<metaVars.length; j++) {
-                        if(this.value == `${metaVars[j]}size`) {
-                            console.log(`We have the meta-variable ${metaVars[j]}!`);
-                        }
-                    }
-                    console.log(metaVars);
-                }
+                checkedsize[this.value] = this.checked;
+                self.eventSystem.invokeEvent("onNodeSizeChange", checkedsize);
             }
         }
 

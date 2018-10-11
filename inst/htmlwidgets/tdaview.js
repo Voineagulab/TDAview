@@ -186,6 +186,42 @@ HTMLWidgets.widget({
 					}
 				});
 
+				sidebar.eventSystem.addEventListener("onNodeSizeChange", function(checkedsize) {
+					var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
+			        for(let i=0; i<sizeradios.length; i++) {
+			            sizeradios[i].onclick = function() {
+			            	console.log(checkedsize);
+			            	console.log(this.value);
+			                if(this.value == "none") {
+			                    for(let i=0; i<graph.nodes.length; i++) {
+			                        graph.nodes[i].setRadius(18);
+			                        requestAnimationFrame(render);
+			                        graph.link[i].setPositionFromNodes();
+			                    }
+			                } else if (this.value == "content") {
+			                    for(let i=0; i<graph.nodes.length; i++) {
+			                        graph.nodes[i].setRadius(graph.nodes[i].points.length);
+			                        requestAnimationFrame(render);
+			                        graph.link[i].setPositionFromNodes();
+			                    }
+			                } else {  //For metadata variables
+			                    for(let j=0; j<metaVars.length; j++) {
+			                        if(this.value == `${metaVars[j]}size`) {
+			                            for(let i=0; i<graph.nodes.length; i++) {
+			                                graph.nodes[i].setRadius(graph.nodes[i].mean[metaVars[j]]);
+			                                requestAnimationFrame(render);
+			                                graph.link[i].setPositionFromNodes();
+			                            }
+			                            console.log(`We have the meta-variable ${metaVars[j]}!`);
+			                        }
+			                    }
+			                }
+			            }
+			            
+			        }
+				});
+				
+
 				scene.add(graph);
 
 				//Set graph colors and node size
