@@ -117,6 +117,10 @@ HTMLWidgets.widget({
 				graph = new forceGraph(bins, x.mapper.adjacency, map, exportDiv, mouseToWorld);
 				scene.add(graph);
 
+				for(let i=0; i<graph.nodes.length; i++) {
+					graph.nodes[i].setRadius(graph.nodes[i].points.length);
+				}
+
 				//Menu creation
 				var sidebar = new menu(graph, element, metaVars);
 				sidebar.nodeGradPicker.eventSystem.addEventListener("onColorChange", function(color) {

@@ -57,7 +57,7 @@ class menu {
             }
         }
 
-        //Node label customisation
+        //Node label customisation TODO: simplify this
         var labelradios = document.forms["labels"].elements["labeltype"];
         for(let i=0; i<labelradios.length; i++) {
             labelradios[i].onclick = function() {
@@ -125,7 +125,7 @@ class menu {
                         <form name="node-size-meta">
                         <input type="radio" name="nodesize" value="content" id="contentsize" checked />
                         <label for="contentsize">Content</label><br>
-                        ${metaVars.map(v => `<input type="radio" name="nodesize" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
+                        ${metaVars.map(v => `<input type="radio" name="nodesize" value="${v}" id="${v}size"/><label for="${v}size">${v}</label><br>`).join('')}
                         <input type="radio" name="nodesize" value="none" id="nonesize"/>
                         <label for="nonesize">None</label><br>
                         </form>
