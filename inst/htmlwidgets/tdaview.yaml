@@ -46,3 +46,4 @@ dependencies:
       - event.js
       - menu.js
       - gradientPicker.js
+      - legend.js

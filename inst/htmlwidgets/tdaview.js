@@ -7,7 +7,7 @@ HTMLWidgets.widget({
 		var renderer, labelRenderer;
 		var frustumSize = 1000;
 
-		var map;
+		var legend;
 		var graph;
 		
 		return {
@@ -100,16 +100,19 @@ HTMLWidgets.widget({
 					}
 				}
 
-				map = new ColorMap('rainbow', 256);
-				hudScene.add(map);
-				map.position.set(width - 10, -height + 10, 1);
+				var map = new ColorMap('rainbow', 256);
+				
+				legend = new Legend(map);
+				hudScene.add(legend);
+				legend.position.set(width - 10, -height + 10, 1);
+				
 
 				//Give it random heights
-				let heights = new Array(map.getLegendCols());
+				let heights = new Array(legend.getLegendCols());
 				for(let i=0; i<heights.length; i++) {
 					heights[i] = Math.random();
 				}
-				map.setLegendColHeights(heights, 0, 1);
+				legend.setLegendColHeights(heights, 0, 1);
 				
 				graph = new forceGraph(bins, x.mapper.adjacency, map, exportDiv, mouseToWorld);
 				scene.add(graph);
@@ -233,7 +236,7 @@ HTMLWidgets.widget({
 				});
 
 				function render() {
-					map.animate();
+					legend.animate();
 					renderer.clear();
 					renderer.render(scene, camera);
 					renderer.render(hudScene, hudCamera);
