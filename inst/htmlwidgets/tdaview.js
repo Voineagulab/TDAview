@@ -1,4 +1,4 @@
-HTMLWidgets.widget({
+HTMLWidgets.widget({ 
 	name: 'tdaview',
 	type: 'output',
 	
