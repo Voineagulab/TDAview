@@ -186,55 +186,41 @@ HTMLWidgets.widget({
 					}
 				});
 
-				sidebar.eventSystem.addEventListener("onNodeSizeChange", function(checkedsize) {
-					var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
-			        for(let i=0; i<sizeradios.length; i++) {
-			            sizeradios[i].onclick = function() {
-			            	console.log(checkedsize);
-			            	console.log(this.value);
-			                if(this.value == "none") {
-			                    for(let i=0; i<graph.nodes.length; i++) {
-			                        graph.nodes[i].setRadius(18);
-			                        requestAnimationFrame(render);
-			                        graph.link[i].setPositionFromNodes();
-			                    }
-			                } else if (this.value == "content") {
-			                    for(let i=0; i<graph.nodes.length; i++) {
-			                        graph.nodes[i].setRadius(graph.nodes[i].points.length);
-			                        requestAnimationFrame(render);
-			                        graph.link[i].setPositionFromNodes();
-			                    }
-			                } else {  //For metadata variables
-			                    for(let j=0; j<metaVars.length; j++) {
-			                        if(this.value == `${metaVars[j]}size`) {
-			                            for(let i=0; i<graph.nodes.length; i++) {
-			                                graph.nodes[i].setRadius(graph.nodes[i].mean[metaVars[j]]);
-			                                requestAnimationFrame(render);
-			                                graph.link[i].setPositionFromNodes();
-			                            }
-			                            console.log(`We have the meta-variable ${metaVars[j]}!`);
-			                        }
-			                    }
-			                }
-			            }
-			            
-			        }
+				sidebar.eventSystem.addEventListener("onNodeSizeChange", function(value) {
+					console.log(value);
+					if(value == "none") {
+						//Set uniform
+						for(let i=0; i<graph.nodes.length; i++) {
+							graph.nodes[i].setRadius(18);
+						}
+					} else if (value == "content") {
+						//Set to points length
+						for(let i=0; i<graph.nodes.length; i++) {
+							graph.nodes[i].setRadius(graph.nodes[i].points.length);
+						}
+					} else {
+						//Set to metadata variable mean
+						for(let j=0; j<metaVars.length; j++) {
+							if(value == metaVars[j]) {
+								for(let i=0; i<graph.nodes.length; i++) {
+									graph.nodes[i].setRadius(graph.nodes[i].mean[metaVars[j]] * 18);
+								}
+								break;
+							}
+						}
+					}
+					
+					//Update edge points
+					for(let i=0; i<graph.links.length; i++) {
+						graph.links[i].setPositionFromNodes();
+						graph.links[i].updatePosition();
+					}
+
+					//Ensure updates are rendered
+					requestAnimationFrame(render);
 				});
-				
 
 				scene.add(graph);
-
-				//Set graph colors and node size
-				for(let i=0; i<graph.nodes.length; i++) {
-					graph.nodes[i].setColor(graph.nodes[i].mean["x"]);
-					graph.nodes[i].setRadius(10 + Math.random() * 20);
-				}
-				graph.updateNodeColors();
-				
-				for(let i=0; i<graph.links.length; i++) {
-					graph.links[i].setGradientFromNodes();
-					graph.links[i].updateColor();
-				}
 
 				//Set graph listners
 				graph.eventSystem.addEventListener("onTick", function() {

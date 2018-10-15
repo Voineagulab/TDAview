@@ -34,16 +34,13 @@ class menu {
         }
 
         //Node size customisation
-        //TODO Set size based on metadata variables..?
         var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
-        var checkedsize = {};
         for(let i=0; i<sizeradios.length; i++) {
-            checkedsize[sizeradios[i].value] = false;
             sizeradios[i].onclick = function() {
-                checkedsize[this.value] = this.checked;
-                self.eventSystem.invokeEvent("onNodeSizeChange", checkedsize);
+                self.eventSystem.invokeEvent("onNodeSizeChange", this.value);
             }
         }
+        //this.eventSystem.invokeEvent("onNodeSizeChange", sizeradios[0].value); //problem with invoking here is listener has not been added yet in tdaview
 
         //Node color customisation 
         this.nodeGradPicker = new gradientPicker(document.getElementById("node-color"));
@@ -128,7 +125,7 @@ class menu {
                         <form name="node-size-meta">
                         <input type="radio" name="nodesize" value="content" id="contentsize" checked />
                         <label for="contentsize">Content</label><br>
-                        ${metaVars.map(v => `<input type="radio" name="nodesize" value="${v}size" id="${v}size"/><label for="${v}size">${v}</label><br>`).join('')}
+                        ${metaVars.map(v => `<input type="radio" name="nodesize" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
                         <input type="radio" name="nodesize" value="none" id="nonesize"/>
                         <label for="nonesize">None</label><br>
                         </form>
