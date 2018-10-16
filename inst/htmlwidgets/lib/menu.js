@@ -140,6 +140,10 @@ class menu {
                         <label for="edgecolor">None</label><br>
                         <div id="edge-color-picker-insert"></div>
                         <select>
+                            <option value="none">Interpolate</option>
+                            <option value="line">Average</option>
+                        </select>
+                        <select>
                             <option value="none">None</option>
                             <option value="line">Line</option>
                         </select>
