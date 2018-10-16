@@ -14,7 +14,28 @@ class ColorMap {
         this.changeColorMapByName(mapName);
 	}
 
-	changeColorMap(map) {
+	changeColor(color) {
+		var data = this.material.map.image.data;
+		var colorHex = new THREE.Color().setHex("0x" + color)
+		for(let i=0; i<data.length;) {
+			data[i++] = Math.round(colorHex.r * 255.0);
+			data[i++] = Math.round(colorHex.g * 255.0);
+			data[i++] = Math.round(colorHex.b * 255.0);
+		}
+		this.material.map.needsUpdate = true;
+		this.material.needsUpdate = true;
+		this.eventSystem.invokeEvent("onUpdate");
+	}
+
+	changeColorMap(steps) {
+		//Parse into array - should change to natively use steps
+		var map = new Array(steps.length+2);
+		map[0] = [0.0, "0x" + steps[0].color];
+		map[map.length-1] = [1.0, "0x" + steps[steps.length-1].color];
+		for(let i=0; i<steps.length; i++) {
+			map[i+1] = [steps[i].percentage/100, "0x" + steps[i].color];
+		}
+
 		var step = 1.0 / this.n;
         var index = 0;
         var stride = 0;

@@ -11,3 +11,9 @@ body {
     -webkit-user-select: none;
     -o-user-select: none;
 }
+
+
+#labelcanvas {
+    position: absolute;
+    top: 0;
+}

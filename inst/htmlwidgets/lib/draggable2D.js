@@ -1,6 +1,7 @@
 class Draggable2D  {
     constructor() {
         this.eventSystem = new event();
+        this.shouldSnap = false;
     }
 
     boundsContains(vector) {

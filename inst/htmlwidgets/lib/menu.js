@@ -1,13 +1,3 @@
-/*
-    btw, I don't think I can run this from my end
-    TODO:
-    1. Add event listeners for sidebar
-    2. Checkboxes for metadata variables
-    3. 
-
-*/
-
-
 class menu {
 	constructor(graph, element, metaVars) {
         var self = this;
@@ -18,13 +8,12 @@ class menu {
 
         element.appendChild(this.domElement);
 
-        //Accordion listeners
+        //Accordion events
         var accOpen = 0;
         var accItem = this.domElement.getElementsByClassName("accordion-item");
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
         for(let i=0; i<accHD.length; i++) {
             accHD[i].addEventListener('click', function() {
-                //Toggle accordion items
                 if(accOpen != i) {
                     accItem[accOpen].className = 'accordion-item close';
                     accOpen = i;
@@ -33,38 +22,33 @@ class menu {
             }, false);
         }
 
-        //Node size customisation
+        //Node size events
         var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
         for(let i=0; i<sizeradios.length; i++) {
             sizeradios[i].onclick = function() {
                 self.eventSystem.invokeEvent("onNodeSizeChange", this.value);
             }
         }
-        //this.eventSystem.invokeEvent("onNodeSizeChange", sizeradios[0].value); //problem with invoking here is listener has not been added yet in tdaview
 
-        //Node color customisation 
-        this.nodeGradPicker = new gradientPicker(document.getElementById("node-color"));
-        var nodeColorMeta = document.getElementById("node-color-meta");
-        var nodeColorMetaBoxes = nodeColorMeta.getElementsByClassName("node-color-meta-boxes");
-        var checked = {};
-        var count = 0;
+        //Node color events
+        this.nodeGradPicker = new gradientPicker(document.getElementById("node-color-picker-insert"));
+        var nodeColorMetaBoxes = document.getElementsByClassName("node-color-meta-boxes");
         for(let i=0; i<nodeColorMetaBoxes.length; i++) {
-            checked[nodeColorMetaBoxes[i].value] = false;
-            nodeColorMetaBoxes[i].onclick = function() {
-                checked[this.value] = this.checked;
-                count += this.checked ? 1 : -1;
-                self.eventSystem.invokeEvent("onColorMetaChange", checked, count);
+            nodeColorMetaBoxes[i].onclick = function() {//e.ctrlKey
+                console.log(nodeColorMetaBoxes);
+                var checked = Array.from(nodeColorMetaBoxes).filter(b => b.checked).map(b => b.value);
+                self.eventSystem.invokeEvent("onColorMetaChange", checked);
             }
         }
 
-        //Node label customisation TODO: simplify this
+        //Node label events
         var labelradios = document.forms["labels"].elements["labeltype"];
-        var currentValue = "";
+        var prevValue = "";
         for(let i=0; i<labelradios.length; i++) {
             labelradios[i].onclick = function() {
-                if(currentValue != this.value) {
+                if(prevValue != this.value) {
                     for(let j=0; j<graph.nodes.length; j++) {
-                        if(currentValue == "none") {
+                        if(prevValue == "none") {
                             graph.nodes[j].removeLabelClassName('hiddenlabel');
                         }
                         switch(this.value) {
@@ -74,32 +58,17 @@ class menu {
                         }
                     }
                 }
-                currentValue = this.value;
+                prevValue = this.value;
             };
         }
 
-        //Graph exportation listeners
-        var button = document.getElementById("graphexport");
+        //Export events
         var graphradios = document.forms["graphext"].elements["graphtype"];
-        button.addEventListener("click", function() {
-            html2canvas(document.getElementById("export"), { //moving labels up with -1em glitches image, also not offsetted by sidebar
-                //width: width,
-                //height: height //These are undefined here, originally intended to fix slight overestimate
-            }).then(function(canvas) {
-                    var imgtype = graphradios.value;
-                    var imgdata = canvas.toDataURL("image/" + imgtype);
-                    imgdata = imgdata.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
-                    imgdata = imgdata.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
-                    button.setAttribute("download", "graph." + imgtype);
-                    button.setAttribute("href", imgdata);
-                }
-            );
+        document.getElementById("graphexport").addEventListener("click", function() {
+            self.eventSystem.invokeEvent("OnExport", graphradios.value);
         });
-        
-
     }
 
-    //TODO make metadata variables dynamically generated
     generateHTML(metaVars) {
         return /*html*/`
         <div class="unselectable sidenav">
@@ -124,9 +93,13 @@ class menu {
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Colour</h4>
                     <div id="node-color" class="accordion-item-content">
-                        <form id="node-color-meta">
                         ${metaVars.map(v => `<input type="checkbox" class="node-color-meta-boxes" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
-                        </form>
+                        <div id="node-color-picker-insert"></div>
+                        <select>
+                            <option value="none">None</option>
+                            <option value="line">Line</option>
+                            <option value="distribution">Distribution</option>
+                        </select>
                     </div>
                 </div>
 
@@ -182,46 +155,4 @@ class menu {
 
         </div>`;
     }
-
 }
-
-// Code for the base format..
-/*
-<div class="unselectable sidenav" style="width: 250px; height: 500px; position: absolute; top: 0px;">
-            <br>
-            <div class="closebtn">✕</div>
-            <div class="setting light">Select Color Source:</div>
-            <select id="options" class="setting">
-                <option value="x">x</option>
-                <option value="y">y</option>
-            </select>
-            <br>
-            <div class="setting light">Node label as:</div>
-            <select class="setting">
-                <option value="name">Name</option>
-                <option value="size">Size</option>
-                <option value="none">None</option>
-            </select>
-            <br>
-            <a class="button setting light" value="Export Graph">Export Graph</a>
-            <select id="selectorExport" class="setting">
-                <option value="JPEG">JPEG</option>
-                <option value="PNG">PNG</option>
-            </select>
-            <br>
-        </div>`/*
-            <div class="setting light">Selected Node:</div>
-            <table id="table" style="display: none;">
-            <thead>
-                <tr>
-                    ${options.map(o => `<th>${o}</th>`)}
-                </tr>
-            </thead>
-            <tbody>
-                ${("<tr>" + "<td></td>".repeat(tableCols) + "</tr>").repeat(tableRows)};
-            </tbody>
-            </table>
-        </div>
-        `* /
-*/
-

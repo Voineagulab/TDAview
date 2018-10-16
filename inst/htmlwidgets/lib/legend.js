@@ -1,17 +1,18 @@
 //Legend constants
-const cols = 20;
 const width = 500;
 const height = 50;
 const gap = 0.25;
 const animTime = 0.5;
-let columnWidth = width / cols;
-let scaledColumnWidth = columnWidth * gap;
 
 class Legend extends Draggable2D {
-    constructor(colorMap, parent) {
+    constructor(colorMap, parent, cols) {
         super();
         this.group = new THREE.Group();
-        this.clock = new THREE.Clock(false);
+		this.clock = new THREE.Clock(false);
+		
+		this.cols = cols;
+		let columnWidth = width / cols;
+		let scaledColumnWidth = columnWidth * gap;
         
         for(let i=0; i<cols; i++) {
 			var geometry = new THREE.PlaneGeometry(scaledColumnWidth, 1, 1);
@@ -41,14 +42,17 @@ class Legend extends Draggable2D {
 		})
     }
 
-    getLegendCols() {
-        return cols;
-    }
-
-	setLegendColHeights(heights, min, max) {
+	setLegendColHeights(heights) {
+		var min = Infinity;
+		var max = -Infinity;
+		for(let i=0; i<heights.length; i++) {
+			if(heights[i] > max) max = heights[i];
+			else if(heights[i] < min) min = heights[i];
+		}
+		
 		this.clock.start();
-		for(let i=0; i<cols; i++) {
-			let h = (heights[i] - min)/(max - min) * height;
+		for(let i=0; i<this.cols; i++) {
+			let h = (1 + (heights[i] - min)/(max - min)) * height;
 			this.group.children[i].scale.y = h;
 			this.group.children[i].position.setY(h/2);
 		}

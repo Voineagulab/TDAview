@@ -49,3 +49,4 @@ dependencies:
       - menu.js
       - gradientPicker.js
       - legend.js
+      - parser.js

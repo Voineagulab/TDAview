@@ -30,7 +30,6 @@ class DragSystem2D {
 
             if(self.isMouseDown && self.hovering) {
                 self.mouseWorld.x = self.mouseScreen.x;
-                self.mouseWorld.x = self.mouseScreen.x;
                 self.mouseWorld.y = self.mouseScreen.y
                 self.mouseWorld.unproject(self.hoverRect.camera);
                 self.mouseWorld.z = 0;
