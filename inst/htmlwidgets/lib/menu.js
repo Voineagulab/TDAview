@@ -62,6 +62,9 @@ class menu {
             };
         }
 
+        //Edge color events
+        this.edgeGradPicker = new gradientPicker(document.getElementById("edge-color-picker-insert")); //multiple gradient pickers causes error atm
+
         //Export events
         var graphradios = document.forms["graphext"].elements["graphtype"];
         document.getElementById("graphexport").addEventListener("click", function() {
@@ -89,9 +92,8 @@ class menu {
                         </form>
                     </div>
                 </div>
-
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Colour</h4>
+                    <h4 class="accordion-item-heading">Color</h4>
                     <div id="node-color" class="accordion-item-content">
                         ${metaVars.map(v => `<input type="checkbox" class="node-color-meta-boxes" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
                         <div id="node-color-picker-insert"></div>
@@ -124,14 +126,23 @@ class menu {
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Size</h4>
                     <div class="accordion-item-content">
-                        Options for size functions go here..
+                        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
                     </div>
                 </div>
 
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Colour</h4>
+                    <h4 class="accordion-item-heading">Color</h4>
                     <div class="accordion-item-content">
-                        Options for colour source go here..
+                        <input type="radio" name="edgeColor" value="nodes" id="edgecolornode" checked/>
+                        <label for="edgecolornode">Use Node Colors</label><br>
+                        ${metaVars.map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor"/><label for="${v}edgecolor">${v}</label><br>`).join('')}
+                        <input type="radio" name="edgeColor" value="nodes" id="edgecolor"/>
+                        <label for="edgecolor">None</label><br>
+                        <div id="edge-color-picker-insert"></div>
+                        <select>
+                            <option value="none">None</option>
+                            <option value="line">Line</option>
+                        </select>
                     </div>
                 </div>
             </div>

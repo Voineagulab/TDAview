@@ -83,7 +83,7 @@ HTMLWidgets.widget({
 						graph.nodes.forEach(n => n.setColor(n.mean[checked[0]]));
 						graph.links.forEach(l => l.setGradientFromNodes());
 					} else {
-						sidebar.nodeGradPicker.setStateFixedGradient(checked.count);
+						sidebar.nodeGradPicker.setStateFixedGradient(checked.length);
 
 						//Parse variables into normalised cumulative array
 						for(let i=0; i<graph.nodes.length; i++) {

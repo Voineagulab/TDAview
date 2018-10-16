@@ -4,7 +4,7 @@ const STEP_WIDTH = 5;
 let gradMouseDown = false;
 
 class gradientPicker {
-    constructor(parent, gradientChangeCallback) {
+    constructor(parent) {
         var self = this;
 
         this.color;
