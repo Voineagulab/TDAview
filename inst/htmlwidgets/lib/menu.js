@@ -59,33 +59,22 @@ class menu {
 
         //Node label customisation TODO: simplify this
         var labelradios = document.forms["labels"].elements["labeltype"];
+        var currentValue = "";
         for(let i=0; i<labelradios.length; i++) {
             labelradios[i].onclick = function() {
-                if(this.value == "size") {
-                    for(let i=0; i<graph.nodes.length; i++) {
-                        graph.nodes[i].removeLabelClassName('hiddenlabel');
-                        graph.nodes[i].addLabelClassName('unselectable');
-                        graph.nodes[i].addLabelClassName('label');
-                        graph.nodes[i].addLabelClassName('nlabel');
-                        graph.nodes[i].setLabelText(graph.nodes[i].points.length);
-                    }
-                } else if (this.value == "none") {
-                    for(let i=0; i<graph.nodes.length; i++) {
-                        graph.nodes[i].addLabelClassName('hiddenlabel');
-                        graph.nodes[i].removeLabelClassName('unselectable');
-                        graph.nodes[i].removeLabelClassName('label');
-                        graph.nodes[i].removeLabelClassName('nlabel');
-                        graph.nodes[i].setLabelText("");
-                    }
-                } else {
-                    for(let i=0; i<graph.nodes.length; i++) {
-                        graph.nodes[i].removeLabelClassName('hiddenlabel');
-                        graph.nodes[i].addLabelClassName('unselectable');
-                        graph.nodes[i].addLabelClassName('label');
-                        graph.nodes[i].addLabelClassName('nlabel');
-                        graph.nodes[i].setLabelText("Node " + i);
+                if(currentValue != this.value) {
+                    for(let j=0; j<graph.nodes.length; j++) {
+                        if(currentValue == "none") {
+                            graph.nodes[j].removeLabelClassName('hiddenlabel');
+                        }
+                        switch(this.value) {
+                            case "size": graph.nodes[j].setLabelText(graph.nodes[j].points.length); break;
+                            case "none" : graph.nodes[j].addLabelClassName('hiddenlabel'); break;
+                            default : graph.nodes[j].setLabelText("Node " + j); break;
+                        }
                     }
                 }
+                currentValue = this.value;
             };
         }
 

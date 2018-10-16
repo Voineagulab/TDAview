@@ -39,6 +39,8 @@ dependencies:
       - forceGraph.css
       - gradientPicker.css
     script:
+      - draggable2D.js
+      - dragSystem2D.js
       - forceGraph.js
       - node.js
       - link.js

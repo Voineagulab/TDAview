@@ -1,20 +1,32 @@
 class forceGraph extends THREE.Group {
-    constructor(data, adjacency, colormap, element, mouseToWorld) {
+    constructor(data, adjacency, colormap) {
         super();
+        var self = this;
         this.initiallizing = true;
 
-        //Cache element for mouse listening
-        this.mouseToWorld = mouseToWorld;
-        this.over = null;
-        this.isMouseDown = false;
-        this.mouseScreen = new THREE.Vector2();
-        this.mouseWorld;
+        function onNodeDragStart() {
+            self.simulation.alphaTarget(0.3).restart();
+            self.initiallizing = false;
+        }
+    
+        function onNodeDrag(node, vector) {
+            node.fx = vector.x;
+            node.fy = vector.y;
+        }
+    
+        function onNodeDragEnd(node) {
+            self.simulation.alphaTarget(0);
+            node.fx = node.fy = null;
+        }
         
         //Create nodes as single mesh
         node.intMaterial(colormap);
         this.nodes = new Array(data.length);
         for(let i=0; i<data.length; i++) {
             this.nodes[i] = new node(i, "Node " + i, data[i], 0.0, this);
+            this.nodes[i].eventSystem.addEventListener("OnDragStart", onNodeDragStart);
+            this.nodes[i].eventSystem.addEventListener("OnDrag", onNodeDrag);
+            this.nodes[i].eventSystem.addEventListener("OnDragEnd", onNodeDragEnd);
         }
 
         //Create links as separate meshes
@@ -45,69 +57,6 @@ class forceGraph extends THREE.Group {
                 this.initiallizing = false;
                 this.eventSystem.invokeEvent("onEnd");
             }.bind(this));
-
-        element.addEventListener('mousedown', this.onMouseDown.bind(this));
-        element.addEventListener('mousemove', this.onMouseMove.bind(this));
-        element.addEventListener('mouseup', this.onMouseUp.bind(this));
-    }
-
-    onNodeDragStart() {
-        this.simulation.alphaTarget(0.3).restart();
-        this.initiallizing = false;
-    }
-
-    onNodeDrag() {
-        this.over.fx = this.mouseWorld.x;
-        this.over.fy = this.mouseWorld.y;
-    }
-
-    onNodeDragEnd() {
-        this.simulation.alphaTarget(0);
-        this.over.fx = this.over.fy = null;
-    }
-
-    onMouseDown() {
-        this.isMouseDown = true;
-        if(this.over) {
-            this.onNodeDragStart();
-        }
-    }
-    
-    onMouseMove(event) {
-        //Update stored values
-        this.mouseScreen.x = event.clientX;
-        this.mouseScreen.y = event.clientY;
-        this.mouseWorld = this.mouseToWorld(this.mouseScreen);
-
-        if(this.isMouseDown && this.over) {
-            //Node already found
-            this.onNodeDrag();
-        } else {
-            //Iterate over nodes checking if they are at world position
-            for(let i=0; i<this.nodes.length; i++) {
-                let targ = this.nodes[i].getPosition();
-                let r = this.nodes[i].r;
-                //Check if inside bounding box;
-                if(this.mouseWorld.x >= targ.x - r && 
-                    this.mouseWorld.x <= targ.x + r && 
-                    this.mouseWorld.y >= targ.y - r && 
-                    this.mouseWorld.y <= targ.y + r) {
-                    //Check if inside circle
-                    if(Math.pow(this.mouseWorld.x - targ.x, 2) + Math.pow(this.mouseWorld.y - targ.y, 2) <= r*r) {
-                        this.over = this.nodes[i];
-                        return;
-                    }
-                }
-            }
-            this.over = null;
-        }
-    }
-    
-    onMouseUp() {
-        if(this.isMouseDown && this.over) {
-            this.onNodeDragEnd();
-        }
-        this.isMouseDown = false;
     }
 
     getBoundingBox() {
@@ -119,18 +68,6 @@ class forceGraph extends THREE.Group {
         //TODO fix hardcoded margin
         box.expandByScalar(100);
         return box;
-    }
-
-    updateNodeColors() {
-        for(var i=0; i<this.nodes.length; i++) {
-            //TODO when pie/single are switchable
-        }
-    }
-
-    updateLinkColors() {
-        for(var i=0; i<this.links.length; i++) {
-            this.links[i].updateColors();
-        }
     }
     
     updatePositions() {

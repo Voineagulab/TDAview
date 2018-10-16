@@ -1,10 +1,3 @@
-//Legend constants
-const cols = 20;
-const width = 500;
-const height = 50;
-const gap = 0.25;
-const animTime = 0.5;
-
 class ColorMap {
     constructor(mapName = 'rainbow', n = 256) {
         this.n = n;

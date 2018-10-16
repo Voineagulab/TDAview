@@ -61,18 +61,6 @@ HTMLWidgets.widget({
 				exportDiv.appendChild(renderer.domElement);
 				exportDiv.appendChild(labelRenderer.domElement);
 
-				//Mouse utility function
-				var mouseWorld = new THREE.Vector3();
-				function mouseToWorld(mouse) {
-					mouse.x -= 250;
-					var size = renderer.getSize();
-					mouseWorld.x = mouse.x / size.width * 2 - 1;
-					mouseWorld.y = - mouse.y / size.height * 2 + 1;
-					mouseWorld.z = 0;
-					mouseWorld.unproject(camera);
-					return mouseWorld;
-				}
-
 				//Parse mapper into data objects
 				var bins = new Array(x.mapper.num_vertices);
 				for(let i=0; i<bins.length; i++) {
@@ -102,10 +90,8 @@ HTMLWidgets.widget({
 
 				var map = new ColorMap('rainbow', 256);
 				
-				legend = new Legend(map);
-				hudScene.add(legend);
-				legend.position.set(width - 10, -height + 10, 1);
-				
+				legend = new Legend(map, hudScene);
+				legend.group.position.set(width - 10, -height + 10, 1);
 
 				//Give it random heights
 				let heights = new Array(legend.getLegendCols());
@@ -114,8 +100,20 @@ HTMLWidgets.widget({
 				}
 				legend.setLegendColHeights(heights, 0, 1);
 				
-				graph = new forceGraph(bins, x.mapper.adjacency, map, exportDiv, mouseToWorld);
+				graph = new forceGraph(bins, x.mapper.adjacency, map);
 				scene.add(graph);
+
+				let dragSystem = new DragSystem2D(exportDiv, renderer);
+				dragSystem.eventSystem.addEventListener("OnChange", render);
+
+				let graphRect = new DragRect2D(camera);
+				let hudRect = new DragRect2D(hudCamera);
+
+				graphRect.addDraggable(graph.nodes);
+				hudRect.addDraggable([legend]);
+
+				dragSystem.addRect(graphRect);
+				dragSystem.addRect(hudRect);
 
 				for(let i=0; i<graph.nodes.length; i++) {
 					graph.nodes[i].setRadius(graph.nodes[i].points.length);
@@ -245,6 +243,7 @@ HTMLWidgets.widget({
 					renderer.render(scene, camera);
 					renderer.render(hudScene, hudCamera);
 					labelRenderer.render(scene, camera);
+					labelRenderer.render(hudScene, hudCamera);
 				}
 			},
 			

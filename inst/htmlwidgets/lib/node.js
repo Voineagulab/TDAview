@@ -1,7 +1,7 @@
 var nodeMaterial = null;
 
 const segments = 64;
-class node {
+class node extends Draggable2D {
     static intMaterial(colormap) {
         nodeMaterial = new THREE.RawShaderMaterial({
             uniforms: {
@@ -46,6 +46,7 @@ class node {
     }
 
 	constructor(index, labelText, data, color, parent) {
+        super();
         this.index = index;
         Object.assign(this, data);
 
@@ -62,7 +63,6 @@ class node {
             vertices[j+5] = Math.cos(theta);
         }
 
-        
         var uvs = new Float32Array(3 * segments).fill(color);
 
         geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2).setDynamic(true));
@@ -77,12 +77,10 @@ class node {
         var nodeDiv = document.createElement('div');
         nodeDiv.className = 'unselectable label nlabel';
         nodeDiv.textContent = labelText;
-        
         this.label = new THREE.CSS2DObject(nodeDiv);
-        
         this.mesh.add(this.label);
-        
         this.label.position.setY(1);
+
         this.setRadius(1);
         this.setColor(color);
 
@@ -100,8 +98,7 @@ class node {
         this.mesh.geometry.attributes.u.needsUpdate = true;
     }
 
-    //e.g. [0.1, 0.7, 0.2]
-    setColorPie(values) {
+    setColorPie(values) { //e.g. [0.1, 0.7, 0.2]
         //Calculate segment colors
         let uvs = this.mesh.geometry.attributes.u.array;
         let currIndex = -1;
@@ -129,17 +126,6 @@ class node {
         this.color = maxIndex/values.length;
     }
 
-    setColorPieRandom() {
-        let uvs = this.mesh.geometry.attributes.u.array;
-        let curr = 0;
-        for(let j=0; j<3 * segments; j++) {
-            if(Math.random() < 0.02) {
-                curr = Math.min(curr + Math.random()/2, 1.0);
-            }
-            uvs[j] = curr;
-        }
-    }
-
     getColor() {
         return this.color;
     }
@@ -163,5 +149,27 @@ class node {
 
     removeLabelClassName(className) {
         this.label.element.classList.remove(className);
+    }
+
+    boundsContains(vector) {
+        let targ = this.getPosition();
+        let r = this.r;
+
+        //Check if inside bounding box;
+        if(vector.x >= targ.x - r && 
+            vector.x <= targ.x + r && 
+            vector.y >= targ.y - r && 
+            vector.y <= targ.y + r) {
+            //Check if inside circle
+            
+            if(Math.pow(vector.x - targ.x, 2) + Math.pow(vector.y - targ.y, 2) <= r*r) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boundsCenter() {
+        return this.getPosition().clone();
     }
 }
