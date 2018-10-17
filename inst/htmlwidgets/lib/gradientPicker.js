@@ -1,3 +1,6 @@
+/*
+Public Events: OnColorChange, OnGradientChange
+*/
 const CONTAINER_WIDTH = 185;
 const BAR_WIDTH = 160;
 const STEP_WIDTH = 5;
@@ -187,7 +190,7 @@ class gradientPicker {
         //Set overall bar color since gradient requires more than one step
         this.bar.style.backgroundColor = "#" + this.color;
         this.bar.style.backgroundImage = "";
-        this.eventSystem.invokeEvent("onColorChange", this.color);
+        this.eventSystem.invokeEvent("OnColorChange", this.color);
     }
 
     setBarGradient() {
@@ -215,7 +218,7 @@ class gradientPicker {
         
         gradientCSS += ")";
         this.bar.style.backgroundImage = gradientCSS;
-        this.eventSystem.invokeEvent("onGradientChange", this.steps);
+        this.eventSystem.invokeEvent("OnGradientChange", this.steps);
     }
 }
 

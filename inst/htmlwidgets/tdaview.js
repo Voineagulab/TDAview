@@ -62,13 +62,13 @@ HTMLWidgets.widget({
 				var sidebar = new menu(graph, element, metaVars);
 
 				//Change map to uniform color
-				sidebar.nodeGradPicker.eventSystem.addEventListener("onColorChange", function(color) {
+				sidebar.nodeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
 					nodeMap.changeColor(color);
 					requestAnimationFrame(render);
 				});
 
 				//Change map to gradient
-				sidebar.nodeGradPicker.eventSystem.addEventListener("onGradientChange", function(steps) {
+				sidebar.nodeGradPicker.eventSystem.addEventListener("OnGradientChange", function(steps) {
 					nodeMap.changeColorMap(steps);
 					requestAnimationFrame(render);
 				});

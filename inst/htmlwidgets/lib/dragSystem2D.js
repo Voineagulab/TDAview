@@ -1,3 +1,6 @@
+/*
+Public Events: OnChange
+*/
 class DragSystem2D {
     constructor(element, renderer, camera) {
         var self = this;
@@ -10,15 +13,23 @@ class DragSystem2D {
 
         this.isMouseDown = false;
         this.mouseWorld = new THREE.Vector3();
-        this.mouseScreen = new THREE.Vector3();
+        this.mouseScreen = new THREE.Vector2();
+
+        this.dragStart = new THREE.Vector2();
+        this.dragging = false;
+
+        this.selected = undefined;
 
         this.eventSystem = new event();
 
         element.addEventListener("mousedown", function() {
             self.isMouseDown = true;
-            if(self.hovering) {
-                self.hovering.eventSystem.invokeEvent("OnDragStart", self.hovering, self.mouseWorld);
-                self.hovering.eventSystem.invokeEvent("OnDrag", self.hovering, self.mouseWorld.add(self.hoverOffset));
+            self.dragStart.copy(self.mouseScreen);
+
+            if(!self.hovering && self.selected) {
+                self.selected.eventSystem.invokeEvent("OnDeselect", self.selected);
+                self.eventSystem.invokeEvent("OnChange");
+                self.selected = undefined;
             }
         });
 
@@ -29,13 +40,21 @@ class DragSystem2D {
             self.mouseScreen.y = - ( e.clientY / size.height ) * 2 + 1;
 
             if(self.isMouseDown && self.hovering) {
-                self.mouseWorld.x = self.mouseScreen.x;
-                self.mouseWorld.y = self.mouseScreen.y
-                self.mouseWorld.unproject(self.hoverRect.camera);
-                self.mouseWorld.z = 0;
+                if(self.dragging || self.mouseScreen.distanceTo(self.dragStart) >= 0.005) {
+                    if(!self.dragging) {
+                        self.dragging = true;
+                        self.hovering.eventSystem.invokeEvent("OnDragStart", self.hovering, self.mouseWorld);
+                    }
 
-                self.hovering.eventSystem.invokeEvent("OnDrag", self.hovering, self.mouseWorld.add(self.hoverOffset));
-                self.eventSystem.invokeEvent("OnChange");
+                    self.mouseWorld.x = self.mouseScreen.x;
+                    self.mouseWorld.y = self.mouseScreen.y
+                    self.mouseWorld.unproject(self.hoverRect.camera);
+                    self.mouseWorld.z = 0;
+                    
+    
+                    self.hovering.eventSystem.invokeEvent("OnDrag", self.hovering, self.mouseWorld.add(self.hoverOffset));
+                    self.eventSystem.invokeEvent("OnChange");
+                }
             } else {
                 //Find new element
                 for(let j=0; j<self.rects.length; j++) {
@@ -59,16 +78,24 @@ class DragSystem2D {
         });
 
         element.addEventListener("mouseup", function() {
-            if(self.isMouseDown && self.hovering) {
+            if(self.dragging) {
                 self.hovering.eventSystem.invokeEvent("OnDragEnd", self.hovering, self.mouseWorld);
+                self.dragging = false;
+            } else if(self.hovering) {
+                console.log(self.hovering);
+                if(self.selected && self.hovering != self.selected) {
+                    self.selected.eventSystem.invokeEvent("OnDeselect", self.selected);
+                    self.eventSystem.invokeEvent("OnChange");
+                }
+                self.selected = self.hovering;
+                self.selected.eventSystem.invokeEvent("OnSelect", self.selected);
+                self.eventSystem.invokeEvent("OnChange");
             }
             self.isMouseDown = false;
         });
     }
 
     addRect(rect) {
-        
-        console.log(this);
         this.rects.push(rect);
     }
 }

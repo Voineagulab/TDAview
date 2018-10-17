@@ -16,7 +16,7 @@ class ColorMap {
 
 	changeColor(color) {
 		var data = this.material.map.image.data;
-		var colorHex = new THREE.Color().setHex("0x" + color)
+		var colorHex = new THREE.Color().setHex("0x" + color);
 		for(let i=0; i<data.length;) {
 			data[i++] = Math.round(colorHex.r * 255.0);
 			data[i++] = Math.round(colorHex.g * 255.0);
@@ -28,6 +28,33 @@ class ColorMap {
 	}
 
 	changeColorMap(steps) {
+		/*
+		var step = 1.0 / this.n;
+		var index = 0;
+		var stride = 0;
+		var data = this.material.map.image.data;
+
+		var currPer = steps[0].percentage/100.0;
+		var nextPer = steps[0].percentage/100.0;
+		var currStep = steps[0];
+		var nextStep = steps[1];
+		var currColor = new THREE.Color().setHex("0x" + currStep.color);
+		var nextColor = new THREE.Color().setHex("0x" + nextStep.color);
+		for(let i=1; i<=1; i+=step) {
+			if(i <= next) {
+				var color = currColor.lerp(nextColor, (i - currPer)/(nextPer - currPer));
+			}
+		}
+
+
+
+
+
+
+
+
+
+		return;*/
 		//Parse into array - should change to natively use steps
 		var map = new Array(steps.length+2);
 		map[0] = [0.0, "0x" + steps[0].color];

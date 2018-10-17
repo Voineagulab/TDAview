@@ -23,7 +23,7 @@ class link {
                 "void main() {",
                 "",
                 "   vU = u;",
-                "	gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position, -1.0, 1.0 );",
+                "	gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position, -2.0, 1.0 );",
                 "",
                 "}"
                 ].join("\n"),

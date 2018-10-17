@@ -1,8 +1,17 @@
+/*
+Public Events: OnNodeSelect, OnNodeDeselect, OnTick, OnEnd
+*/
 class forceGraph extends THREE.Group {
     constructor(data, adjacency, colormap) {
         super();
         var self = this;
         this.initiallizing = true;
+
+        //Create selection mesh
+        var selectionMesh = new THREE.Mesh(new THREE.CircleBufferGeometry(10, 32), new THREE.MeshBasicMaterial());
+        selectionMesh.visible = false;
+        selectionMesh.position.z = -1;
+        selectionMesh.scale.set(0.11, 0.11, 1);
 
         function onNodeDragStart() {
             self.simulation.alphaTarget(0.3).restart();
@@ -18,6 +27,17 @@ class forceGraph extends THREE.Group {
             self.simulation.alphaTarget(0);
             node.fx = node.fy = null;
         }
+
+        function onNodeSelect(node) {
+            self.eventSystem.invokeEvent("OnNodeSelect", node);
+            selectionMesh.visible = true;
+            node.mesh.add(selectionMesh);
+        }
+
+        function onNodeDeselect(node) {
+            self.eventSystem.invokeEvent("OnNodeSelect", node);
+            selectionMesh.visible = false;
+        }
         
         //Create nodes as single mesh
         node.intMaterial(colormap);
@@ -27,6 +47,8 @@ class forceGraph extends THREE.Group {
             this.nodes[i].eventSystem.addEventListener("OnDragStart", onNodeDragStart);
             this.nodes[i].eventSystem.addEventListener("OnDrag", onNodeDrag);
             this.nodes[i].eventSystem.addEventListener("OnDragEnd", onNodeDragEnd);
+            this.nodes[i].eventSystem.addEventListener("OnSelect", onNodeSelect);
+            this.nodes[i].eventSystem.addEventListener("OnDeselect", onNodeDeselect);
         }
 
         //Create links as separate meshes
