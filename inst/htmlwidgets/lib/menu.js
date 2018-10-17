@@ -79,6 +79,7 @@ class menu {
 
             <h1 class="subsection-heading">Node Settings</h1>
             <hr>
+
             <div class="accordion-wrapper">
                 <div class="accordion-item open">
                     <h4 class="accordion-item-heading">Size</h4>
@@ -97,11 +98,6 @@ class menu {
                     <div id="node-color" class="accordion-item-content">
                         ${metaVars.map(v => `<input type="checkbox" class="node-color-meta-boxes" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
                         <div id="node-color-picker-insert"></div>
-                        <select>
-                            <option value="none">None</option>
-                            <option value="line">Line</option>
-                            <option value="distribution">Distribution</option>
-                        </select>
                     </div>
                 </div>
 
@@ -118,10 +114,27 @@ class menu {
                         </form>
                     </div>
                 </div>
+
+                <div class="accordion-item close">
+                    <h4 class="accordion-item-heading">Data</h4>
+                    <div id="node-data" class="accordion-item-content">
+                        Selected Node --
+                        <table>
+                            <tr>
+                                <th></th>
+                                <th>Mean</th>
+                                <th>Correlation</th>
+                            </tr>
+                            ${metaVars.map(v => `<tr><th>${v}</th><td>test</td><td>test2</td></tr>`).join('')}
+                        </table>
+                    </div>
+                </div>
             </div>
+
             <hr>
             <h1 class="subsection-heading">Edge Settings</h1>
             <hr>
+
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Size</h4>
@@ -143,16 +156,46 @@ class menu {
                             <option value="none">Interpolate</option>
                             <option value="line">Average</option>
                         </select>
-                        <select>
-                            <option value="none">None</option>
-                            <option value="line">Line</option>
-                        </select>
                     </div>
                 </div>
             </div>
+
+            <hr>
+            <h1 class="subsection-heading">Legend Settings</h1>
+            <hr>
+
+            <div class="accordion-wrapper">
+                <div class="accordion-item close">
+                    <h4 class="accordion-item-heading">Display</h4>
+                    <div class="accordion-item-content">
+                        <form name="legends">
+                        <input type="checkbox" name="locked" value="locked" id="locked" />
+                        <label for="locked">Lock positions</label><br><br>
+                        <input type="checkbox" name="legenddisplay" value="node-colour-legend" id="node-colour-legend" />
+                        <label for="node-colour-legend">Toggle node colour</label><br>
+                        <input type="checkbox" name="legenddisplay" value="node-size-legend" id="node-size-legend" />
+                        <label for="node-size-legend">Toggle node size</label><br><br>
+                        Node --<br>
+                        <select>
+                            <option value="none">None</option>
+                            <option value="line">Line</option>
+                            <option value="distribution">Distribution</option>
+                        </select><br>
+                        Edge --<br>
+                        <select>
+                            <option value="none">None</option>
+                            <option value="line">Line</option>
+                        </select><br><br>
+                        <a href="#" class="myButton" id="reset">Reset to default</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <hr>
             <h1 class="subsection-heading">Graph Settings</h1>
             <hr>
+
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Export graph</h4>

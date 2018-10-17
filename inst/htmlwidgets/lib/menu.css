@@ -23,9 +23,18 @@
 
 table {
     width: 100%;
-	text-Align: "center";
-	color: #aaaaaa;
 }
+
+th {
+    text-align: center;
+    color: gray;
+}
+
+td {
+    text-align: center;
+    color: #aaaaaa;
+}
+
 
 /*select styling */
 select {
