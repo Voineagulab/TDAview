@@ -9,6 +9,8 @@ HTMLWidgets.widget({
 
 		return {
 			renderValue: function(x) {
+				width -= 250;
+
 				//Create cameras
 				var aspect = width / height;
 				camera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
@@ -76,14 +78,14 @@ HTMLWidgets.widget({
 				//Change node color to uniform, gradient or pie
 				sidebar.eventSystem.addEventListener("onColorMetaChange", function(checked) {
 					if(checked.length == 0) {
-						sidebar.nodeGradPicker.setStateSingle();
+						sidebar.nodeGradPicker.setState(STATE_SINGLE);
 						graph.links.forEach(l => l.setColor(0.5));
 					} else if(checked.length == 1) {
-						sidebar.nodeGradPicker.setStateGradient();
+						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
 						graph.nodes.forEach(n => n.setColor(n.mean[checked[0]]));
 						graph.links.forEach(l => l.setGradientFromNodes());
 					} else {
-						sidebar.nodeGradPicker.setStateFixedGradient(checked.length);
+						sidebar.nodeGradPicker.setState(STATE_FIXED, checked.length);
 
 						//Parse variables into normalised cumulative array
 						for(let i=0; i<graph.nodes.length; i++) {
