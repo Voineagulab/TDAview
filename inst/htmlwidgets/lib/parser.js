@@ -18,12 +18,28 @@ class Parser {
             }
             
             for(let j=0; j<mapperObject.num_vertices; j++) {
-                var sum = 0;
-                var count = mapperObject.points_in_vertex[j].length;
-                for(let k=0; k<count; k++) {
-                    sum += dataObject[metaVars[i]][mapperObject.points_in_vertex[j][k]-1];
+                //Store values and calculate mean
+                var mean = 0;
+                var values = new Array(mapperObject.points_in_vertex[j].length);
+                for(let k=0; k<values.length; k++) {
+                    values[i] = dataObject[metaVars[i]][mapperObject.points_in_vertex[j][k]-1];
+                    mean += values[i];
                 }
-                bins[j].mean[metaVars[i]] = (sum/count - min)/(max - min);
+                mean /= values.length;
+
+                //Calculate standard deviation
+                var sd = 0;
+                for(let k=0; k<values.length; k++) {
+                    sd += Math.pow(values[k] - mean, 2);
+                }
+                sd /= values.length;
+                sd = Math.sqrt(sd);
+
+                //Save normallised mean, min, max and standard deviation
+                bins[j].mean[metaVars[i]] = (mean - min)/(max - min);
+                bins[j].min[metaVars[i]] = min;
+                bins[j].max[metaVars[i]] = max;
+                bins[j].sd[metaVars[i]] = sd;
             }
         }
         return bins;
@@ -39,6 +55,9 @@ class Bin {
 	constructor(level, points) {
 		this.level = level;
 		this.points = points;
-		this.mean = {};
+        this.mean = {};
+        this.min = {};
+        this.max = {};
+        this.sd = {};
 	}
 }

@@ -2,7 +2,7 @@
 const width = 500;
 const height = 50;
 const gap = 0.25;
-const animTime = 0.5;
+const animTime = 0.1;
 
 class Legend extends Draggable2D {
     constructor(colorMap, parent, cols) {
@@ -66,12 +66,23 @@ class Legend extends Draggable2D {
     animate() {
 		if(this.clock.running) {
 			if(this.clock.elapsedTime > animTime) {
-                this.clock.stop();
+				this.clock.stop();
+				return false;
 			} else {
 				this.group.scale.y = THREE.Math.smoothstep(this.clock.getElapsedTime()/animTime, 0.0, 1.0);
+				return true;
 			}
 		}
-    }
+	}
+	
+	setVisibility(value) {
+		this.group.visible = value;
+		this.minLabel.element.style.visibility = this.maxLabel.element.style.visibility = value ? "visible" : "hidden";
+		if(value) {
+			this.clock.start();
+		}
+		
+	}
     
     boundsContains(vector) {
 		return (vector.x >= this.group.position.x-width && vector.x <= this.group.position.x && vector.y >= this.group.position.y && vector.y <= this.group.position.y + height);

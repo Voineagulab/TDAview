@@ -51,7 +51,8 @@ HTMLWidgets.widget({
 				var nodeMap = new ColorMap('rainbow', 256);
 				var nodeLegend = new Legend(nodeMap, hudScene, pointCounts.length);
 				nodeLegend.setLegendColHeights(pointCounts, 0, 1);
-				nodeLegend.group.position.set(width - 10, -height + 10, 1);
+				nodeLegend.group.position.set(width - 80, -height + 80, 1);
+				nodeLegend.setVisibility(false);
 
 				//Create graph
 				var graph = new forceGraph(bins, x.mapper.adjacency, nodeMap);
@@ -80,10 +81,13 @@ HTMLWidgets.widget({
 					if(checked.length == 0) {
 						sidebar.nodeGradPicker.setState(STATE_SINGLE);
 						graph.links.forEach(l => l.setColor(0.5));
+						nodeLegend.setVisibility(false);
 					} else if(checked.length == 1) {
 						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
 						graph.nodes.forEach(n => n.setColor(n.mean[checked[0]]));
 						graph.links.forEach(l => l.setGradientFromNodes());
+						nodeLegend.setLegendLabels(Math.max.apply(Math, x.data[checked]).toFixed(2), Math.min.apply(Math, x.data[checked]).toFixed(2));
+						nodeLegend.setVisibility(true);
 					} else {
 						sidebar.nodeGradPicker.setState(STATE_FIXED, checked.length);
 
@@ -102,6 +106,7 @@ HTMLWidgets.widget({
 						}
 						
 						graph.links.forEach(l => l.setGradientFromNodes());
+						nodeLegend.setVisibility(false);
 					}
 					graph.links.forEach(l => l.updateColor());
 				});
@@ -161,7 +166,9 @@ HTMLWidgets.widget({
 				dragSystem.addRect(hudRect);
 
 				function render() {
-					nodeLegend.animate();
+					if(nodeLegend.animate()) {
+						requestAnimationFrame(render);
+					}
 					renderer.clear();
 					renderer.render(scene, camera);
 					renderer.render(hudScene, hudCamera);
