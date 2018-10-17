@@ -86,7 +86,7 @@ HTMLWidgets.widget({
 						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
 						graph.nodes.forEach(n => n.setColor(n.mean[checked[0]]));
 						graph.links.forEach(l => l.setGradientFromNodes());
-						nodeLegend.setLegendLabels(Math.max.apply(Math, x.data[checked]).toFixed(2), Math.min.apply(Math, x.data[checked]).toFixed(2));
+						nodeLegend.setLegendLabels(Math.min.apply(Math, x.data[checked]).toFixed(2), Math.max.apply(Math, x.data[checked]).toFixed(2));
 						nodeLegend.setVisibility(true);
 					} else {
 						sidebar.nodeGradPicker.setState(STATE_FIXED, checked.length);
