@@ -16,9 +16,9 @@
     position: absolute;
     width: 4px;
     height: 8px;
-    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.548);
     border: 1px solid black;
-    border-radius: 2px ; 
+    border-radius: 2px ;
     display: inline-block;
     vertical-align:top;
     cursor: e-resize;

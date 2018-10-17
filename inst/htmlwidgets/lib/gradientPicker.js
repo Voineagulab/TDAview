@@ -2,6 +2,7 @@
 Public Events: OnColorChange, OnGradientChange
 */
 
+const STATE_UNDEFINED = 0;
 const STATE_SINGLE = 1;
 const STATE_GRADIENT = 2;
 const STATE_FIXED = 3;
@@ -16,7 +17,7 @@ class gradientPicker {
         var self = this;
 
         this.color;
-        this.state = STATE_SINGLE;
+        this.state = STATE_UNDEFINED;
         this.nextUniqueID = 0;
 
         this.eventSystem = new event();
@@ -25,6 +26,10 @@ class gradientPicker {
         this.domElement = document.createElement("div");
         this.domElement.className = "gradient-container";
         parent.appendChild(this.domElement);
+
+        //Create instructions
+        this.instruction = document.createElement("div");
+        this.domElement.appendChild(this.instruction);
 
         //Create bar
         this.bar = document.createElement("div");
@@ -71,6 +76,8 @@ class gradientPicker {
                 self.updateBarGradient();
             }
         });
+
+        this.setState(STATE_SINGLE);
     }
 
     getNextStepID() {
@@ -82,6 +89,7 @@ class gradientPicker {
             if(state == STATE_SINGLE) {
                 this.setSelected(undefined);
                 this.hideSteps(this.state == STATE_GRADIENT ? this.steps : this.fixedSteps);
+                this.instruction.innerText = "Select Color:";
             } else if(state == STATE_GRADIENT) {
                 let i=1;
                 while(this.steps.length < 2) {
@@ -91,6 +99,7 @@ class gradientPicker {
                 this.setSelected(this.steps[0]);
                 this.showSteps(this.steps);
                 if(this.state == STATE_FIXED) this.hideSteps(this.fixedSteps);
+                this.instruction.innerText = "Adjust Gradient:";
             } else {
                 while(this.fixedSteps.length < count) {
                     this.createStep(this.fixedSteps);
@@ -106,7 +115,7 @@ class gradientPicker {
                 this.setSelected(this.fixedSteps[0])
                 this.showSteps(this.fixedSteps);
                 if(this.state == STATE_GRADIENT) this.hideSteps(this.steps);
-                console.log(this.fixedSteps);
+                this.instruction.innerText = "Select Colors:";
             }
             this.state = state;
             this.updateBarGradient();
@@ -158,7 +167,8 @@ class gradientPicker {
 
     destroyStepAt(array, index) {
         let s = array[index];
-        this.bar.remove(s.element);
+        console.log(s);
+        this.bar.removeChild(s.element);
         array.splice(index, 1);
     }
 
@@ -184,7 +194,7 @@ class gradientPicker {
                 this.selected.element.style.borderColor = "black";
             }
             this.picker.set("#" + s.color);
-            s.element.style.borderColor = "white";
+            s.element.style.borderColor = "lightgrey";
         } else {
             this.picker.set("#" + this.color);
         }
