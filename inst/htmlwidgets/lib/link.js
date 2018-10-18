@@ -67,6 +67,7 @@ class link {
         geometry.computeBoundingBox();
 
         this.mesh = new THREE.Mesh(geometry, linkMaterial);
+        this.mesh.frustumCulled = false;
         parent.add(this.mesh);
     }
 

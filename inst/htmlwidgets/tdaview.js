@@ -6,6 +6,8 @@ HTMLWidgets.widget({
 		var camera, hudCamera;
 		var renderer, labelRenderer;
 		var frustumSize = 1000;
+		var shouldPaint = true;
+		var shouldAutoResize = true;
 
 		return {
 			renderValue: function(x) {
@@ -67,13 +69,13 @@ HTMLWidgets.widget({
 				//Change map to uniform color
 				sidebar.nodeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
 					nodeMap.changeColor(color);
-					requestAnimationFrame(render);
+					shouldPaint = true;
 				});
 
 				//Change map to gradient
 				sidebar.nodeGradPicker.eventSystem.addEventListener("OnGradientChange", function(steps) {
 					nodeMap.changeColorMap(steps);
-					requestAnimationFrame(render);
+					shouldPaint = true;
 				});
 
 				//Change node color to uniform, gradient or pie
@@ -109,6 +111,7 @@ HTMLWidgets.widget({
 						nodeLegend.setVisibility(false);
 					}
 					graph.links.forEach(l => l.updateColor());
+					shouldPaint = true;
 				});
 
 				//Change node size to uniform, point count or variable
@@ -119,7 +122,7 @@ HTMLWidgets.widget({
 						default: graph.nodes.forEach(n => n.setRadius(n.mean[value] * 18));
 					}
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
-					requestAnimationFrame(render);
+					shouldPaint = true;
 				});
 
 				//Download image generated from export div
@@ -147,16 +150,16 @@ HTMLWidgets.widget({
 
 				//Zoom camera to accommodate simulated graph bounds
 				graph.eventSystem.addEventListener("onTick", function() {
-					if(graph.initiallizing) {
+					if(graph.initiallizing && shouldAutoResize) {
 						var box = graph.getBoundingBox();
 						camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * 2;
 						camera.updateProjectionMatrix();
 					}
-					requestAnimationFrame(render);
+					shouldPaint = true;
 				});
 
 				//Initiallise drag system
-				let dragSystem = new DragSystem2D(exportDiv, renderer);
+				let dragSystem = new DragSystem2D(exportDiv, renderer, camera);
 				dragSystem.eventSystem.addEventListener("OnChange", render);
 				let graphRect = new DragRect2D(camera);
 				let hudRect = new DragRect2D(hudCamera);
@@ -165,16 +168,28 @@ HTMLWidgets.widget({
 				dragSystem.addRect(graphRect);
 				dragSystem.addRect(hudRect);
 
-				function render() {
-					if(nodeLegend.animate()) {
-						requestAnimationFrame(render);
+				function animate() {
+					if(dragSystem.animate()) {
+						shouldAutoResize = false;
+						shouldPaint = true;
 					}
+
+					if(shouldPaint) {
+						render();
+						shouldPaint = false;
+					}
+					requestAnimationFrame(animate);
+				}
+
+				function render() {
 					renderer.clear();
 					renderer.render(scene, camera);
 					renderer.render(hudScene, hudCamera);
 					labelRenderer.render(scene, camera);
 					labelRenderer.render(hudScene, hudCamera);
 				}
+
+				animate();
 			},
 			
 			resize: function(width, height) {
