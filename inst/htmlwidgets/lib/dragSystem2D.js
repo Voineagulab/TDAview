@@ -34,14 +34,14 @@ class DragSystem2D {
         this.cameraOffset = new THREE.Vector2();
         this.panStart = new THREE.Vector2();
         element.addEventListener("wheel", function(e) {
-            if(!self.zoomClock.running) {
-                self.zoomTarget = self.camera.zoom;
+            if(!e.ctrlKey) {
+                if(!self.zoomClock.running) {
+                    self.zoomTarget = self.camera.zoom;
+                }
+                self.zoomStart = camera.zoom
+                self.zoomClock.start();
+                self.zoomTarget = Math.max(0.1, self.zoomTarget - e.deltaY * 0.0025);
             }
-            self.zoomStart = camera.zoom
-            self.zoomClock.start();
-            self.zoomTarget = Math.max(0.1, self.zoomTarget - e.deltaY * 0.0025);
-            
-            
         })
 
         element.addEventListener("mousedown", function() {
