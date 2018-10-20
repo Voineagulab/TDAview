@@ -8,7 +8,7 @@ class forceGraph extends THREE.Group {
         this.initiallizing = true;
 
         //Create selection mesh
-        var selectionMesh = new THREE.Mesh(new THREE.CircleBufferGeometry(10, 32), new THREE.MeshBasicMaterial());
+        var selectionMesh = new THREE.Mesh(new THREE.CircleBufferGeometry(10, 64), new THREE.MeshBasicMaterial());
         selectionMesh.visible = false;
         selectionMesh.position.z = -1;
         selectionMesh.scale.set(0.11, 0.11, 1);

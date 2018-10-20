@@ -20,16 +20,11 @@ First.Example.mapper <- mapper(dist_object = First.Example.dist,
                                percent_overlap = 50,
                                num_bins_when_clustering = 10)
 
-# Build library each update
+#Build library each update
 devtools::install()
 library(tdaview) #only required once
 tdaview(First.Example.mapper, First.Example.data)
 
-
-#This works in r viewer?!------------------------------------------------------------------------------
-devtools::install_github("bwlewis/rthreejs")
-library(threejs)
-z <- seq(-10, 10, 0.01)
-x <- cos(z)
-y <- sin(z)
-scatterplot3js(x,y,z, color=rainbow(length(z)))
+#Save
+library(htmlwidgets)
+saveWidget(tdaview(First.Example.mapper, First.Example.data), file="tdaview.html", selfcontained = TRUE)

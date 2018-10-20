@@ -39,8 +39,13 @@ class Legend extends Draggable2D {
 		this.eventSystem.addEventListener("OnDrag", function(me, vector) {
 			me.group.position.x = vector.x;
 			me.group.position.y = vector.y;
+			console.log(me.group.position);
 		})
-    }
+	}
+	
+	setBottomLeft(width, height, aspect) {
+		this.group.position.set(width - 80, -height + 80, 1);
+	}
 
 	setLegendColHeights(heights) {
 		var min = Infinity;

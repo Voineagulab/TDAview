@@ -5,6 +5,7 @@ HTMLWidgets.widget({
 	factory: function(element, width, height) {
 		var camera, hudCamera;
 		var renderer, labelRenderer;
+		var nodeLegend;
 		var frustumSize = 1000;
 		var shouldPaint = true;
 		var shouldAutoResize = true;
@@ -51,10 +52,10 @@ HTMLWidgets.widget({
 
 				//Create maps and legends
 				var nodeMap = new ColorMap('rainbow', 256);
-				var nodeLegend = new Legend(nodeMap, hudScene, pointCounts.length);
+				nodeLegend = new Legend(nodeMap, hudScene, pointCounts.length);
 				nodeLegend.setLegendColHeights(pointCounts, 0, 1);
-				nodeLegend.group.position.set(width - 80, -height + 80, 1);
-				nodeLegend.setVisibility(false);
+				nodeLegend.setBottomLeft(width, height, aspect);
+				nodeLegend.setVisibility(true);
 
 				//Create graph
 				var graph = new forceGraph(bins, x.mapper.adjacency, nodeMap);
@@ -152,8 +153,9 @@ HTMLWidgets.widget({
 				graph.eventSystem.addEventListener("onTick", function() {
 					if(graph.initiallizing && shouldAutoResize) {
 						var box = graph.getBoundingBox();
-						camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * 2;
+						camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * window.devicePixelRatio;
 						camera.updateProjectionMatrix();
+						console.log();
 					}
 					shouldPaint = true;
 				});
@@ -193,13 +195,18 @@ HTMLWidgets.widget({
 			},
 			
 			resize: function(width, height) {
-				aspect = width / height;
-				camera.left = - frustumSize * aspect/2;
-				camera.right = frustumSize * aspect/2;
-				camera.top = frustumSize/2;
-				camera.bottom = - frustumSize/2;
+				width -= 250;
+				var aspect = width / height;
+				hudCamera.left = camera.left = - frustumSize * aspect/2;
+				hudCamera.right = camera.right = frustumSize * aspect/2;
+				hudCamera.top = camera.top = frustumSize/2;
+				hudCamera.bottom = camera.bottom = - frustumSize/2;
+				hudCamera.updateProjectionMatrix();
 				camera.updateProjectionMatrix();
 				renderer.setSize(width, height);
+				labelRenderer.setSize(width, height);
+				//nodeLegend.setBottomLeft(width, height, aspect);
+				shouldPaint = true;
 			}
 		};
 	}

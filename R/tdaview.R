@@ -16,7 +16,9 @@ tdaview <- function(mapper, data = NULL, width = NULL, height = NULL, elementId 
     elementId = elementId,
     sizingPolicy = htmlwidgets::sizingPolicy(
       browser.padding = 0,
-      #browser.fill = TRUE #this breaks fx coordinate calculations, which seem to break for zoom anyway
+      viewer.padding = 0,
+      browser.fill = TRUE,
+      viewer.fill = TRUE
     )
   )
 }
