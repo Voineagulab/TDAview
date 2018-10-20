@@ -2,7 +2,7 @@
 Public Events: OnNodeSelect, OnNodeDeselect, OnTick, OnEnd
 */
 class forceGraph extends THREE.Group {
-    constructor(data, adjacency, colormap) {
+    constructor(data, adjacency, nodeColorMap, edgeColorMap) {
         super();
         var self = this;
         this.initiallizing = true;
@@ -40,7 +40,7 @@ class forceGraph extends THREE.Group {
         }
         
         //Create nodes as single mesh
-        node.intMaterial(colormap);
+        node.intMaterial(nodeColorMap);
         this.nodes = new Array(data.length);
         for(let i=0; i<data.length; i++) {
             this.nodes[i] = new node(i, "Node " + i, data[i], 0.0, this);
@@ -53,7 +53,7 @@ class forceGraph extends THREE.Group {
 
         //Create links as separate meshes
         this.links = [];
-        link.initMaterial(colormap);
+        link.initMaterial(edgeColorMap);
         for(let i=0; i<adjacency[0].length; i++) {
             let row = adjacency[i];
             for(let j=0; j<row.length; j++) {
@@ -90,6 +90,14 @@ class forceGraph extends THREE.Group {
         //TODO fix hardcoded margin
         box.expandByScalar(100);
         return box;
+    }
+
+    setNodeColorMap(colormap) {
+        node.updateColorMap(colormap);
+    }
+
+    setLinkColorMap(colormap) {
+        link.updateColorMap(colormap);
     }
     
     updatePositions() {

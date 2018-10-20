@@ -9,6 +9,7 @@ HTMLWidgets.widget({
 		var frustumSize = 1000;
 		var shouldPaint = true;
 		var shouldAutoResize = true;
+		var shouldShareMap = true;
 
 		return {
 			renderValue: function(x) {
@@ -57,8 +58,13 @@ HTMLWidgets.widget({
 				nodeLegend.setBottomLeft(width, height, aspect);
 				nodeLegend.setVisibility(true);
 
+				var edgeMap = new ColorMap('rainbow', 512);
+				//edgeLegend = new Legend(edgeMap, hudScene, pointCounts.length);
+				//edgeLegend.setLegendColHeights(pointCounts, 0, 1);
+				//edgeLegend.setVisibility(true);
+
 				//Create graph
-				var graph = new forceGraph(bins, x.mapper.adjacency, nodeMap);
+				var graph = new forceGraph(bins, x.mapper.adjacency, nodeMap, shouldShareMap ? nodeMap : edgeMap);
 				for(let i=0; i<pointCounts.length; i++) {
 					graph.nodes[i].setRadius(pointCounts[i]);
 				}
@@ -79,16 +85,26 @@ HTMLWidgets.widget({
 					shouldPaint = true;
 				});
 
+				sidebar.edgeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
+					edgeMap.changeColor(color);
+					shouldPaint = true;
+				})
+
+				sidebar.edgeGradPicker.eventSystem.addEventListener("OnGradientChange", function(steps) {
+					edgeMap.changeColorMap(steps);
+					shouldPaint = true;
+				})
+
 				//Change node color to uniform, gradient or pie
-				sidebar.eventSystem.addEventListener("onColorMetaChange", function(checked) {
+				sidebar.eventSystem.addEventListener("OnNodeColorChange", function(checked) {
 					if(checked.length == 0) {
 						sidebar.nodeGradPicker.setState(STATE_SINGLE);
-						graph.links.forEach(l => l.setColor(0.5));
+						if(shouldShareMap) graph.links.forEach(l => l.setColor(0.5));
 						nodeLegend.setVisibility(false);
 					} else if(checked.length == 1) {
 						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
 						graph.nodes.forEach(n => n.setColor(n.mean[checked[0]]));
-						graph.links.forEach(l => l.setGradientFromNodes());
+						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
 						nodeLegend.setLegendLabels(Math.min.apply(Math, x.data[checked]).toFixed(2), Math.max.apply(Math, x.data[checked]).toFixed(2));
 						nodeLegend.setVisibility(true);
 					} else {
@@ -108,15 +124,16 @@ HTMLWidgets.widget({
 							graph.nodes[i].setColorPie(pie);
 						}
 						
-						graph.links.forEach(l => l.setGradientFromNodes());
+						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
 						nodeLegend.setVisibility(false);
 					}
-					graph.links.forEach(l => l.updateColor());
+					if(shouldShareMap) graph.links.forEach(l => l.updateColor());
 					shouldPaint = true;
 				});
 
+
 				//Change node size to uniform, point count or variable
-				sidebar.eventSystem.addEventListener("onNodeSizeChange", function(value) {
+				sidebar.eventSystem.addEventListener("OnNodeSizeChange", function(value) {
 					switch(value) {
 						case "none": graph.nodes.forEach(n => n.setRadius(18)); break;
 						case "content": graph.nodes.forEach(n => n.setRadius(n.points.length)); break;
@@ -125,6 +142,21 @@ HTMLWidgets.widget({
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;
 				});
+
+				sidebar.eventSystem.addEventListener("OnEdgeColorChange", function(value) {
+					if(value === "nodes") {
+						graph.setLinkColorMap(nodeMap);
+						sidebar.edgeGradPicker.setState(STATE_SINGLE); //STATE_DISABLED
+					} else if(value === "uniform") {
+						graph.setLinkColorMap(edgeMap);
+						sidebar.edgeGradPicker.setState(STATE_SINGLE);
+					} else {
+						graph.setLinkColorMap(edgeMap);
+						sidebar.edgeGradPicker.setState(STATE_GRADIENT);
+						graph.links.forEach(l => {l.setGradient(l.source.mean[value], l.target.mean[value]); l.updateColor()});
+					}
+					shouldPaint = true;
+				})
 
 				//Download image generated from export div
 				sidebar.eventSystem.addEventListener("OnExport", function(value) {
@@ -155,7 +187,6 @@ HTMLWidgets.widget({
 						var box = graph.getBoundingBox();
 						camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * window.devicePixelRatio;
 						camera.updateProjectionMatrix();
-						console.log();
 					}
 					shouldPaint = true;
 				});

@@ -5,7 +5,7 @@ class node extends Draggable2D {
     static intMaterial(colormap) {
         nodeMaterial = new THREE.RawShaderMaterial({
             uniforms: {
-                texture: { type: "t", value: colormap.getTexture() },
+                nodetex: { type: "t", value: colormap.getTexture() },
             },
             vertexShader: [
                 "precision highp float;",
@@ -27,12 +27,12 @@ class node extends Draggable2D {
             fragmentShader: [
                 "precision highp float;",
                 "",
-                "uniform sampler2D texture;",
+                "uniform sampler2D nodetex;",
                 "varying float vU;",
                 "",
                 "void main() {",
                 "",
-                "    gl_FragColor = texture2D( texture, vec2 ( vU, 0.0 ) );",
+                "    gl_FragColor = texture2D( nodetex, vec2 ( vU, 0.0 ) );",
                 "",
                 "}"
                 ].join("\n"),
@@ -42,7 +42,7 @@ class node extends Draggable2D {
     }
 
     static updateColorMap(colormap) {
-        nodeMaterial.uniforms.texture = colormap.getTexture();
+        nodeMaterial.uniforms.nodetex.value = colormap.getTexture();
     }
 
 	constructor(index, labelText, data, color, parent) {

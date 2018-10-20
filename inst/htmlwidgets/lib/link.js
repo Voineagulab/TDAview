@@ -5,10 +5,7 @@ class link {
     static initMaterial(colormap) {
         linkMaterial = new THREE.RawShaderMaterial({
             uniforms: {
-                image: {
-                    type: 't',
-                    value: colormap.getTexture()
-                }
+                linktex: { type: 't', value: colormap.getTexture() }
             },
             vertexShader: [
                 "precision highp float;",
@@ -30,18 +27,22 @@ class link {
             fragmentShader: [
                 "precision highp float;",
                 "",
-                "uniform sampler2D texture;",
+                "uniform sampler2D linktex;",
                 "varying float vU;",
                 "",
                 "void main() {",
                 "",
-                "   gl_FragColor = texture2D( texture, vec2 ( vU, 0.0 ) );",
+                "   gl_FragColor = texture2D( linktex, vec2 ( vU, 0.0 ) );",
                 "",
                 "}"
                 ].join("\n"),
             side: THREE.DoubleSide,
             transparent: false
         });
+    }
+
+    static updateColorMap(colormap) {
+        linkMaterial.uniforms.linktex.value = colormap.getTexture();
     }
 
 	constructor(source, target, parent) {

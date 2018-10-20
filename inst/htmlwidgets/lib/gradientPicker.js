@@ -10,11 +10,13 @@ const STATE_FIXED = 3;
 const CONTAINER_WIDTH = 185;
 const BAR_WIDTH = 160;
 const STEP_WIDTH = 5;
-let gradMouseDown = false;
+
 
 class gradientPicker {
     constructor(parent) {
         var self = this;
+
+        this.gradMouseDown = false;
 
         this.color;
         this.state = STATE_UNDEFINED;
@@ -67,21 +69,24 @@ class gradientPicker {
         this.barRectLeft = this.bar.getBoundingClientRect().left;
 
         window.addEventListener("mouseup", function() {
-            gradMouseDown = false;
+            self.gradMouseDown = false;
         });
 
         window.addEventListener("mousemove", function(event) {
-            if(self.state == STATE_GRADIENT && gradMouseDown) {
+            if(self.state == STATE_GRADIENT && self.gradMouseDown) {
                 self.setStepTranslation(self.selected, event.clientX);
                 self.updateBarGradient();
             }
         });
-
         this.setState(STATE_SINGLE);
     }
 
     getNextStepID() {
         return this.nextUniqueID++;
+    }
+
+    setEnabled(value) {
+        this.enabled = value;
     }
 
     setState(state, count=0) {
@@ -133,14 +138,16 @@ class gradientPicker {
         var s = new step(this.getNextStepID(), element, this.color, 0);
 
         element.addEventListener("mousedown", function(event) {
-            self.setSelected(s);
-            gradMouseDown = true;
-            event.preventDefault();
+            if(self.selected) {
+                self.setSelected(s);
+                self.gradMouseDown = true;
+                event.preventDefault();
+            }
         });
 
         //Double click on step to remove
         element.addEventListener("dblclick", function(event) {
-            if(self.state == STATE_GRADIENT && array.length > 2) {
+            if(self.selected && self.state == STATE_GRADIENT && array.length > 2) {
                 for(let i=0; i<array.length; i++) {
                     if(array[i].id == s.id) {
                         //Remove step
@@ -167,7 +174,6 @@ class gradientPicker {
 
     destroyStepAt(array, index) {
         let s = array[index];
-        console.log(s);
         this.bar.removeChild(s.element);
         array.splice(index, 1);
     }
