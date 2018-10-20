@@ -9,15 +9,19 @@ class menu {
         element.appendChild(this.domElement);
 
         //Accordion events
-        var accOpen = 0;
+        var accOpen = -1;
         var accItem = this.domElement.getElementsByClassName("accordion-item");
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
         for(let i=0; i<accHD.length; i++) {
             accHD[i].addEventListener('click', function() {
-                if(accOpen != i) {
+                if(accOpen >= 0) {
                     accItem[accOpen].className = 'accordion-item close';
+                }
+                if(accOpen != i) {
                     accOpen = i;
                     accItem[accOpen].className = 'accordion-item open';
+                } else {
+                    accOpen = -1;
                 }
             }, false);
         }
@@ -26,7 +30,7 @@ class menu {
         var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
         for(let i=0; i<sizeradios.length; i++) {
             sizeradios[i].onclick = function() {
-                self.eventSystem.invokeEvent("onNodeSizeChange", this.value);
+                self.eventSystem.invokeEvent("OnNodeSizeChange", this.value);
             }
         }
 
@@ -35,9 +39,8 @@ class menu {
         var nodeColorMetaBoxes = document.getElementsByClassName("node-color-meta-boxes");
         for(let i=0; i<nodeColorMetaBoxes.length; i++) {
             nodeColorMetaBoxes[i].onclick = function() {//e.ctrlKey
-                console.log(nodeColorMetaBoxes);
                 var checked = Array.from(nodeColorMetaBoxes).filter(b => b.checked).map(b => b.value);
-                self.eventSystem.invokeEvent("onColorMetaChange", checked);
+                self.eventSystem.invokeEvent("OnNodeColorChange", checked);
             }
         }
 
@@ -64,6 +67,13 @@ class menu {
 
         //Edge color events
         this.edgeGradPicker = new gradientPicker(document.getElementById("edge-color-picker-insert")); //multiple gradient pickers causes error atm
+        var edgeColorMetaRadios = document.getElementsByClassName("edge-color-meta-radio");
+        for(let i=0; i<edgeColorMetaRadios.length; i++) {
+            edgeColorMetaRadios[i].onclick = function() {
+                self.eventSystem.invokeEvent("OnEdgeColorChange", this.value);
+                console.log(this.value);
+            }
+        }
 
         //Export events
         var graphradios = document.forms["graphext"].elements["graphtype"];
@@ -76,13 +86,25 @@ class menu {
         return /*html*/`
         <div class="unselectable sidenav">
             <br>
-
-            <h1 class="subsection-heading">Node Settings</h1>
-            <hr>
-
             <div class="accordion-wrapper">
-                <div class="accordion-item open">
-                    <h4 class="accordion-item-heading">Size</h4>
+                <div class="accordion-item close">
+                    <h4 class="accordion-item-heading">Selected</h4>
+                    <div id="node-data" class="accordion-item-content">
+                        Selected Node --
+                        <table>
+                            <tr>
+                                <th></th>
+                                <th>Mean</th>
+                                <th>Correlation</th>
+                            </tr>
+                            ${metaVars.map(v => `<tr><th>${v}</th><td>0.0</td><td>1.0</td></tr>`).join('')}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-wrapper">
+                <div class="accordion-item close">
+                    <h4 class="accordion-item-heading">Node Size</h4>
                     <div id="node-size" class="accordion-item-content">
                         <form name="node-size-meta">
                         <input type="radio" name="nodesize" value="content" id="contentsize" checked />
@@ -94,15 +116,14 @@ class menu {
                     </div>
                 </div>
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Color</h4>
+                    <h4 class="accordion-item-heading">Node Color</h4>
                     <div id="node-color" class="accordion-item-content">
                         ${metaVars.map(v => `<input type="checkbox" class="node-color-meta-boxes" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
                         <div id="node-color-picker-insert"></div>
                     </div>
                 </div>
-
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Label</h4>
+                    <h4 class="accordion-item-heading">Node Label</h4>
                     <div id="labelselect" class="accordion-item-content">
                         <form name="labels">
                         <input type="radio" name="labeltype" value="name" id="name" checked />
@@ -114,43 +135,23 @@ class menu {
                         </form>
                     </div>
                 </div>
-
-                <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Data</h4>
-                    <div id="node-data" class="accordion-item-content">
-                        Selected Node --
-                        <table>
-                            <tr>
-                                <th></th>
-                                <th>Mean</th>
-                                <th>Correlation</th>
-                            </tr>
-                            ${metaVars.map(v => `<tr><th>${v}</th><td>test</td><td>test2</td></tr>`).join('')}
-                        </table>
-                    </div>
-                </div>
             </div>
-
-            <hr>
-            <h1 class="subsection-heading">Edge Settings</h1>
-            <hr>
-
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Size</h4>
+                    <h4 class="accordion-item-heading">Edge Size</h4>
                     <div class="accordion-item-content">
                         <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
                     </div>
                 </div>
 
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Color</h4>
+                    <h4 class="accordion-item-heading">Edge Color</h4>
                     <div class="accordion-item-content">
-                        <input type="radio" name="edgeColor" value="nodes" id="edgecolornode" checked/>
+                        <input type="radio" name="edgeColor" value="nodes" id="edgecolornode" class="edge-color-meta-radio" checked/>
                         <label for="edgecolornode">Use Node Colors</label><br>
-                        ${metaVars.map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor"/><label for="${v}edgecolor">${v}</label><br>`).join('')}
-                        <input type="radio" name="edgeColor" value="nodes" id="edgecolor"/>
-                        <label for="edgecolor">None</label><br>
+                        ${metaVars.map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}
+                        <input type="radio" name="edgeColor" value="uniform" id="edgecolor" class="edge-color-meta-radio" />
+                        <label for="edgecolor">Uniform</label><br>
                         <div id="edge-color-picker-insert"></div>
                         <select>
                             <option value="none">Interpolate</option>
@@ -159,14 +160,9 @@ class menu {
                     </div>
                 </div>
             </div>
-
-            <hr>
-            <h1 class="subsection-heading">Legend Settings</h1>
-            <hr>
-
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Display</h4>
+                    <h4 class="accordion-item-heading">Legend</h4>
                     <div class="accordion-item-content">
                         <form name="legends">
                         <input type="checkbox" name="locked" value="locked" id="locked" />
@@ -191,14 +187,9 @@ class menu {
                     </div>
                 </div>
             </div>
-
-            <hr>
-            <h1 class="subsection-heading">Graph Settings</h1>
-            <hr>
-
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Export graph</h4>
+                    <h4 class="accordion-item-heading">Export</h4>
                     <div class="accordion-item-content">
                         <form name="graphext">
                         <input type="radio" name="graphtype" value="png" id="png" checked />
