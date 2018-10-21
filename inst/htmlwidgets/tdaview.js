@@ -147,14 +147,17 @@ HTMLWidgets.widget({
 					if(value === "nodes") {
 						graph.setLinkColorMap(nodeMap);
 						sidebar.edgeGradPicker.setState(STATE_SINGLE); //STATE_DISABLED
-						graph.links.forEach(l => l.setGradientFromNodes());
+						graph.links.forEach(l => {l.setGradientFromNodes(); l.updateColor()});
+						shouldShareMap = true;
 					} else if(value === "uniform") {
 						graph.setLinkColorMap(edgeMap);
 						sidebar.edgeGradPicker.setState(STATE_SINGLE);
+						shouldShareMap = false;
 					} else {
 						graph.setLinkColorMap(edgeMap);
 						sidebar.edgeGradPicker.setState(STATE_GRADIENT);
 						graph.links.forEach(l => {l.setGradient(l.source.mean[value], l.target.mean[value]); l.updateColor()});
+						shouldShareMap = false;
 					}
 					shouldPaint = true;
 				})

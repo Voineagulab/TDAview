@@ -35,7 +35,7 @@ class forceGraph extends THREE.Group {
         }
 
         function onNodeDeselect(node) {
-            self.eventSystem.invokeEvent("OnNodeSelect", node);
+            self.eventSystem.invokeEvent("OnNodeDeselect", node);
             selectionMesh.visible = false;
         }
         
