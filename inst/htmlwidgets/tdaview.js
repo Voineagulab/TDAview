@@ -55,8 +55,8 @@ HTMLWidgets.widget({
 				var nodeMap = new ColorMap('rainbow', 256);
 				nodeLegend = new Legend(nodeMap, hudScene, pointCounts.length);
 				nodeLegend.setLegendColHeights(pointCounts, 0, 1);
-				nodeLegend.setBottomLeft(width, height, aspect);
-				nodeLegend.setVisibility(true);
+				nodeLegend.setAnchor(hudCamera.right, hudCamera.bottom, aspect/2);
+				nodeLegend.setVisibility(false);
 
 				var edgeMap = new ColorMap('rainbow', 512);
 				//edgeLegend = new Legend(edgeMap, hudScene, pointCounts.length);
@@ -147,6 +147,7 @@ HTMLWidgets.widget({
 					if(value === "nodes") {
 						graph.setLinkColorMap(nodeMap);
 						sidebar.edgeGradPicker.setState(STATE_SINGLE); //STATE_DISABLED
+						graph.links.forEach(l => l.setGradientFromNodes());
 					} else if(value === "uniform") {
 						graph.setLinkColorMap(edgeMap);
 						sidebar.edgeGradPicker.setState(STATE_SINGLE);
@@ -193,7 +194,9 @@ HTMLWidgets.widget({
 
 				//Initiallise drag system
 				let dragSystem = new DragSystem2D(exportDiv, renderer, camera);
-				dragSystem.eventSystem.addEventListener("OnChange", render);
+				dragSystem.eventSystem.addEventListener("OnChange", function() {
+					shouldPaint = true;
+				});
 				let graphRect = new DragRect2D(camera);
 				let hudRect = new DragRect2D(hudCamera);
 				graphRect.addDraggable(graph.nodes);
@@ -221,22 +224,19 @@ HTMLWidgets.widget({
 					labelRenderer.render(scene, camera);
 					labelRenderer.render(hudScene, hudCamera);
 				}
-
 				animate();
 			},
 			
 			resize: function(width, height) {
 				width -= 250;
 				var aspect = width / height;
-				hudCamera.left = camera.left = - frustumSize * aspect/2;
-				hudCamera.right = camera.right = frustumSize * aspect/2;
-				hudCamera.top = camera.top = frustumSize/2;
-				hudCamera.bottom = camera.bottom = - frustumSize/2;
-				hudCamera.updateProjectionMatrix();
+				camera.left = - frustumSize * aspect/2;
+				camera.right = frustumSize * aspect/2;
+				camera.top = frustumSize/2;
+				camera.bottom = - frustumSize/2;
 				camera.updateProjectionMatrix();
 				renderer.setSize(width, height);
 				labelRenderer.setSize(width, height);
-				//nodeLegend.setBottomLeft(width, height, aspect);
 				shouldPaint = true;
 			}
 		};

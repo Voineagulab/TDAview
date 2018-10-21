@@ -6,10 +6,10 @@ const animTime = 0.1;
 
 class Legend extends Draggable2D {
     constructor(colorMap, parent, cols) {
-        super();
-        this.group = new THREE.Group();
+		super();
+		this.group = new THREE.Group();
 		this.clock = new THREE.Clock(false);
-		
+
 		this.cols = cols;
 		let columnWidth = width / cols;
 		let scaledColumnWidth = columnWidth * gap;
@@ -37,14 +37,13 @@ class Legend extends Draggable2D {
 		this.setLegendLabels("min", "max");
 
 		this.eventSystem.addEventListener("OnDrag", function(me, vector) {
-			me.group.position.x = vector.x;
-			me.group.position.y = vector.y;
-			console.log(me.group.position);
-		})
+			me.group.position.set(vector.x, vector.y, 0);
+		});
 	}
 	
-	setBottomLeft(width, height, aspect) {
-		this.group.position.set(width - 80, -height + 80, 1);
+	setAnchor(x, y, scale) {
+		this.group.scale.set(scale, scale, 1);
+		this.group.position.set(x-80, y+80, 0);
 	}
 
 	setLegendColHeights(heights) {

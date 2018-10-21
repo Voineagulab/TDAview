@@ -146,8 +146,6 @@ class DragSystem2D {
             } else {
                 let t = this.zoomClock.getElapsedTime()/zoomTime;
                 this.camera.zoom = THREE.Math.lerp(this.zoomStart, this.zoomTarget, t);
-                //this.camera.position.x = THREE.Math.lerp(this.camera.position.x, this.mouseWorld.x, t);
-                //this.camera.position.y = THREE.Math.lerp(this.camera.position.y, this.mouseWorld.y, t);
                 this.camera.updateProjectionMatrix()
                 return true;
             }
