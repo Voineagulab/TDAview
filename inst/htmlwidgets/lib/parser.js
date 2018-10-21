@@ -22,8 +22,8 @@ class Parser {
                 var mean = 0;
                 var values = new Array(mapperObject.points_in_vertex[j].length);
                 for(let k=0; k<values.length; k++) {
-                    values[i] = dataObject[metaVars[i]][mapperObject.points_in_vertex[j][k]-1];
-                    mean += values[i];
+                    values[k] = dataObject[metaVars[i]][mapperObject.points_in_vertex[j][k]-1];
+                    mean += values[k];
                 }
                 mean /= values.length;
 
