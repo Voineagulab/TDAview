@@ -1,8 +1,8 @@
-body {
+/*body {
     background: -webkit-linear-gradient(left, #25c481, #25b7c4);
     background: linear-gradient(to right, #25c481, #25b7c4);
     overflow: hidden;
-}
+}*/
 
 .unselectable {
     user-select: none;

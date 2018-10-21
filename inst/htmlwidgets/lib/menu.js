@@ -104,14 +104,14 @@ class menu {
             </div>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Node Size</h4>
+                    <h4 class="accordion-item-heading">Node Radius</h4>
                     <div id="node-size" class="accordion-item-content">
                         <form name="node-size-meta">
                         <input type="radio" name="nodesize" value="content" id="contentsize" checked />
-                        <label for="contentsize">Content</label><br>
+                        <label for="contentsize">Points</label><br>
                         ${metaVars.map(v => `<input type="radio" name="nodesize" value="${v}" id="${v}size"/><label for="${v}size">${v}</label><br>`).join('')}
                         <input type="radio" name="nodesize" value="none" id="nonesize"/>
-                        <label for="nonesize">None</label><br>
+                        <label for="nonesize">Uniform</label><br>
                         </form>
                     </div>
                 </div>
@@ -138,7 +138,7 @@ class menu {
             </div>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Edge Size</h4>
+                    <h4 class="accordion-item-heading">Edge Width</h4>
                     <div class="accordion-item-content">
                         <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
                     </div>

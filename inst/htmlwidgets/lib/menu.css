@@ -2,12 +2,12 @@
 
 .sidenav {
     width: 250px;
-    height: 500px;
+    height: 100%;
     position: absolute;
     z-index: 1000;
     top: 0;
     left: 0;
-    background-color: gray;
+    background-color: #eeeeee;
     color: #3f3f3f;
     opacity: 0.99;
     overflow-y: scroll;
@@ -50,9 +50,9 @@ select {
     float: left;
     width: 100%;
     box-sizing: border-box;
-    box-shadow: 0 1.5em 85px 0 rgba(0, 0, 0, 0.2);
+    /*box-shadow: 0 1.5em 85px 0 rgba(0, 0, 0, 0.2);*/
     overflow: hidden;
-    border-radius: 5px;
+    /*border-radius: 5px;*/
     margin-bottom: 5px;
 }
 
@@ -71,7 +71,7 @@ select {
     cursor: pointer;
     margin: 0px 0px 10px 0px;
     padding: 10px;
-    background: #ddd;
+    background: #fff;
     color: #444;
     width: 100%;
     box-sizing: border-box;
@@ -87,7 +87,7 @@ select {
 }
 
 .accordion-item-heading:hover {
-    background-color: #bbb;
+    background-color: #ddd;
 }
 
 .open .accordion-item-heading::after {
