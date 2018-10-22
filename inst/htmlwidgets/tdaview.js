@@ -98,12 +98,18 @@ HTMLWidgets.widget({
 						var sdCell = document.createElement("td");
 						sdCell.textContent = Math.round(node.sd[metaVars[i]] * 100) / 100;
 
-						console.log("Current var:",metaVars[i]," Current mean:",node.mean[metaVars[i]]," Current sd:",node.sd[metaVars[i]]);
-
 						newRow.appendChild(headerVar);
 						newRow.appendChild(meanCell);
 						newRow.appendChild(sdCell);
 						table.appendChild(newRow);
+					}
+
+					var accList = document.getElementsByClassName("accordion-item");
+					for(let i=0; i<accList.length; i++) {
+						if (accList[i].classList.contains("open")) {
+							accList[i].classList.remove("open");
+							accList[i].classList.add("close");
+						}
 					}
 					table.parentNode.parentNode.parentNode.setAttribute("class", "accordion-item open");
 				});

@@ -14,6 +14,12 @@ class menu {
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
         for(let i=0; i<accHD.length; i++) {
             accHD[i].addEventListener('click', function() {
+                for(let i=0; i<accItem.length; i++) {
+                    if (accItem[i].classList.contains("open")) {
+                        accItem[i].classList.remove("open");
+                        accItem[i].classList.add("close");
+                    }
+                }
                 if(accOpen >= 0) {
                     accItem[accOpen].className = 'accordion-item close';
                 }
