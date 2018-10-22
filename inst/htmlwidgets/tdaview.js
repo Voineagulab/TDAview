@@ -80,7 +80,7 @@ HTMLWidgets.widget({
 					var headerSd = document.createElement("th");
 					headerFill.textContent = "";
 					headerMean.textContent = "Mean";
-					headerSd.textContent = "Correlation";
+					headerSd.textContent = "SD";
 					header.appendChild(headerFill);
 					header.appendChild(headerMean);
 					header.appendChild(headerSd);

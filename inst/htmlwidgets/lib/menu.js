@@ -112,7 +112,7 @@ class menu {
                             <tr>
                                 <th></th>
                                 <th>Mean</th>
-                                <th>Correlation</th>
+                                <th>SD</th>
                             </tr>
                             ${metaVars.map(v => `<tr><th>${v}</th><td>-</td><td>-</td></tr>`).join('')}
                         </tbody>
