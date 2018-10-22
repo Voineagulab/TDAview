@@ -178,7 +178,7 @@ HTMLWidgets.widget({
 							}
 							graph.nodes[i].setColorPie(pie);
 						}
-						
+
 						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes()); //Setting gradient makes no sense for pie uvs when there are more than 2 slices!
 
 						nodeLegend.setPie(metaVars, metaVars.length);
@@ -215,6 +215,12 @@ HTMLWidgets.widget({
 						graph.links.forEach(l => {l.setGradient(l.source.mean[value], l.target.mean[value]); l.updateColor()});
 						shouldShareMap = false;
 					}
+					shouldPaint = true;
+				})
+
+				sidebar.eventSystem.addEventListener("OnEdgeWidthChange", function(percent) {
+					link.setWidth(percent);
+					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;
 				})
 

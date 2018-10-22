@@ -82,9 +82,14 @@ class menu {
         for(let i=0; i<edgeColorMetaRadios.length; i++) {
             edgeColorMetaRadios[i].onclick = function() {
                 self.eventSystem.invokeEvent("OnEdgeColorChange", this.value);
-                console.log(this.value);
             }
         }
+
+        var edgeWidthSlider = document.getElementById("edge-width-slider");
+        edgeWidthSlider.addEventListener("input", function() {
+            self.eventSystem.invokeEvent("OnEdgeWidthChange", edgeWidthSlider.value/100);
+        });
+
 
         //Export events
         var graphradios = document.forms["graphext"].elements["graphtype"];
@@ -154,7 +159,7 @@ class menu {
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Edge Width</h4>
                     <div class="accordion-item-content">
-                        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+                        <input type="range" min="1" max="100" value="50" class="slider" id="edge-width-slider">
                     </div>
                 </div>
 
@@ -216,12 +221,15 @@ class menu {
                 </div>
             </div>
 
-            <div class="tooltip">
-                <span class="tooltip-text">
-                    This was made by Kieran Walsh and Kamile Taouk.
-                </span>
-            </div>
+            
 
         </div>`;
     }
 }
+/* cool but unpolished
+<div class="tooltip">
+        <span class="tooltip-text">
+            This was made by Kieran Walsh and Kamile Taouk.
+        </span>
+    </div>
+*/

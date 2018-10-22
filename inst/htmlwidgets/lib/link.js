@@ -1,6 +1,5 @@
 var linkMaterial = null;
-
-const LINE_WIDTH = 0.4;
+var lineWidth = 0.4;
 class link {
     static initMaterial(colormap) {
         linkMaterial = new THREE.RawShaderMaterial({
@@ -43,6 +42,10 @@ class link {
 
     static updateColorMap(colormap) {
         linkMaterial.uniforms.linktex.value = colormap.getTexture();
+    }
+
+    static setWidth(width) {
+        lineWidth = width;
     }
 
 	constructor(source, target, parent) {
@@ -94,10 +97,10 @@ class link {
         var sourcePos = new THREE.Vector3(this.source.x, this.source.y, 0);
         var targetPos = new THREE.Vector3(this.target.x, this.target.y, 0);
         var cross = new THREE.Vector2(-(targetPos.y - sourcePos.y), targetPos.x - sourcePos.x).normalize();
-        var p0 = cross.clone().multiplyScalar(this.source.r * LINE_WIDTH).add(sourcePos);
-        var p1 = cross.clone().multiplyScalar(this.source.r * -LINE_WIDTH).add(sourcePos);
-        var p2 = cross.clone().multiplyScalar(this.target.r * -LINE_WIDTH).add(targetPos);
-        var p3 = cross.clone().multiplyScalar(this.target.r * LINE_WIDTH).add(targetPos);
+        var p0 = cross.clone().multiplyScalar(this.source.r * lineWidth).add(sourcePos);
+        var p1 = cross.clone().multiplyScalar(this.source.r * -lineWidth).add(sourcePos);
+        var p2 = cross.clone().multiplyScalar(this.target.r * -lineWidth).add(targetPos);
+        var p3 = cross.clone().multiplyScalar(this.target.r * lineWidth).add(targetPos);
         var p = this.mesh.geometry.attributes.position.array;
         p[0] = p0.x; p[1] = p0.y;
         p[2] = p1.x; p[3] = p1.y;
