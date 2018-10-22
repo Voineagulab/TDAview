@@ -109,7 +109,7 @@ class menu {
                                 <th>Mean</th>
                                 <th>Correlation</th>
                             </tr>
-                            ${metaVars.map(v => `<tr><th>${v}</th><td>0.0</td><td>1.0</td></tr>`).join('')}
+                            ${metaVars.map(v => `<tr><th>${v}</th><td>-</td><td>-</td></tr>`).join('')}
                         </tbody>
                         </table>
                         <a href="#" class="myButton" id="expand-table">Expand table</a>

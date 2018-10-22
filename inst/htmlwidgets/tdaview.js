@@ -118,6 +118,10 @@ HTMLWidgets.widget({
 				graph.eventSystem.addEventListener("OnNodeDeselect", function() {
 					var acc = document.getElementById("node-data").parentNode;
 					acc.setAttribute("class", "accordion-item close");
+					var values = document.getElementsByTagName("td");
+					for(let i=0; i<values.length; i++) {
+						values[i].textContent = "-";
+					}
 				});
 
 				//Expand table to fullscreen
