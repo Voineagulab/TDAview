@@ -92,12 +92,14 @@ class menu {
                     <div id="node-data" class="accordion-item-content">
                         Selected Node --
                         <table>
+                        <tbody id="tbody">
                             <tr>
                                 <th></th>
                                 <th>Mean</th>
                                 <th>Correlation</th>
                             </tr>
                             ${metaVars.map(v => `<tr><th>${v}</th><td>0.0</td><td>1.0</td></tr>`).join('')}
+                        </tbody>
                         </table>
                     </div>
                 </div>
@@ -203,10 +205,8 @@ class menu {
             </div>
 
             <div class="tooltip">
-                
                 <span class="tooltip-text">
-                    This was made by Kieran Walsh and Kamile Taouk.<br>
-                    All rights reserved.
+                    This was made by Kieran Walsh and Kamile Taouk.
                 </span>
             </div>
 

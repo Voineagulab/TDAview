@@ -73,6 +73,40 @@ HTMLWidgets.widget({
 				//Create menu
 				var sidebar = new menu(graph, element, metaVars);
 
+				//Update table of values for selected node
+				graph.eventSystem.addEventListener("OnNodeSelect", function(node) {
+					var table = document.getElementById("tbody");//, newRow, newCell;
+					table.innerHTML = "";
+					var header = document.createElement("tr");
+					var headerFill = document.createElement("th");
+					var headerMean = document.createElement("th");
+					var headerSd = document.createElement("th");
+					headerFill.textContent = "";
+					headerMean.textContent = "Mean";
+					headerSd.textContent = "Correlation";
+					header.appendChild(headerFill);
+					header.appendChild(headerMean);
+					header.appendChild(headerSd);
+					table.appendChild(header);
+
+					for(let i=0; i<metaVars.length; i++) {
+						var newRow = document.createElement("tr");
+						var headerVar = document.createElement("th");
+						headerVar.textContent = metaVars[i];
+						var meanCell = document.createElement("td");
+						meanCell.textContent = Math.round(node.mean[metaVars[i]] * 100) / 100;
+						var sdCell = document.createElement("td");
+						sdCell.textContent = Math.round(node.sd[metaVars[i]] * 100) / 100;
+
+						console.log("Current var:",metaVars[i]," Current mean:",node.mean[metaVars[i]]," Current sd:",node.sd[metaVars[i]]);
+
+						newRow.appendChild(headerVar);
+						newRow.appendChild(meanCell);
+						newRow.appendChild(sdCell);
+						table.appendChild(newRow);
+					}
+				});
+
 				//Change map to uniform color
 				sidebar.nodeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
 					nodeMap.changeColor(color);

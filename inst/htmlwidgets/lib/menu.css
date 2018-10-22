@@ -11,6 +11,7 @@
     color: #3f3f3f;
     opacity: 0.99;
     overflow-y: scroll;
+    overflow-x: visible;
     transition: 0.5s;
 }
 
@@ -23,6 +24,11 @@
 
 table {
     width: 100%;
+    transition: all 1s ease-in-out;
+}
+
+table:hover {
+    /* TODO */
 }
 
 th {
@@ -37,6 +43,7 @@ td {
 
 
 /*select styling */
+
 select {
     width: 5.5em
 }
