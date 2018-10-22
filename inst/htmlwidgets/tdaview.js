@@ -53,10 +53,7 @@ HTMLWidgets.widget({
 
 				//Create maps and legends
 				var nodeMap = new ColorMap('rainbow', 256);
-				nodeLegend = new Legend(nodeMap, hudScene, pointCounts.length);
-				nodeLegend.setLegendColHeights(pointCounts, 0, 1);
-				nodeLegend.setAnchor(hudCamera.right, hudCamera.bottom, aspect/2);
-				nodeLegend.setVisibility(false);
+				nodeLegend = new MultiLegend(nodeMap, hudScene, hudCamera.right, hudCamera.bottom, aspect/2);
 
 				var edgeMap = new ColorMap('rainbow', 512);
 				//edgeLegend = new Legend(edgeMap, hudScene, pointCounts.length);
@@ -134,13 +131,13 @@ HTMLWidgets.widget({
 					if(checked.length == 0) {
 						sidebar.nodeGradPicker.setState(STATE_SINGLE);
 						if(shouldShareMap) graph.links.forEach(l => l.setColor(0.5));
-						nodeLegend.setVisibility(false);
+						nodeLegend.setNone();
 					} else if(checked.length == 1) {
 						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
 						graph.nodes.forEach(n => n.setColor(n.mean[checked[0]]));
 						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
-						nodeLegend.setLegendLabels(Math.min.apply(Math, x.data[checked]).toFixed(2), Math.max.apply(Math, x.data[checked]).toFixed(2));
-						nodeLegend.setVisibility(true);
+
+						nodeLegend.setColumn(pointCounts, Math.min.apply(Math, x.data[checked]).toFixed(2), Math.max.apply(Math, x.data[checked]).toFixed(2), pointCounts.length);
 					} else {
 						sidebar.nodeGradPicker.setState(STATE_FIXED, checked.length);
 
@@ -158,8 +155,9 @@ HTMLWidgets.widget({
 							graph.nodes[i].setColorPie(pie);
 						}
 						
-						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
-						nodeLegend.setVisibility(false);
+						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes()); //Setting gradient makes no sense for pie uvs when there are more than 2 slices!
+
+						nodeLegend.setPie(metaVars, metaVars.length);
 					}
 					if(shouldShareMap) graph.links.forEach(l => l.updateColor());
 					shouldPaint = true;
