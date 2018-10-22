@@ -75,7 +75,7 @@ HTMLWidgets.widget({
 
 				//Update table of values for selected node
 				graph.eventSystem.addEventListener("OnNodeSelect", function(node) {
-					var table = document.getElementById("tbody");//, newRow, newCell;
+					var table = document.getElementById("tbody");
 					table.innerHTML = "";
 					var header = document.createElement("tr");
 					var headerFill = document.createElement("th");
@@ -105,6 +105,20 @@ HTMLWidgets.widget({
 						newRow.appendChild(sdCell);
 						table.appendChild(newRow);
 					}
+					table.parentNode.parentNode.parentNode.setAttribute("class", "accordion-item open");
+				});
+
+				//Close node data accordion when no node is selected
+				graph.eventSystem.addEventListener("OnNodeDeselect", function() {
+					var acc = document.getElementById("node-data").parentNode;
+					acc.setAttribute("class", "accordion-item close");
+				});
+
+				//Expand table to fullscreen
+				sidebar.eventSystem.addEventListener("OnTableExpansion", function() {
+					var wrapper = document.getElementById("node-data");
+					//TODO
+					//wrapper.style.width = "250%";
 				});
 
 				//Change map to uniform color

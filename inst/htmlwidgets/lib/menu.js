@@ -26,6 +26,11 @@ class menu {
             }, false);
         }
 
+        //Expand table of node data
+        document.getElementById("expand-table").addEventListener("click", function() {
+            self.eventSystem.invokeEvent("OnTableExpansion");
+        });
+
         //Node size events
         var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
         for(let i=0; i<sizeradios.length; i++) {
@@ -101,6 +106,7 @@ class menu {
                             ${metaVars.map(v => `<tr><th>${v}</th><td>0.0</td><td>1.0</td></tr>`).join('')}
                         </tbody>
                         </table>
+                        <a href="#" class="myButton" id="expand-table">Expand table</a>
                     </div>
                 </div>
             </div>
