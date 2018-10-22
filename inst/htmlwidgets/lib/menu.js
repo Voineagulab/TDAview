@@ -202,6 +202,14 @@ class menu {
                 </div>
             </div>
 
+            <div class="tooltip">
+                
+                <span class="tooltip-text">
+                    This was made by Kieran Walsh and Kamile Taouk.<br>
+                    All rights reserved.
+                </span>
+            </div>
+
         </div>`;
     }
 }
