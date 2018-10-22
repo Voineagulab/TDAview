@@ -27,10 +27,6 @@ table {
     transition: all 1s ease-in-out;
 }
 
-table:hover {
-    /* TODO */
-}
-
 th {
     text-align: center;
     color: gray;
@@ -204,7 +200,7 @@ select {
 .tooltip .tooltip-text::after {
     content: '';
     position: absolute;
-    top: 20%;
+    top: 30%;
     right: 100%;
     margin-top: -5px;
     border-width: 5px;

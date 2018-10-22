@@ -14,6 +14,12 @@ class menu {
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
         for(let i=0; i<accHD.length; i++) {
             accHD[i].addEventListener('click', function() {
+                for(let i=0; i<accItem.length; i++) {
+                    if (accItem[i].classList.contains("open")) {
+                        accItem[i].classList.remove("open");
+                        accItem[i].classList.add("close");
+                    }
+                }
                 if(accOpen >= 0) {
                     accItem[accOpen].className = 'accordion-item close';
                 }
@@ -25,6 +31,11 @@ class menu {
                 }
             }, false);
         }
+
+        //Expand table of node data
+        document.getElementById("expand-table").addEventListener("click", function() {
+            self.eventSystem.invokeEvent("OnTableExpansion");
+        });
 
         //Node size events
         var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
@@ -98,9 +109,10 @@ class menu {
                                 <th>Mean</th>
                                 <th>Correlation</th>
                             </tr>
-                            ${metaVars.map(v => `<tr><th>${v}</th><td>0.0</td><td>1.0</td></tr>`).join('')}
+                            ${metaVars.map(v => `<tr><th>${v}</th><td>-</td><td>-</td></tr>`).join('')}
                         </tbody>
                         </table>
+                        <a href="#" class="myButton" id="expand-table">Expand table</a>
                     </div>
                 </div>
             </div>
