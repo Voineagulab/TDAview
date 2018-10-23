@@ -20,15 +20,8 @@ class menu {
                         accItem[i].classList.add("close");
                     }
                 }
-                if(accOpen >= 0) {
-                    accItem[accOpen].className = 'accordion-item close';
-                }
-                if(accOpen != i) {
-                    accOpen = i;
-                    accItem[accOpen].className = 'accordion-item open';
-                } else {
-                    accOpen = -1;
-                }
+                this.parentNode.classList.remove("close");
+                this.parentNode.classList.add("open");
             }, false);
         }
 
