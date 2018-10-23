@@ -9,7 +9,6 @@ class menu {
         element.appendChild(this.domElement);
 
         //Accordion events
-        var accOpen = -1;
         var accItem = this.domElement.getElementsByClassName("accordion-item");
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
         for(let i=0; i<accHD.length; i++) {
@@ -129,10 +128,16 @@ class menu {
             }
         }
 
+        //Slider for edge width
         var edgeWidthSlider = document.getElementById("edge-width-slider");
         edgeWidthSlider.addEventListener("input", function() {
             self.eventSystem.invokeEvent("OnEdgeWidthChange", edgeWidthSlider.value/100);
         });
+
+        //Reset edge width to default
+        document.getElementById("reset-edge-width").onclick = function () {
+            self.eventSystem.invokeEvent("ResetEdgeWidth");
+        };
 
         //Toggle draggable legends
         document.forms["legends"].elements["locked"].onclick = function() {
@@ -207,7 +212,10 @@ class menu {
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Edge Width</h4>
                     <div class="accordion-item-content">
-                        <input type="range" min="1" max="100" value="50" class="slider" id="edge-width-slider">
+                        <form name="edge-slider">
+                        <input type="range" min="1" max="100" value="50" class="slider" id="edge-width-slider"><br><br>
+                        <a href="#" class="myButton" id="reset-edge-width">Reset</a>
+                        </form>
                     </div>
                 </div>
 

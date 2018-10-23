@@ -173,11 +173,21 @@ HTMLWidgets.widget({
 					shouldPaint = true;
 				})
 
+				//Change edge width
 				sidebar.eventSystem.addEventListener("OnEdgeWidthChange", function(percent) {
 					link.setWidth(percent);
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;
-				})
+				});
+
+				//Reset edge width
+				sidebar.eventSystem.addEventListener("ResetEdgeWidth", function() {
+					link.setWidth(0.5);
+					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
+					shouldPaint = true;
+					var slider = document.forms["edge-slider"];
+					slider.reset();
+				});
 
 				//Download image generated from export div
 				sidebar.eventSystem.addEventListener("OnExport", function(value) {
