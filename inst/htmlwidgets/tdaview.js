@@ -70,55 +70,10 @@ HTMLWidgets.widget({
 				//Create menu
 				var sidebar = new menu(graph, element, metaVars);
 
-				//Update table of values for selected node
-				graph.eventSystem.addEventListener("OnNodeSelect", function(node) {
-					var table = document.getElementById("tbody");
-					table.innerHTML = "";
-					var header = document.createElement("tr");
-					var headerFill = document.createElement("th");
-					var headerMean = document.createElement("th");
-					var headerSd = document.createElement("th");
-					headerFill.textContent = "";
-					headerMean.textContent = "Mean";
-					headerSd.textContent = "SD";
-					header.appendChild(headerFill);
-					header.appendChild(headerMean);
-					header.appendChild(headerSd);
-					table.appendChild(header);
-
-					for(let i=0; i<metaVars.length; i++) {
-						var newRow = document.createElement("tr");
-						var headerVar = document.createElement("th");
-						headerVar.textContent = metaVars[i];
-						var meanCell = document.createElement("td");
-						meanCell.textContent = Math.round(node.mean[metaVars[i]] * 100) / 100;
-						var sdCell = document.createElement("td");
-						sdCell.textContent = Math.round(node.sd[metaVars[i]] * 100) / 100;
-
-						newRow.appendChild(headerVar);
-						newRow.appendChild(meanCell);
-						newRow.appendChild(sdCell);
-						table.appendChild(newRow);
-					}
-
-					var accList = document.getElementsByClassName("accordion-item");
-					for(let i=0; i<accList.length; i++) {
-						if (accList[i].classList.contains("open")) {
-							accList[i].classList.remove("open");
-							accList[i].classList.add("close");
-						}
-					}
-					table.parentNode.parentNode.parentNode.setAttribute("class", "accordion-item open");
-				});
-
-				//Close node data accordion when no node is selected
-				graph.eventSystem.addEventListener("OnNodeDeselect", function() {
-					var acc = document.getElementById("node-data").parentNode;
-					acc.setAttribute("class", "accordion-item close");
-					var values = document.getElementsByTagName("td");
-					for(let i=0; i<values.length; i++) {
-						values[i].textContent = "-";
-					}
+				//Toggle ability to drag legends
+				sidebar.eventSystem.addEventListener("ToggleDrag", function() {
+					console.log("This was successfully toggled!");
+					//TODO
 				});
 
 				//Expand table to fullscreen

@@ -23,7 +23,7 @@ class MultiLegend extends Draggable2D {
         this.style = STYLE_NONE;
 
         this.eventSystem.addEventListener("OnDrag", function(self, vector) {
-			self.group.position.set(vector.x, vector.y, 0);
+            self.group.position.set(vector.x, vector.y, 0);
 		});
     }
 
