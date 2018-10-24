@@ -1,11 +1,13 @@
 class menu {
-	constructor(graph, element, metaVars, data) {
+	constructor(graph, element, data, metaVars) {
         var self = this;
         this.data = data;
 
+        var vars = Object.keys(data);
+
 		this.domElement = document.createElement("div");
-        this.domElement.innerHTML = this.generateHTML(metaVars);
-        this.eventSystem = new event(); //TODO unused
+        this.domElement.innerHTML = this.generateHTML(vars, metaVars);
+        this.eventSystem = new event();
 
         element.appendChild(this.domElement);
 
@@ -48,16 +50,18 @@ class menu {
 			header.appendChild(headerFill);
 			header.appendChild(headerMean);
 			header.appendChild(headerSd);
-			table.appendChild(header);
+            table.appendChild(header);
+            
+            vars.sort(function(a, b){return node.mean[b] - node.mean[a]});
 
-			for(let i=0; i<metaVars.length; i++) {
+			for(let i=0; i<Math.min(10, vars.length); i++) {
 				var newRow = document.createElement("tr");
 				var headerVar = document.createElement("th");
-				headerVar.textContent = metaVars[i];
+				headerVar.textContent = vars[i];
 				var meanCell = document.createElement("td");
-				meanCell.textContent = Math.round(node.mean[metaVars[i]] * 100) / 100;
+				meanCell.textContent = node.mean[vars[i]].toFixed(2);
 				var sdCell = document.createElement("td");
-				sdCell.textContent = Math.round(node.sd[metaVars[i]] * 100) / 100;
+				sdCell.textContent = node.sd[vars[i]].toFixed(2);
 
 				newRow.appendChild(headerVar);
 				newRow.appendChild(meanCell);
@@ -83,9 +87,9 @@ class menu {
             }
             for(let i=0; i<node.points.length; i++) {
                 var newDataRow = document.createElement("tr");
-                for(let j=0; j<metaVars.length; j++) {
+                for(let j=0; j<vars.length; j++) {
                     var newDataCell = document.createElement("td");
-                    newDataCell.textContent = data[metaVars[j]][node.points[i]];
+                    newDataCell.textContent = data[vars[j]][node.points[i]];
                     newDataRow.appendChild(newDataCell);
                 }
                 bigTab.appendChild(newDataRow);
@@ -97,10 +101,6 @@ class menu {
 		graph.eventSystem.addEventListener("OnNodeDeselect", function() {
 			var acc = document.getElementById("node-data").parentNode;
 			acc.setAttribute("class", "accordion-item close");
-			var values = document.getElementsByTagName("td");
-			for(let i=0; i<values.length; i++) {
-				values[i].textContent = "-";
-			}
             //TODO -- Close enlarged table - closes on selecting another node
 		});
 
@@ -220,16 +220,15 @@ class menu {
         });
     }
 
-    generateHTML(metaVars) { //use Parser.getVariableType(metaVars[i]), will return TYPE_DISCRETE or TYPE_CONTINUOUS
+    generateHTML(vars, metaVars) { //use Parser.getVariableType(metaVars[i]), will return TYPE_DISCRETE or TYPE_CONTINUOUS
         return /*html*/`
         <div class="unselectable sidenav">
             <br>
-            <h1 class="heading">TDAView</h1><br>
+            <h1 class="heading"></h1><br>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Selected</h4>
                     <div id="node-data" class="accordion-item-content">
-                        Selected Node --
                         <table>
                         <tbody id="tbody">
                             <tr>
@@ -237,7 +236,7 @@ class menu {
                                 <th>Mean</th>
                                 <th>SD</th>
                             </tr>
-                            ${metaVars.map(v => `<tr><th>${v}</th><td>-</td><td>-</td></tr>`).join('')}
+                            ${vars.map(v => `<tr><th>${v}</th><td>-</td><td>-</td></tr>`).join('')}
                         </tbody>
                         </table><br>
                         <a href="#" class="myButton" id="expand-table">Expand table</a>

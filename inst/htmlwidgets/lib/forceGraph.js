@@ -2,7 +2,7 @@
 Public Events: OnNodeSelect, OnNodeDeselect, OnTick, OnEnd
 */
 class forceGraph extends THREE.Group {
-    constructor(data, adjacency, nodeColorMap, edgeColorMap) {
+    constructor(data, adjacency, labels, nodeColorMap, edgeColorMap) {
         super();
         var self = this;
         this.initiallizing = true;
@@ -43,7 +43,7 @@ class forceGraph extends THREE.Group {
         node.intMaterial(nodeColorMap);
         this.nodes = new Array(data.length);
         for(let i=0; i<data.length; i++) {
-            this.nodes[i] = new node(i, "Node " + i, data[i], 0.0, this);
+            this.nodes[i] = new node(i, labels[i], data[i], 0.0, this);
             this.nodes[i].eventSystem.addEventListener("OnDragStart", onNodeDragStart);
             this.nodes[i].eventSystem.addEventListener("OnDrag", onNodeDrag);
             this.nodes[i].eventSystem.addEventListener("OnDragEnd", onNodeDragEnd);

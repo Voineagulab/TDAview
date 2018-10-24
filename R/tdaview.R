@@ -5,11 +5,11 @@
 #' @import htmlwidgets htmltools shiny
 #'
 #' @export
-tdaview <- function(mapper, data = NULL, width = NULL, height = NULL, elementId = NULL) {
+tdaview <- function(mapper, data, metadata, labels, width = NULL, height = NULL, elementId = NULL) {
   # create widget
   htmlwidgets::createWidget(
     name = 'tdaview',
-    x = list(mapper = mapper, data = data),
+    x = list(mapper = mapper, metadata = metadata, data = data, labels=labels),
     width = width,
     height = height,
     package = 'tdaview',

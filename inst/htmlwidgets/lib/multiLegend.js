@@ -78,6 +78,24 @@ class MultiLegend extends Draggable2D {
         this.style = STYLE_PIE;
     }
 
+    setBar(min, max) {
+        this.setMeshPool(1);
+        this.meshes[0].geometry.faceVertexUvs[0][0][0] = this.meshes[0].geometry.faceVertexUvs[0][0][1] = this.meshes[0].geometry.faceVertexUvs[0][1][0].set(0, 1);
+        this.meshes[0].geometry.faceVertexUvs[0][0][2] = this.meshes[0].geometry.faceVertexUvs[0][1][1] = this.meshes[0].geometry.faceVertexUvs[0][1][2].set(1, 1);
+        this.meshes[0].geometry.uvsNeedUpdate = true;
+
+        this.meshes[0].scale.set(LEGEND_WIDTH, 20, 1);
+        this.meshes[0].position.set(-LEGEND_WIDTH/2, 40, 1);
+
+        this.setLabelPool(2);
+        this.labels[0].element.textContent = min;
+        this.labels[1].element.textContent = max;
+
+        this.labels[0].position.set(-LEGEND_WIDTH, -10, 0);
+        this.labels[1].position.set(0, -10, 0);
+
+    }
+
     setColumn(heights, min, max, count) {
         var minHeight = Infinity;
 		var maxHeight = -Infinity;
@@ -97,7 +115,7 @@ class MultiLegend extends Draggable2D {
 
             let h = (1 + (heights[i] - minHeight)/(maxHeight - minHeight)) * COLUMN_HEIGHT;
             this.meshes[i].scale.set(scaledColumnWidth, h, 0);
-			this.meshes[i].position.set(i * columnWidth - LEGEND_WIDTH, h/2, 0);
+			this.meshes[i].position.set(i * columnWidth - LEGEND_WIDTH, h/2, 1);
         }
 
         this.setLabelPool(2);

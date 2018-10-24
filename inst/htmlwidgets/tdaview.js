@@ -47,8 +47,10 @@ HTMLWidgets.widget({
 				exportDiv.appendChild(labelRenderer.domElement);
 
 				//Parse imported data
-				var metaVars = Object.keys(x.data);
-				var bins = Parser.fromTDAMapper(x.mapper, x.data);
+
+				var bins = Parser.fromTDAMapper(x.mapper, x.data, x.metadata);
+				var metaVars = Parser.getCategories();
+
 				var pointCounts = bins.map(bin => bin.points.length);
 
 				//Create maps and legends
@@ -61,14 +63,15 @@ HTMLWidgets.widget({
 				//edgeLegend.setVisibility(true);
 
 				//Create graph
-				var graph = new forceGraph(bins, x.mapper.adjacency, nodeMap, shouldShareMap ? nodeMap : edgeMap);
+				var graph = new forceGraph(bins, x.mapper.adjacency, x.labels, nodeMap, shouldShareMap ? nodeMap : edgeMap);
 				for(let i=0; i<pointCounts.length; i++) {
 					graph.nodes[i].setRadius(pointCounts[i]);
 				}
+				console.log(pointCounts);
 				scene.add(graph);
 
 				//Create menu
-				var sidebar = new menu(graph, element, metaVars, x.data);
+				var sidebar = new menu(graph, element, x.data, metaVars);
 
 				/*----------Selected----------*/
 
@@ -93,7 +96,6 @@ HTMLWidgets.widget({
                 bigTable.appendChild(headerRow);
                 tableContainer.style.display = "none";
 				exportDiv.appendChild(tableContainer);
-				console.log(x.data);
 
 				//Expand table to fullscreen
 				sidebar.eventSystem.addEventListener("OnTableExpansion", function() {
@@ -148,7 +150,8 @@ HTMLWidgets.widget({
 						graph.nodes.forEach(n => n.setColor(n.mean[checked[0]]));
 						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
 
-						nodeLegend.setColumn(pointCounts, Math.min.apply(Math, x.data[checked]).toFixed(2), Math.max.apply(Math, x.data[checked]).toFixed(2), pointCounts.length);
+						//nodeLegend.setColumn(pointCounts, Parser.getMin(checked[0]), Parser.getMax(checked[0]), pointCounts.length);
+						nodeLegend.setBar( Parser.getMin(checked[0]), Parser.getMax(checked[0]));
 					} else {
 						sidebar.nodeGradPicker.setState(STATE_FIXED, checked.length);
 
