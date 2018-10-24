@@ -37,6 +37,39 @@ td {
     color: #aaaaaa;
 }
 
+#tableContainer {
+    position: absolute;
+    top: 20px;
+    left: -50px;
+    width: 15%;
+    height: 25%;
+    background-color: #ddd;
+    opacity: 0;
+    border: 1px solid gray;
+    border-radius: 5px;
+    z-index: 55;
+
+    -webkit-animation: slide 0.5s forwards;
+    -webkit-animation-delay: 0.2s;
+    animation: slide 0.5s forwards;
+    animation-delay: 0.2s;
+    /*transition: all 1s ease-in-out;*/
+}
+
+#bigTable {
+    width: 100%
+    padding: 4px;
+    color: rgb(51, 51, 51);
+}
+
+@-webkit-keyframes slide {
+    100% { left: 270px; opacity: 0.75; }
+}
+
+@keyframes slide {
+    100% { left: 270px; opacity: 0.75; }
+}
+
 
 /*select styling */
 
@@ -332,10 +365,7 @@ label::before {
 
 /* Canvas modification to avoid overlap -- TENTATIVE */
 
-canvas {
+#export {
     padding-left: 250px;
-}
-
-#labelcanvas {
-    padding-left: 250px;
+    position: relative;
 }

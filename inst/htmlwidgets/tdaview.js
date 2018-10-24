@@ -74,9 +74,30 @@ HTMLWidgets.widget({
 
 				//Expand table to fullscreen
 				sidebar.eventSystem.addEventListener("OnTableExpansion", function() {
-					var wrapper = document.getElementById("node-data");
-					//TODO
-					//wrapper.style.width = "250%";
+					//TODO -- Display the data in a table
+					var btn = document.getElementById("expand-table");
+					var tab = document.getElementById("tableContainer");
+					if(tab == null) { //Create on first click
+						console.log("Table was created for the first time");
+						var tableContainer = document.createElement("div");
+						tableContainer.setAttribute("id", "tableContainer");
+						tableContainer.classList.add("unselectable");
+						var bigTable = document.createElement("table");
+						bigTable.setAttribute("id", "bigTable");
+						bigTable.classList.add("unselectable");
+						bigTable.textContent = "THIS IS A TEST";
+						tableContainer.appendChild(bigTable);
+						exportDiv.appendChild(tableContainer);
+					} else if (tab.style.display == "none") { //Display on click
+						console.log("Table was just made visible");
+						tab.style.display = "initial";
+						btn.textContent = "Retract table";
+					} else { //Hide on second click
+						console.log("Table was just hidden");
+						tab.style.display = "none";
+						btn.textContent = "Expand table";
+					}
+					
 				});
 
 				/*----------Node Radius----------*/
