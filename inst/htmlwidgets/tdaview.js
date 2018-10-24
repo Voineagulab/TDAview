@@ -70,11 +70,7 @@ HTMLWidgets.widget({
 				//Create menu
 				var sidebar = new menu(graph, element, metaVars);
 
-				//Toggle ability to drag legends
-				sidebar.eventSystem.addEventListener("ToggleDrag", function() {
-					console.log("This was successfully toggled!");
-					//TODO
-				});
+				/*----------Selected----------*/
 
 				//Expand table to fullscreen
 				sidebar.eventSystem.addEventListener("OnTableExpansion", function() {
@@ -82,6 +78,21 @@ HTMLWidgets.widget({
 					//TODO
 					//wrapper.style.width = "250%";
 				});
+
+				/*----------Node Radius----------*/
+
+				//Change node size to uniform, point count or variable
+				sidebar.eventSystem.addEventListener("OnNodeSizeChange", function(value) {
+					switch(value) {
+						case "none": graph.nodes.forEach(n => n.setRadius(18)); break;
+						case "content": graph.nodes.forEach(n => n.setRadius(n.points.length)); break;
+						default: graph.nodes.forEach(n => n.setRadius(n.mean[value] * 18));
+					}
+					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
+					shouldPaint = true;
+				});
+
+				/*----------Node Colour----------*/
 
 				//Change map to uniform color
 				sidebar.nodeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
@@ -94,16 +105,6 @@ HTMLWidgets.widget({
 					nodeMap.changeColorMap(steps);
 					shouldPaint = true;
 				});
-
-				sidebar.edgeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
-					edgeMap.changeColor(color);
-					shouldPaint = true;
-				})
-
-				sidebar.edgeGradPicker.eventSystem.addEventListener("OnGradientChange", function(steps) {
-					edgeMap.changeColorMap(steps);
-					shouldPaint = true;
-				})
 
 				//Change node color to uniform, gradient or pie
 				sidebar.eventSystem.addEventListener("OnNodeColorChange", function(checked) {
@@ -142,18 +143,37 @@ HTMLWidgets.widget({
 					shouldPaint = true;
 				});
 
+				/*----------Edge Width----------*/
 
-				//Change node size to uniform, point count or variable
-				sidebar.eventSystem.addEventListener("OnNodeSizeChange", function(value) {
-					switch(value) {
-						case "none": graph.nodes.forEach(n => n.setRadius(18)); break;
-						case "content": graph.nodes.forEach(n => n.setRadius(n.points.length)); break;
-						default: graph.nodes.forEach(n => n.setRadius(n.mean[value] * 18));
-					}
+				//Change edge width
+				sidebar.eventSystem.addEventListener("OnEdgeWidthChange", function(percent) {
+					link.setWidth(percent);
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;
 				});
 
+				//Reset edge width
+				sidebar.eventSystem.addEventListener("ResetEdgeWidth", function() {
+					link.setWidth(0.5);
+					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
+					shouldPaint = true;
+					var slider = document.forms["edge-slider"];
+					slider.reset();
+				});
+
+				/*----------Edge Colour----------*/
+
+				sidebar.edgeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
+					edgeMap.changeColor(color);
+					shouldPaint = true;
+				})
+
+				sidebar.edgeGradPicker.eventSystem.addEventListener("OnGradientChange", function(steps) {
+					edgeMap.changeColorMap(steps);
+					shouldPaint = true;
+				})
+
+				//Change edge colour
 				sidebar.eventSystem.addEventListener("OnEdgeColorChange", function(value) {
 					if(value === "nodes") {
 						graph.setLinkColorMap(nodeMap);
@@ -171,23 +191,65 @@ HTMLWidgets.widget({
 						shouldShareMap = false;
 					}
 					shouldPaint = true;
-				})
-
-				//Change edge width
-				sidebar.eventSystem.addEventListener("OnEdgeWidthChange", function(percent) {
-					link.setWidth(percent);
-					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
-					shouldPaint = true;
 				});
 
-				//Reset edge width
-				sidebar.eventSystem.addEventListener("ResetEdgeWidth", function() {
-					link.setWidth(0.5);
-					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
-					shouldPaint = true;
-					var slider = document.forms["edge-slider"];
-					slider.reset();
+				//Edge colour dropdown
+				sidebar.eventSystem.addEventListener("OnEdgeColorDropdown", function(val) {
+					if(val == "interpolate") {
+						console.log("The user picked the",val,"option!");
+						//TODO
+					} else { //Average
+						console.log("The user picked the",val,"option!");
+						//TODO
+					}
 				});
+
+				/*----------Legend----------*/
+
+				//Toggle ability to drag legends
+				sidebar.eventSystem.addEventListener("ToggleDrag", function() {
+					console.log("Toggle Drag was successfully toggled!");
+					//TODO
+				});
+
+				//Toggle visibility of legends
+				sidebar.eventSystem.addEventListener("OnLegendToggle", function(val) {
+					if(val.value == "node-colour-legend") {
+						console.log("The user picked the",val.value,"option!");
+						//TODO
+					} else if (val.value == "node-size-legend") {
+						console.log("The user picked the",val.value,"option!");
+						//TODO
+					}
+				});
+
+
+				//Change appearance of node legend
+				sidebar.eventSystem.addEventListener("OnNodeLegendDropdown", function(val) {
+					if(val == "line") {
+						console.log("The user picked the",val,"option!");
+						//TODO
+					} else if (val == "distribution") {
+						console.log("The user picked the",val,"option!");
+						//TODO
+					} else { //None
+						console.log("The user picked the",val,"option!");
+						//TODO
+					}
+				});
+
+				//Change appearance of edge legend
+				sidebar.eventSystem.addEventListener("OnEdgeLegendDropdown", function(val) {
+					if(val == "line") {
+						console.log("The user picked the",val,"option!");
+						//TODO
+					} else { //None
+						console.log("The user picked the",val,"option!");
+						//TODO
+					}
+				});
+
+				/*----------Export----------*/
 
 				//Download image generated from export div
 				sidebar.eventSystem.addEventListener("OnExport", function(value) {
@@ -210,7 +272,8 @@ HTMLWidgets.widget({
 							document.body.removeChild(link);
 						}
 					);
-				}) 
+				});
+
 
 				//Zoom camera to accommodate simulated graph bounds
 				graph.eventSystem.addEventListener("onTick", function() {

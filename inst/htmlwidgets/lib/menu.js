@@ -14,15 +14,24 @@ class menu {
         for(let i=0; i<accHD.length; i++) {
             accHD[i].addEventListener('click', function() {
                 for(let i=0; i<accItem.length; i++) {
-                    if (accItem[i].classList.contains("open")) {
+                    if (accItem[i].classList.contains("open") && accItem[i] != this.parentNode) {
                         accItem[i].classList.remove("open");
                         accItem[i].classList.add("close");
                     }
                 }
-                this.parentNode.classList.remove("close");
-                this.parentNode.classList.add("open");
+
+                if(this.parentNode.classList.contains("open")) {
+                    this.parentNode.classList.remove("open");
+                    this.parentNode.classList.add("close");
+                } else {
+                    this.parentNode.classList.remove("close");
+                    this.parentNode.classList.add("open");
+                }
+                
             }, false);
         }
+
+        /*----------Selected----------*/
 
         //Update table of values for selected node
 		graph.eventSystem.addEventListener("OnNodeSelect", function(node) {
@@ -80,6 +89,8 @@ class menu {
             self.eventSystem.invokeEvent("OnTableExpansion");
         });
 
+        /*----------Node Radius----------*/
+
         //Node size events
         var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
         for(let i=0; i<sizeradios.length; i++) {
@@ -87,6 +98,8 @@ class menu {
                 self.eventSystem.invokeEvent("OnNodeSizeChange", this.value);
             }
         }
+
+        /*----------Node Colour----------*/
 
         //Node color events
         this.nodeGradPicker = new gradientPicker(document.getElementById("node-color-picker-insert"));
@@ -97,6 +110,8 @@ class menu {
                 self.eventSystem.invokeEvent("OnNodeColorChange", checked);
             }
         }
+
+        /*----------Node Label----------*/
 
         //Node label events
         var labelradios = document.forms["labels"].elements["labeltype"];
@@ -119,14 +134,7 @@ class menu {
             };
         }
 
-        //Edge color events
-        this.edgeGradPicker = new gradientPicker(document.getElementById("edge-color-picker-insert")); //multiple gradient pickers causes error atm
-        var edgeColorMetaRadios = document.getElementsByClassName("edge-color-meta-radio");
-        for(let i=0; i<edgeColorMetaRadios.length; i++) {
-            edgeColorMetaRadios[i].onclick = function() {
-                self.eventSystem.invokeEvent("OnEdgeColorChange", this.value);
-            }
-        }
+        /*----------Edge Width----------*/
 
         //Slider for edge width
         var edgeWidthSlider = document.getElementById("edge-width-slider");
@@ -139,10 +147,51 @@ class menu {
             self.eventSystem.invokeEvent("ResetEdgeWidth");
         };
 
+        /*----------Edge Colour----------*/
+
+        //Edge color events
+        this.edgeGradPicker = new gradientPicker(document.getElementById("edge-color-picker-insert")); //multiple gradient pickers causes error atm
+        var edgeColorMetaRadios = document.getElementsByClassName("edge-color-meta-radio");
+        for(let i=0; i<edgeColorMetaRadios.length; i++) {
+            edgeColorMetaRadios[i].onclick = function() {
+                self.eventSystem.invokeEvent("OnEdgeColorChange", this.value);
+            }
+        }
+
+        //Edge color dropdown
+        var edgeColor = document.getElementById("edge-color-dropdown");
+        edgeColor.addEventListener("select", function() {
+            self.eventSystem.invokeEvent("OnEdgeColorDropdown", edgeColor.options[edgeColor.selectedIndex].value);
+        });
+
+        /*----------Legend----------*/
+
         //Toggle draggable legends
         document.forms["legends"].elements["locked"].onclick = function() {
         	self.eventSystem.invokeEvent("ToggleDrag");
         };
+
+        //Toggle visibility of legends
+        var legends = document.getElementsByClassName("legend-display");
+        for(let i=0; i<legends.length; i++) {
+            legends[i].onclick = function () {
+                self.eventSystem.invokeEvent("OnLegendToggle", legends[i]);
+            }
+        }
+
+        //Node legend dropdown
+        var nodeLegend = document.getElementById("node-legend-dropdown");
+        nodeLegend.addEventListener("select", function() {
+            self.eventSystem.invokeEvent("OnNodeLegendDropdown", nodeLegend.options[nodeLegend.selectedIndex].value);
+        });
+
+        //Edge legend dropdown
+        var edgeLegend = document.getElementById("edge-legend-dropdown");
+        edgeLegend.addEventListener("select", function() {
+            self.eventSystem.invokeEvent("OnEdgeLegendDropdown", edgeLegend.options[edgeLegend.selectedIndex].value);
+        });
+
+        /*----------Export----------*/
 
         //Export events
         var graphradios = document.forms["graphext"].elements["graphtype"];
@@ -155,6 +204,7 @@ class menu {
         return /*html*/`
         <div class="unselectable sidenav">
             <br>
+            <h1 class="heading">TDAView</h1><br>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Selected</h4>
@@ -227,10 +277,10 @@ class menu {
                         ${metaVars.map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}
                         <input type="radio" name="edgeColor" value="uniform" id="edgecolor" class="edge-color-meta-radio" />
                         <label for="edgecolor">Uniform</label><br>
-                        <div id="edge-color-picker-insert"></div>
-                        <select>
-                            <option value="none">Interpolate</option>
-                            <option value="line">Average</option>
+                        <div id="edge-color-picker-insert"></div><br>
+                        <select id="edge-color-dropdown">
+                            <option name="edge-color-dropdown" value="interpolate">Interpolate</option>
+                            <option name="edge-color-dropdown" value="average">Average</option>
                         </select>
                     </div>
                 </div>
@@ -242,18 +292,18 @@ class menu {
                         <form name="legends">
                         <input type="checkbox" name="locked" value="locked" id="locked" />
                         <label for="locked">Lock positions</label><br><br>
-                        <input type="checkbox" name="legenddisplay" value="node-colour-legend" id="node-colour-legend" />
+                        <input type="checkbox" class="legend-display" name="legenddisplay" value="node-colour-legend" id="node-colour-legend" />
                         <label for="node-colour-legend">Toggle node colour</label><br>
-                        <input type="checkbox" name="legenddisplay" value="node-size-legend" id="node-size-legend" />
+                        <input type="checkbox" class="legend-display" name="legenddisplay" value="node-size-legend" id="node-size-legend" />
                         <label for="node-size-legend">Toggle node size</label><br><br>
                         Node --<br>
-                        <select>
+                        <select id="node-legend-dropdown">
                             <option value="none">None</option>
                             <option value="line">Line</option>
                             <option value="distribution">Distribution</option>
                         </select><br>
                         Edge --<br>
-                        <select>
+                        <select id="edge-legend-dropdown">
                             <option value="none">None</option>
                             <option value="line">Line</option>
                         </select><br><br>
