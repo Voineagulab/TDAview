@@ -200,7 +200,7 @@ class menu {
         });
     }
 
-    generateHTML(metaVars) {
+    generateHTML(metaVars) { //use Parser.getVariableType(metaVars[i]), will return TYPE_DISCRETE or TYPE_CONTINUOUS
         return /*html*/`
         <div class="unselectable sidenav">
             <br>
