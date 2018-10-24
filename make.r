@@ -52,10 +52,10 @@ Autism.mapper <- mapper(dist_object = Autism.dist,
 #Build library each update
 devtools::install()
 library(tdaview) #only required once
-tdaview(Autism.mapper, Autism.numeric, Autism.data[, 1], sprintf("Node [%s]",seq(1:Autism.mapper$num_vertices)))
-
+tdaview(mapper=Autism.mapper, metadata=Autism.data[, 1], labels=sprintf("Node [%s]", seq(1:Autism.mapper$num_vertices)))
+tdaview(mapper=Autism.mapper, metadata=Autism.data[, 1], labels=sprintf("Node [%s]", seq(1:Autism.mapper$num_vertices)), Autism.numeric)
 #Save
 library(htmlwidgets)
 saveWidget(tdaview(First.Example.mapper, First.Example.data), file="tdaview.html", selfcontained = TRUE)
 
-
+save(Autism.data, Autism.mapper, Autism.numeric, file = "autism.RData")

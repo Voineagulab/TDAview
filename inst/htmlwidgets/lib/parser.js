@@ -12,43 +12,45 @@ class Parser {
         }
  
         //Parse continuous variables used in clustering
-        for(var con in dataObject) {
-            var conValue = dataObject[con];
-
-            //Calculate normalised means for each continuous variable value
-            var max = -Infinity;
-            var min = Infinity;
-            for(let j=0; j<conValue.length; j++) {
-                var val = conValue[j];
-                if(val > max) max = val;
-                if(val < min) min = val;
-            }
-
-            mins[con] = min;
-            maxes[con] = max;
-            
-            for(let j=0; j<mapperObject.num_vertices; j++) {
-                //Store values and calculate mean
-                var mean = 0;
-                var values = new Array(mapperObject.points_in_vertex[j].length || 0);
-                for(let k=0; k<values.length; k++) {
-                    values[k] = conValue[mapperObject.points_in_vertex[j][k]-1];
-                    mean += values[k];
+        if(dataObject) {
+            for(var con in dataObject) {
+                var conValue = dataObject[con];
+    
+                //Calculate normalised means for each continuous variable value
+                var max = -Infinity;
+                var min = Infinity;
+                for(let j=0; j<conValue.length; j++) {
+                    var val = conValue[j];
+                    if(val > max) max = val;
+                    if(val < min) min = val;
                 }
-                mean /= values.length;
-
-                //Calculate standard deviation
-                var sd = 0;
-                for(let k=0; k<values.length; k++) {
-                    sd += Math.pow(values[k] - mean, 2);
+    
+                mins[con] = min;
+                maxes[con] = max;
+                
+                for(let j=0; j<mapperObject.num_vertices; j++) {
+                    //Store values and calculate mean
+                    var mean = 0;
+                    var values = new Array(mapperObject.points_in_vertex[j].length || 0);
+                    for(let k=0; k<values.length; k++) {
+                        values[k] = conValue[mapperObject.points_in_vertex[j][k]-1];
+                        mean += values[k];
+                    }
+                    mean /= values.length;
+    
+                    //Calculate standard deviation
+                    var sd = 0;
+                    for(let k=0; k<values.length; k++) {
+                        sd += Math.pow(values[k] - mean, 2);
+                    }
+                    sd /= values.length;
+                    sd = Math.sqrt(sd);
+    
+    
+                    //Save normallised mean, min, max and standard deviation
+                    bins[j].mean[con] = mean;
+                    bins[j].sd[con] = sd;
                 }
-                sd /= values.length;
-                sd = Math.sqrt(sd);
-
-
-                //Save normallised mean, min, max and standard deviation
-                bins[j].mean[con] = mean;
-                bins[j].sd[con] = sd;
             }
         }
 

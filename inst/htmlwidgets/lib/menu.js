@@ -3,7 +3,7 @@ class menu {
         var self = this;
         this.data = data;
 
-        var vars = Object.keys(data);
+        var vars = data ? Object.keys(data) : [];
 
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML(vars, metaVars);
@@ -37,65 +37,67 @@ class menu {
         /*----------Selected----------*/
 
         //Update table of values for selected node
-		graph.eventSystem.addEventListener("OnNodeSelect", function(node) {
-			var table = document.getElementById("tbody");
-			table.innerHTML = "";
-			var header = document.createElement("tr");
-			var headerFill = document.createElement("th");
-			var headerMean = document.createElement("th");
-			var headerSd = document.createElement("th");
-			headerFill.textContent = "";
-			headerMean.textContent = "Mean";
-			headerSd.textContent = "SD";
-			header.appendChild(headerFill);
-			header.appendChild(headerMean);
-			header.appendChild(headerSd);
-            table.appendChild(header);
-            
-            vars.sort(function(a, b){return node.mean[b] - node.mean[a]});
+        if(data) {
+            graph.eventSystem.addEventListener("OnNodeSelect", function(node) {
+                var table = document.getElementById("tbody");
+                table.innerHTML = "";
+                var header = document.createElement("tr");
+                var headerFill = document.createElement("th");
+                var headerMean = document.createElement("th");
+                var headerSd = document.createElement("th");
+                headerFill.textContent = "";
+                headerMean.textContent = "Mean";
+                headerSd.textContent = "SD";
+                header.appendChild(headerFill);
+                header.appendChild(headerMean);
+                header.appendChild(headerSd);
+                table.appendChild(header);
+                
+                vars.sort(function(a, b){return node.mean[b] - node.mean[a]});
 
-			for(let i=0; i<Math.min(10, vars.length); i++) {
-				var newRow = document.createElement("tr");
-				var headerVar = document.createElement("th");
-				headerVar.textContent = vars[i];
-				var meanCell = document.createElement("td");
-				meanCell.textContent = node.mean[vars[i]].toFixed(2);
-				var sdCell = document.createElement("td");
-				sdCell.textContent = node.sd[vars[i]].toFixed(2);
+                for(let i=0; i<Math.min(10, vars.length); i++) {
+                    var newRow = document.createElement("tr");
+                    var headerVar = document.createElement("th");
+                    headerVar.textContent = vars[i];
+                    var meanCell = document.createElement("td");
+                    meanCell.textContent = node.mean[vars[i]].toFixed(2);
+                    var sdCell = document.createElement("td");
+                    sdCell.textContent = node.sd[vars[i]].toFixed(2);
 
-				newRow.appendChild(headerVar);
-				newRow.appendChild(meanCell);
-				newRow.appendChild(sdCell);
-				table.appendChild(newRow);
-			}
-
-			var accList = document.getElementsByClassName("accordion-item");
-			for(let i=0; i<accList.length; i++) {
-				if (accList[i].classList.contains("open")) {
-					accList[i].classList.remove("open");
-					accList[i].classList.add("close");
-				}
-			}
-			table.parentNode.parentNode.parentNode.setAttribute("class", "accordion-item open");
-
-            //Add data to enlarged table
-            var bigTab = document.getElementById("bigTable");
-            for(let i=0; i<bigTab.rows.length; i++) {
-                if(i >= 2) {
-                    bigTab.deleteRow(i);
+                    newRow.appendChild(headerVar);
+                    newRow.appendChild(meanCell);
+                    newRow.appendChild(sdCell);
+                    table.appendChild(newRow);
                 }
-            }
-            for(let i=0; i<node.points.length; i++) {
-                var newDataRow = document.createElement("tr");
-                for(let j=0; j<vars.length; j++) {
-                    var newDataCell = document.createElement("td");
-                    newDataCell.textContent = data[vars[j]][node.points[i]];
-                    newDataRow.appendChild(newDataCell);
+
+                var accList = document.getElementsByClassName("accordion-item");
+                for(let i=0; i<accList.length; i++) {
+                    if (accList[i].classList.contains("open")) {
+                        accList[i].classList.remove("open");
+                        accList[i].classList.add("close");
+                    }
                 }
-                bigTab.appendChild(newDataRow);
-            }
-            //TODO ------
-		});
+                table.parentNode.parentNode.parentNode.setAttribute("class", "accordion-item open");
+
+                //Add data to enlarged table
+                var bigTab = document.getElementById("bigTable");
+                for(let i=0; i<bigTab.rows.length; i++) {
+                    if(i >= 2) {
+                        bigTab.deleteRow(i);
+                    }
+                }
+                for(let i=0; i<node.points.length; i++) {
+                    var newDataRow = document.createElement("tr");
+                    for(let j=0; j<vars.length; j++) {
+                        var newDataCell = document.createElement("td");
+                        newDataCell.textContent = data[vars[j]][node.points[i]];
+                        newDataRow.appendChild(newDataCell);
+                    }
+                    bigTab.appendChild(newDataRow);
+                }
+                //TODO ------
+            });
+        }
 
 		//Close node data accordion when no node is selected
 		graph.eventSystem.addEventListener("OnNodeDeselect", function() {
