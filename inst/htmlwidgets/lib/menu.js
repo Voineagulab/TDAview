@@ -1,6 +1,7 @@
 class menu {
-	constructor(graph, element, metaVars) {
+	constructor(graph, element, metaVars, data) {
         var self = this;
+        this.data = data;
 
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML(metaVars);
@@ -72,6 +73,24 @@ class menu {
 				}
 			}
 			table.parentNode.parentNode.parentNode.setAttribute("class", "accordion-item open");
+
+            //Add data to enlarged table
+            var bigTab = document.getElementById("bigTable");
+            for(let i=0; i<bigTab.rows.length; i++) {
+                if(i >= 2) {
+                    bigTab.deleteRow(i);
+                }
+            }
+            for(let i=0; i<node.points.length; i++) {
+                var newDataRow = document.createElement("tr");
+                for(let j=0; j<metaVars.length; j++) {
+                    var newDataCell = document.createElement("td");
+                    newDataCell.textContent = data[metaVars[j]][node.points[i]];
+                    newDataRow.appendChild(newDataCell);
+                }
+                bigTab.appendChild(newDataRow);
+            }
+            //TODO ------
 		});
 
 		//Close node data accordion when no node is selected
@@ -82,6 +101,7 @@ class menu {
 			for(let i=0; i<values.length; i++) {
 				values[i].textContent = "-";
 			}
+            //TODO -- Close enlarged table - closes on selecting another node
 		});
 
         //Expand table of node data

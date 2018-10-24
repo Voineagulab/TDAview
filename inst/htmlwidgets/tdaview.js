@@ -68,27 +68,38 @@ HTMLWidgets.widget({
 				scene.add(graph);
 
 				//Create menu
-				var sidebar = new menu(graph, element, metaVars);
+				var sidebar = new menu(graph, element, metaVars, x.data);
 
 				/*----------Selected----------*/
 
+				//Create enlarged table, hidden initially
+				var tableContainer = document.createElement("div");
+				tableContainer.setAttribute("id", "tableContainer");
+				tableContainer.classList.add("unselectable");
+				var bigTable = document.createElement("table");
+				bigTable.setAttribute("id", "bigTable");
+				bigTable.classList.add("unselectable");
+				tableContainer.appendChild(bigTable);
+				
+	            var title = document.createElement("caption");
+	            title.textContent = "Data for selected node";
+	            var headerRow = document.createElement("tr");
+	            for(let i=0; i<metaVars.length; i++) {
+	                var metaVarHeader = document.createElement("th");
+	                metaVarHeader.textContent = metaVars[i];
+	                headerRow.appendChild(metaVarHeader);
+	            }
+                bigTable.appendChild(title);
+                bigTable.appendChild(headerRow);
+                tableContainer.style.display = "none";
+				exportDiv.appendChild(tableContainer);
+				console.log(x.data);
+
 				//Expand table to fullscreen
 				sidebar.eventSystem.addEventListener("OnTableExpansion", function() {
-					//TODO -- Display the data in a table
-					var btn = document.getElementById("expand-table");
 					var tab = document.getElementById("tableContainer");
-					if(tab == null) { //Create on first click
-						console.log("Table was created for the first time");
-						var tableContainer = document.createElement("div");
-						tableContainer.setAttribute("id", "tableContainer");
-						tableContainer.classList.add("unselectable");
-						var bigTable = document.createElement("table");
-						bigTable.setAttribute("id", "bigTable");
-						bigTable.classList.add("unselectable");
-						bigTable.textContent = "THIS IS A TEST";
-						tableContainer.appendChild(bigTable);
-						exportDiv.appendChild(tableContainer);
-					} else if (tab.style.display == "none") { //Display on click
+					var btn = document.getElementById("expand-table");
+					if (tab.style.display == "none") { //Display on click
 						console.log("Table was just made visible");
 						tab.style.display = "initial";
 						btn.textContent = "Retract table";
@@ -97,7 +108,6 @@ HTMLWidgets.widget({
 						tab.style.display = "none";
 						btn.textContent = "Expand table";
 					}
-					
 				});
 
 				/*----------Node Radius----------*/
