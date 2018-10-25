@@ -20,7 +20,11 @@ class MultiLegend extends Draggable2D {
         this.meshes = [];
         this.labels = [];
 
+        this.meshUsed = 0;
+        this.labelUsed = 0;
+
         this.style = STYLE_NONE;
+        this.visible = true;
 
         this.eventSystem.addEventListener("OnDrag", function(self, vector) {
             self.group.position.set(vector.x, vector.y, 0);
@@ -39,9 +43,13 @@ class MultiLegend extends Draggable2D {
             this.group.add(mesh);
         }
 
-        for(let i=0; i < count; i++) {
-            this.meshes[i].visible = true;
+        if(this.visible) {
+            for(let i=0; i < count; i++) {
+                this.meshes[i].visible = true;
+            }
         }
+
+        this.meshUsed = count;
     }
 
     setLabelPool(count) {
@@ -57,9 +65,13 @@ class MultiLegend extends Draggable2D {
             this.group.add(label);
         }
 
-        for(let i=0; i < count; i++) {
-            this.labels[i].element.style.display = "";
+        if(this.visible) {
+            for(let i=0; i < count; i++) {
+                this.labels[i].element.style.display = "";
+            }
         }
+
+        this.labelUsed = count;
     }
 
     setPie(labels, count) {
@@ -93,7 +105,6 @@ class MultiLegend extends Draggable2D {
 
         this.labels[0].position.set(-LEGEND_WIDTH, -10, 0);
         this.labels[1].position.set(0, -10, 0);
-
     }
 
     setColumn(heights, min, max, count) {
@@ -131,6 +142,16 @@ class MultiLegend extends Draggable2D {
     setNone() {
         this.setMeshPool(0);
         this.setLabelPool(0);
+    }
+
+    setVisible(value) {
+        this.visible = value;
+        for(let i=0; i < this.meshUsed; i++) {
+            this.meshes[i].visible = value;
+        }
+        for(let i=0; i<this.labelUsed; i++) {
+            this.labels[i].element.style.display = value ? "" : "none";
+        }
     }
 
     boundsContains(vector) {

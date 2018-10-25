@@ -70,6 +70,16 @@ HTMLWidgets.widget({
 				//Create menu
 				var sidebar = new menu(graph, element, x.data, metaVars);
 
+				sidebar.eventSystem.addEventListener("OnNodeLegendToggle", function(value) {
+					nodeLegend.setVisible(value);
+					shouldPaint = true;
+				});
+
+				sidebar.eventSystem.addEventListener("OnEdgeLegendToggle", function(value) {
+					edgeLegend.setVisible(value);
+					shouldPaint = true;
+				})
+
 				/*----------Selected----------*/
 				/*
 				//Create enlarged table, hidden initially

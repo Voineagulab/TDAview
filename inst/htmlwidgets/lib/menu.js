@@ -208,7 +208,7 @@ class menu {
         var legends = document.getElementsByClassName("legend-display");
         for(let i=0; i<legends.length; i++) {
             legends[i].onclick = function () {
-                self.eventSystem.invokeEvent("OnLegendToggle", legends[i]);
+                self.eventSystem.invokeEvent("OnLegendToggle", legends[i].checked);
             }
         }
 
