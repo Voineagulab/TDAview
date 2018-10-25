@@ -63,21 +63,19 @@ class menu {
                 headerVar.textContent = metaVars[i];
                 var meanCell = document.createElement("td");
                 meanCell.textContent = node.mean[metaVars[i]];
-                var sdCell = document.createElement("td");
-                sdCell.textContent = node.sd[vars[i]];
-
-                if(data) {
-                	meanCell.textContent = node.mean[vars[i]].toFixed(2);
-                	sdCell.textContent = node.sd[vars[i]].toFixed(2);
+                if(i == 0) {
+	                var pointsCell = document.createElement("td");
+	                pointsCell.setAttribute("rowspan", "10");
+	                pointsCell.textContent = node.points.length;
+	                newRow.appendChild(headerVar);
+	                newRow.appendChild(meanCell);
+	                newRow.appendChild(pointsCell);
+	                table.appendChild(newRow);
                 } else {
-                	//meanCell.textContent = "-";
-                	//sdCell.textContent = "-";
+	                newRow.appendChild(headerVar);
+	                newRow.appendChild(meanCell);
+	                table.appendChild(newRow);
                 }
-
-                newRow.appendChild(headerVar);
-                newRow.appendChild(meanCell);
-                newRow.appendChild(sdCell);
-                table.appendChild(newRow);
             }
 
             var accList = document.getElementsByClassName("accordion-item");
@@ -249,7 +247,7 @@ class menu {
                             <tr>
                                 <th></th>
                                 <th>Mean</th>
-                                <th>SD</th>
+                                <th>Points</th>
                             </tr>
                             ${metaVars.map(v => `<tr><th>${v}</th><td>-</td><td>-</td></tr>`).join('')}
                         </tbody>
