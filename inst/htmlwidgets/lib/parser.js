@@ -98,11 +98,11 @@ class Parser {
 
         for(let i=0; i<bins.length; i++) {
             for(let key in bins[i].mean) {
-                bins[i].mean[key] = (bins[i].mean[key] - mins[key]) / (maxes[key] - mins[key]);
+                bins[i].norm[key] = (bins[i].mean[key] + mins[key]) / (maxes[key] - mins[key]);
             }
 
             var myPoints = isNaN(bins[i].points.length) ? 0 : bins[i].points.length;
-            bins[i].mean["points"] = (myPoints + minPoints)/(maxPoints - minPoints);
+            bins[i].norm["points"] = (myPoints + minPoints)/(maxPoints - minPoints);
         }
         console.log(minPoints)
         return bins;
@@ -137,6 +137,7 @@ class Bin {
 		this.level = level;
         this.points = points;
         this.mean = {};
+        this.norm = {};
         this.min = {};
         this.max = {};
         this.sd = {};

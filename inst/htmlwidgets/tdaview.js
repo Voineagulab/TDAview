@@ -62,7 +62,7 @@ HTMLWidgets.widget({
 				//Create graph
 				var graph = new forceGraph(bins, x.mapper.adjacency, x.labels, nodeMap, shouldShareMap ? nodeMap : edgeMap);
 				for(let i=0; i<pointCounts.length; i++) {
-					graph.nodes[i].setRadius(graph.nodes[i].mean["points"]);
+					graph.nodes[i].setRadius(graph.nodes[i].norm["points"]);
 				}
 
 				scene.add(graph);
@@ -116,8 +116,8 @@ HTMLWidgets.widget({
 				sidebar.eventSystem.addEventListener("OnNodeSizeChange", function(value) {
 					switch(value) {
 						case "none": graph.nodes.forEach(n => n.setRadius(0.5)); break;
-						case "content": graph.nodes.forEach(n => n.setRadius(n.mean["points"])); break;
-						default: graph.nodes.forEach(n => n.setRadius(n.mean[value]));
+						case "content": graph.nodes.forEach(n => n.setRadius(n.norm["points"])); break;
+						default: graph.nodes.forEach(n => n.setRadius(n.norm[value]));
 					}
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;
@@ -145,7 +145,7 @@ HTMLWidgets.widget({
 						nodeLegend.setNone();
 					} else if(checked.length == 1) {
 						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
-						graph.nodes.forEach(n => n.setColor(n.mean[checked[0]]));
+						graph.nodes.forEach(n => n.setColor(n.norm[checked[0]]));
 						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
 
 						//nodeLegend.setColumn(pointCounts, Parser.getMin(checked[0]), Parser.getMax(checked[0]), pointCounts.length);
@@ -158,7 +158,7 @@ HTMLWidgets.widget({
 							var sum = 0;
 							var pie = new Array(checked.length);
 							for(let j=0; j<metaVars.length; j++) { 
-								pie[j] = graph.nodes[i].mean[metaVars[j]];
+								pie[j] = graph.nodes[i].norm[metaVars[j]];
 								sum += pie[j];
 							}
 							for(let j=0; j<metaVars.length; j++) {
@@ -221,7 +221,7 @@ HTMLWidgets.widget({
 					} else {
 						graph.setLinkColorMap(edgeMap);
 						sidebar.edgeGradPicker.setState(STATE_GRADIENT);
-						graph.links.forEach(l => {l.setGradient(l.source.mean[value], l.target.mean[value]); l.updateColor()});
+						graph.links.forEach(l => {l.setGradient(l.source.norm[value], l.target.norm[value]); l.updateColor()});
 						edgeLegend.setBar(Parser.getMin(value), Parser.getMax(value));
 						shouldShareMap = false;
 					}
