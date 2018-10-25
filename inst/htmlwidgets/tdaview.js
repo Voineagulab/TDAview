@@ -71,7 +71,7 @@ HTMLWidgets.widget({
 				var sidebar = new menu(graph, element, x.data, metaVars);
 
 				/*----------Selected----------*/
-
+				/*
 				//Create enlarged table, hidden initially
 				var tableContainer = document.createElement("div");
 				tableContainer.setAttribute("id", "tableContainer");
@@ -108,6 +108,7 @@ HTMLWidgets.widget({
 						btn.textContent = "Expand table";
 					}
 				});
+				*/
 
 				/*----------Node Radius----------*/
 
