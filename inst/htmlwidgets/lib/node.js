@@ -81,15 +81,15 @@ class node extends Draggable2D {
         this.mesh.add(this.label);
         this.label.position.setY(1);
 
-        this.setRadius(1);
+        this.setRadius(1, 0, 1);
         this.setColor(color);
 
         parent.add(this.mesh);
     }
 
-    setRadius(value) {
-        this.mesh.scale.set(value, value, 1);
-        this.r = value;
+    setRadius(value, min=5, max=50)  {
+        this.r = value * (max - min) + min;
+        this.mesh.scale.set(this.r, this.r, 1);
     }
 
     setColor(value) {

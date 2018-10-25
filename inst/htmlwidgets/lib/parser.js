@@ -87,12 +87,24 @@ class Parser {
             }
         }
 
+        var minPoints = Number.MAX_SAFE_INTEGER;
+        var maxPoints = 0;
         for(let i=0; i<bins.length; i++) {
-            for(let key in bins[i].means) {
-                bins[i].means[key] = (bins[i].means[key] - bins[i].min[key]) / (bins[i].max[key] - bins[i].min[key]);
-            }
+            if(bins[i].points.length < minPoints) minPoints = bins[i].points.length;
+            if(bins[i].points.length > maxPoints) maxPoints = bins[i].points.length;
         }
-        console.log(bins);
+        mins["points"] = minPoints;
+        maxes["points"] = maxPoints;
+
+        for(let i=0; i<bins.length; i++) {
+            for(let key in bins[i].mean) {
+                bins[i].mean[key] = (bins[i].mean[key] - mins[key]) / (maxes[key] - mins[key]);
+            }
+
+            var myPoints = isNaN(bins[i].points.length) ? 0 : bins[i].points.length;
+            bins[i].mean["points"] = (myPoints + minPoints)/(maxPoints - minPoints);
+        }
+        console.log(minPoints)
         return bins;
     }
 

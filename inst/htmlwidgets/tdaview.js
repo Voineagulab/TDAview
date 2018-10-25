@@ -62,7 +62,7 @@ HTMLWidgets.widget({
 				//Create graph
 				var graph = new forceGraph(bins, x.mapper.adjacency, x.labels, nodeMap, shouldShareMap ? nodeMap : edgeMap);
 				for(let i=0; i<pointCounts.length; i++) {
-					graph.nodes[i].setRadius(pointCounts[i]);
+					graph.nodes[i].setRadius(graph.nodes[i].mean["points"]);
 				}
 
 				scene.add(graph);
@@ -114,9 +114,9 @@ HTMLWidgets.widget({
 				//Change node size to uniform, point count or variable
 				sidebar.eventSystem.addEventListener("OnNodeSizeChange", function(value) {
 					switch(value) {
-						case "none": graph.nodes.forEach(n => n.setRadius(18)); break;
-						case "content": graph.nodes.forEach(n => n.setRadius(n.points.length)); break;
-						default: graph.nodes.forEach(n => n.setRadius(n.mean[value] * 18));
+						case "none": graph.nodes.forEach(n => n.setRadius(0.5)); break;
+						case "content": graph.nodes.forEach(n => n.setRadius(n.mean["points"])); break;
+						default: graph.nodes.forEach(n => n.setRadius(n.mean[value]));
 					}
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;
