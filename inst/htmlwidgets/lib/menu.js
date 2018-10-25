@@ -46,7 +46,7 @@ class menu {
             var headerSd = document.createElement("th");
             headerFill.textContent = "";
             headerMean.textContent = "Mean";
-            headerSd.textContent = "SD";
+            headerSd.textContent = "Points";
             header.appendChild(headerFill);
             header.appendChild(headerMean);
             header.appendChild(headerSd);
@@ -62,11 +62,20 @@ class menu {
                 var headerVar = document.createElement("th");
                 headerVar.textContent = metaVars[i];
                 var meanCell = document.createElement("td");
-                meanCell.textContent = node.mean[metaVars[i]];
+                if(node.mean[metaVars[i]] > 0) {
+                	meanCell.textContent = node.mean[metaVars[i]];
+                } else {
+                	meanCell.textContent = "-";
+                }
                 if(i == 0) {
 	                var pointsCell = document.createElement("td");
 	                pointsCell.setAttribute("rowspan", "10");
-	                pointsCell.textContent = node.points.length;
+	                if(node.points.length > 0) {
+	                	pointsCell.textContent = node.points.length;
+	                } else {
+	                	pointsCell.textContent = "-";
+	                }
+	                
 	                newRow.appendChild(headerVar);
 	                newRow.appendChild(meanCell);
 	                newRow.appendChild(pointsCell);
@@ -198,12 +207,12 @@ class menu {
         });
 
         /*----------Legend----------*/
-
+        /*
         //Toggle draggable legends
         document.forms["legends"].elements["locked"].onclick = function() {
         	self.eventSystem.invokeEvent("ToggleDrag");
         };
-
+		*/
         //Toggle visibility of legends
         var legends = document.getElementsByClassName("legend-display");
         for(let i=0; i<legends.length; i++) {
@@ -211,7 +220,7 @@ class menu {
                 self.eventSystem.invokeEvent("OnLegendToggle", legends[i].checked);
             }
         }
-
+		/*
         //Node legend dropdown
         var nodeLegend = document.getElementById("node-legend-dropdown");
         nodeLegend.addEventListener("select", function() {
@@ -223,7 +232,7 @@ class menu {
         edgeLegend.addEventListener("select", function() {
             self.eventSystem.invokeEvent("OnEdgeLegendDropdown", edgeLegend.options[edgeLegend.selectedIndex].value);
         });
-
+		*/
         /*----------Export----------*/
 
         //Export events
@@ -322,13 +331,13 @@ class menu {
                     <h4 class="accordion-item-heading">Legend</h4>
                     <div class="accordion-item-content">
                         <form name="legends">
-                        <input type="checkbox" name="locked" value="locked" id="locked" />
-                        <label for="locked">Lock positions</label><br><br>
+                        <!-- <input type="checkbox" name="locked" value="locked" id="locked" />
+                        <label for="locked">Lock positions</label><br><br> -->
                         <input type="checkbox" class="legend-display" name="legenddisplay" value="node-colour-legend" id="node-colour-legend" />
                         <label for="node-colour-legend">Toggle node colour</label><br>
                         <input type="checkbox" class="legend-display" name="legenddisplay" value="node-size-legend" id="node-size-legend" />
-                        <label for="node-size-legend">Toggle node size</label><br><br>
-                        Node --<br>
+                        <label for="node-size-legend">Toggle node size</label>
+                        <!-- Node --<br>
                         <select id="node-legend-dropdown">
                             <option value="none">None</option>
                             <option value="line">Line</option>
@@ -339,7 +348,7 @@ class menu {
                             <option value="none">None</option>
                             <option value="line">Line</option>
                         </select><br><br>
-                        <a href="#" class="myButton" id="reset">Reset to default</a>
+                        <a href="#" class="myButton" id="reset">Reset to default</a> -->
                         </form>
                     </div>
                 </div>

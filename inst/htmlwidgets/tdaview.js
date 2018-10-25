@@ -250,13 +250,13 @@ HTMLWidgets.widget({
 				});
 
 				/*----------Legend----------*/
-
+				/*
 				//Toggle ability to drag legends
 				sidebar.eventSystem.addEventListener("ToggleDrag", function() {
 					console.log("Toggle Drag was successfully toggled!");
 					//TODO
 				});
-
+				*/
 				//Toggle visibility of legends
 				sidebar.eventSystem.addEventListener("OnLegendToggle", function(val) {
 					if(val.value == "node-colour-legend") {
@@ -267,8 +267,7 @@ HTMLWidgets.widget({
 						//TODO
 					}
 				});
-
-
+				/*
 				//Change appearance of node legend
 				sidebar.eventSystem.addEventListener("OnNodeLegendDropdown", function(val) {
 					if(val == "line") {
@@ -293,7 +292,7 @@ HTMLWidgets.widget({
 						//TODO
 					}
 				});
-
+				*/
 				/*----------Export----------*/
 
 				//Download image generated from export div
