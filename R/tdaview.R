@@ -9,7 +9,7 @@ tdaview <- function(mapper, metadata, labels, data = NULL, width = NULL, height 
   # create widget
   htmlwidgets::createWidget(
     name = 'tdaview',
-    x = list(mapper = mapper, metadata = metadata, labels = labels, data = data, ),
+    x = list(mapper = mapper, metadata = metadata, labels = labels, data = data),
     width = width,
     height = height,
     package = 'tdaview',

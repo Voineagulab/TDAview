@@ -5,7 +5,7 @@ HTMLWidgets.widget({
 	factory: function(element, width, height) {
 		var camera, hudCamera;
 		var renderer, labelRenderer;
-		var nodeLegend;
+		var nodeLegend, edgeLegend;
 		var frustumSize = 1000;
 		var shouldPaint = true;
 		var shouldAutoResize = true;
@@ -47,7 +47,6 @@ HTMLWidgets.widget({
 				exportDiv.appendChild(labelRenderer.domElement);
 
 				//Parse imported data
-
 				var bins = Parser.fromTDAMapper(x.mapper, x.data, x.metadata);
 				var metaVars = Parser.getCategories();
 
@@ -58,16 +57,14 @@ HTMLWidgets.widget({
 				nodeLegend = new MultiLegend(nodeMap, hudScene, hudCamera.right, hudCamera.bottom, aspect/2);
 
 				var edgeMap = new ColorMap('rainbow', 512);
-				//edgeLegend = new Legend(edgeMap, hudScene, pointCounts.length);
-				//edgeLegend.setLegendColHeights(pointCounts, 0, 1);
-				//edgeLegend.setVisibility(true);
+				edgeLegend = new MultiLegend(edgeMap, hudScene, hudCamera.right, hudCamera.bottom + 80, aspect/2);
 
 				//Create graph
 				var graph = new forceGraph(bins, x.mapper.adjacency, x.labels, nodeMap, shouldShareMap ? nodeMap : edgeMap);
 				for(let i=0; i<pointCounts.length; i++) {
 					graph.nodes[i].setRadius(pointCounts[i]);
 				}
-				console.log(pointCounts);
+
 				scene.add(graph);
 
 				//Create menu
@@ -151,7 +148,7 @@ HTMLWidgets.widget({
 						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
 
 						//nodeLegend.setColumn(pointCounts, Parser.getMin(checked[0]), Parser.getMax(checked[0]), pointCounts.length);
-						nodeLegend.setBar( Parser.getMin(checked[0]), Parser.getMax(checked[0]));
+						nodeLegend.setBar(Parser.getMin(checked[0]), Parser.getMax(checked[0]));
 					} else {
 						sidebar.nodeGradPicker.setState(STATE_FIXED, checked.length);
 
@@ -213,15 +210,18 @@ HTMLWidgets.widget({
 						graph.setLinkColorMap(nodeMap);
 						sidebar.edgeGradPicker.setState(STATE_SINGLE); //STATE_DISABLED
 						graph.links.forEach(l => {l.setGradientFromNodes(); l.updateColor()});
+						edgeLegend.setNone();
 						shouldShareMap = true;
 					} else if(value === "uniform") {
 						graph.setLinkColorMap(edgeMap);
 						sidebar.edgeGradPicker.setState(STATE_SINGLE);
+						edgeLegend.setNone();
 						shouldShareMap = false;
 					} else {
 						graph.setLinkColorMap(edgeMap);
 						sidebar.edgeGradPicker.setState(STATE_GRADIENT);
 						graph.links.forEach(l => {l.setGradient(l.source.mean[value], l.target.mean[value]); l.updateColor()});
+						edgeLegend.setBar(Parser.getMin(value), Parser.getMax(value));
 						shouldShareMap = false;
 					}
 					shouldPaint = true;
@@ -327,7 +327,7 @@ HTMLWidgets.widget({
 				let graphRect = new DragRect2D(camera);
 				let hudRect = new DragRect2D(hudCamera);
 				graphRect.addDraggable(graph.nodes);
-				hudRect.addDraggable([nodeLegend]);
+				hudRect.addDraggable([nodeLegend, edgeLegend]);
 				dragSystem.addRect(graphRect);
 				dragSystem.addRect(hudRect);
 
