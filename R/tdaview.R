@@ -3,13 +3,15 @@
 #' <Displays topological data as graph from TDAMapper or pHom>
 #'
 #' @import htmlwidgets htmltools shiny
-#'
+#' @param mapper data frame containing adjacency matrix and vertices, formatted to match TDAMapper output
+#' @param metadata single list of ordered categorical variables as strings
+#' @param labels single list of ordered node labels as strings
 #' @export
-tdaview <- function(mapper, metadata, labels, data = NULL, width = NULL, height = NULL, elementId = NULL) {
+tdaview <- function(mapper, metadata, labels, width = NULL, height = NULL, elementId = NULL) {
   # create widget
   htmlwidgets::createWidget(
     name = 'tdaview',
-    x = list(mapper = mapper, metadata = metadata, labels = labels, data = data),
+    x = list(mapper = mapper, metadata = metadata, labels = labels),
     width = width,
     height = height,
     package = 'tdaview',
@@ -29,9 +31,7 @@ tdaview <- function(mapper, metadata, labels, data = NULL, width = NULL, height 
 #' applications and interactive Rmd documents.
 #'
 #' @param outputId output variable to read from
-#' @param width,height Must be a valid CSS unit (like \code{'100\%'},
-#'   \code{'400px'}, \code{'auto'}) or a number, which will be coerced to a
-#'   string and have \code{'px'} appended.
+#' @param width,height Must be a valid CSS unit
 #' @param expr An expression that generates a tdaview
 #' @param env The environment in which to evaluate \code{expr}.
 #' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This
