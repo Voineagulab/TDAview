@@ -7,6 +7,9 @@ A graph visualisation tool targeted at persistent homology applications, focusin
   - Control over colour, size and width for nodes and edges with real-time updates
   - Publishing results
 
+![alt-text](https://github.com/ktaouk1/TDAView/raw/master/src/TDAViewExample.PNG "Example Pic")
+
+
 # Getting Started
 ### Installation
 1. Download and build the library
@@ -17,7 +20,7 @@ devtools::install_github("ktaouk1/TDAView")
 ```{r}
 tdaview( [mapper object] , [metadata] , [labels] )
 ```
-Use ```set options(viewer = NULL)``` to open subsequent calls in default browser.
+Use `set options(viewer = NULL)` to open subsequent calls in default browser.
 
 ### Example
 Trigonometric data is passed into TDAmapper and the result displayed in TDAView
@@ -42,6 +45,7 @@ tdaview(First.Example.mapper, First.Example.meta, First.Example.labels)
 ```
 ### The Menu
 The sidebar enables real-time customisation of graphs and is divided into a series of sub-menus.
+`Selected` displays all the relevant data for the selected node.
 
 # License
 MIT
