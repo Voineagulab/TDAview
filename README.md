@@ -20,10 +20,10 @@ devtools::install_github("ktaouk1/TDAView")
 ```{r}
 tdaview( [mapper object] , [metadata] , [labels] )
 ```
-Use `set options(viewer = NULL)` to open subsequent calls in default browser.
+Use `options(viewer = NULL)` to open subsequent calls in default browser.
 
 ### Example
-Trigonometric data is passed into TDAmapper and the result displayed in TDAView
+Trigonometric data is passed into TDAmapper and the result is displayed in TDAView
 ```{r}
 devtools::install_github("paultpearson/TDAmapper")
 library(TDAmapper)
@@ -45,7 +45,13 @@ tdaview(First.Example.mapper, First.Example.meta, First.Example.labels)
 ```
 ### The Menu
 The sidebar enables real-time customisation of graphs and is divided into a series of sub-menus.
-`Selected` displays all the relevant data for the selected node.
-
+`Selected` displays all the relevant data for the selected node. This includes the mean value of each of the metadata variables in the selected node, as well as the amount of data present.
+`Node Radius` sets the size of the nodes based on the categorical metadata variables, the node content or a predefined constant.
+`Node Colour` sets the colour of nodes based on no variables (for constant shading), a single variable (for an overall gradient) or multiple variables to produce pie charts. For variable shading, the colour picker determines the value of the selected step. Drag steps to reposition them, double click to add or remove them.
+`Node Label` switches between displaying the given names of the nodes, the size of their content, or nothing at all.
+`Edge Width` changes the width of the edges to a percentage of the neighbouring nodes' radii. A reset button reverts any changes back to the default value of 50% width.
+`Edge Colour` sets the colour of edges based on constant or single variable shading. For variable shading, the colour picker determines the value of the selected step. Drag steps to reposition them, double click to add or remove them.
+`Legend` hides or displays legends relating to node size and colour. The legends contain information about the distribution and importance of each metadata variable.
+`Export` captures the present state of the graph and allows download in either PNG or JPEG format.
 # License
 MIT
