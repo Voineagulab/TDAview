@@ -1,8 +1,4 @@
 dependencies:
-  - name: TWEEN
-    version: 1.0
-    src: "htmlwidgets/lib/TWEEN"
-    script: tweenjs.min.js
   - name: d3
     version: 5.0
     src: "htmlwidgets/lib/D3"
