@@ -1,10 +1,7 @@
 Package: tdaview
 Title: Topological Data Viewer
 Version: 0.0.0.9000
-Authors@R: c(
-    person("Kamile", "Taouk", email = "k.taouk@student.unsw.edu.au", role = c("aut", "cre")),
-    person("Kieran", "Walsh", email = "k.walsh@student.unsw.edu.au", role = "aut")
-    )
+Authors@R: c(person("Kamile", "Taouk", email = "k.taouk@student.unsw.edu.au", role = c("aut", "cre")), person("Kieran", "Walsh", email = "k.walsh@student.unsw.edu.au", role = "aut"))
 Description: Represents persistent homological adjacency matrices as a customizable force graph in WebGL
 Depends: R (>= 3.3.0)
 License: MIT + file LICENSE
