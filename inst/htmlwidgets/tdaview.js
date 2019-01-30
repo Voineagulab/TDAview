@@ -83,7 +83,10 @@ HTMLWidgets.widget({
 					switch(value) {
 						case "none": graph.nodes.forEach(n => n.setRadius(0.5)); break;
 						case "content": graph.nodes.forEach(n => n.setRadius(data.getPointsNormalised(n.userData))); break;
-						default: graph.nodes.forEach(n => n.setRadius(data.getContinuousNormalised(n.userData, "mean")));
+						default: {
+							data.loadVariable(value);
+							graph.nodes.forEach(n => n.setRadius(data.getContinuousNormalised(n.userData, "mean")));
+						}
 					}
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;

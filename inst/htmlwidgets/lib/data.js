@@ -47,7 +47,6 @@ class Data {
         for(let i=0; i<mapper.num_vertices; i++) {
             this.bins[i] = new Bin(mapper.points_in_vertex[i]);
         }
-        console.log(this)
     }
 
     getAdjacency() {
@@ -81,7 +80,6 @@ class Data {
                 }
             }
         }
-        console.log(this);
     }
 
     getContinuousNormalised(bin, property) {
@@ -109,11 +107,11 @@ class Data {
     }
 
     getContinuousNames() {
-        return this.getVariableNames().filter(name => !isNaN(name));
+        return this.metadata.map(column => column[0]).filter((name, index) => !isNaN(this.metadata[index][1]));
     }
 
     getCategoricalNames() {
-        return this.getVariableNames().filter(name => isNaN(name));
+        return this.metadata.map(column => column[0]).filter((name, index) => isNaN(this.metadata[index][1]));
     }
 }
 

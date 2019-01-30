@@ -188,7 +188,7 @@ class menu {
                         <label for="edgecolornode">Use Node Colors</label><br>
                         <input type="radio" name="edgeColor" value="uniform" id="edgecolor" class="edge-color-meta-radio" />
                         <label for="edgecolor">Uniform</label><br>
-                        ${data.getContinuousNames().map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}
+                        <!-- ${data.getContinuousNames().map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}-->
                         
                         <div id="edge-color-picker-insert"></div><br>
                     </div>
