@@ -47,10 +47,8 @@ HTMLWidgets.widget({
 				exportDiv.appendChild(labelRenderer.domElement);
 
 				//Parse imported data
-				var bins = Parser.fromTDAMapper(x.mapper, x.data, x.metadata);
-				var metaVars = Parser.getCategories();
-
-				var pointCounts = bins.map(bin => bin.points.length);
+				var data = new Data(x.mapper, x.metadata);
+				var metaVars = data.getVariableNames();
 
 				//Create maps and legends
 				var nodeMap = new ColorMap('rainbow', 256);
@@ -59,16 +57,16 @@ HTMLWidgets.widget({
 				var edgeMap = new ColorMap('rainbow', 512);
 				edgeLegend = new MultiLegend(edgeMap, hudScene, hudCamera.right, hudCamera.bottom + 80, aspect/2);
 
-				//Create graph
-				var graph = new forceGraph(bins, x.mapper.adjacency, x.labels, nodeMap, shouldShareMap ? nodeMap : edgeMap);
-				for(let i=0; i<pointCounts.length; i++) {
-					graph.nodes[i].setRadius(graph.nodes[i].norm["points"]);
+				//Create graph with point count radius initially
+				var graph = new forceGraph(data.getBins(), data.getAdjacency(), x.labels, nodeMap, shouldShareMap ? nodeMap : edgeMap);
+				for(let i=0; i<graph.nodes.length; i++) {
+					graph.nodes[i].setRadius(0.5);
 				}
 
 				scene.add(graph);
 
 				//Create menu
-				var sidebar = new menu(graph, element, x.data, metaVars);
+				var sidebar = new menu(graph, element, data);
 
 				sidebar.eventSystem.addEventListener("OnNodeLegendToggle", function(value) {
 					nodeLegend.setVisible(value);
@@ -80,60 +78,16 @@ HTMLWidgets.widget({
 					shouldPaint = true;
 				})
 
-				/*----------Selected----------*/
-				/*
-				//Create enlarged table, hidden initially
-				var tableContainer = document.createElement("div");
-				tableContainer.setAttribute("id", "tableContainer");
-				tableContainer.classList.add("unselectable");
-				var bigTable = document.createElement("table");
-				bigTable.setAttribute("id", "bigTable");
-				bigTable.classList.add("unselectable");
-				tableContainer.appendChild(bigTable);
-				
-	            var title = document.createElement("caption");
-	            title.textContent = "Data for selected node";
-	            var headerRow = document.createElement("tr");
-	            for(let i=0; i<metaVars.length; i++) {
-	                var metaVarHeader = document.createElement("th");
-	                metaVarHeader.textContent = metaVars[i];
-	                headerRow.appendChild(metaVarHeader);
-	            }
-                bigTable.appendChild(title);
-                bigTable.appendChild(headerRow);
-                tableContainer.style.display = "none";
-				exportDiv.appendChild(tableContainer);
-
-				//Expand table to fullscreen
-				sidebar.eventSystem.addEventListener("OnTableExpansion", function() {
-					var tab = document.getElementById("tableContainer");
-					var btn = document.getElementById("expand-table");
-					if (tab.style.display == "none") { //Display on click
-						console.log("Table was just made visible");
-						tab.style.display = "initial";
-						btn.textContent = "Retract table";
-					} else { //Hide on second click
-						console.log("Table was just hidden");
-						tab.style.display = "none";
-						btn.textContent = "Expand table";
-					}
-				});
-				*/
-
-				/*----------Node Radius----------*/
-
 				//Change node size to uniform, point count or variable
 				sidebar.eventSystem.addEventListener("OnNodeSizeChange", function(value) {
 					switch(value) {
 						case "none": graph.nodes.forEach(n => n.setRadius(0.5)); break;
-						case "content": graph.nodes.forEach(n => n.setRadius(n.norm["points"])); break;
-						default: graph.nodes.forEach(n => n.setRadius(n.norm[value]));
+						case "content": graph.nodes.forEach(n => n.setRadius(data.getBinPointsNormalised(n.userData))); break;
+						default: graph.nodes.forEach(n => n.setRadius(data.getContinuousBinVariableValueNormalised(n.userData, value, "mean")));
 					}
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;
 				});
-
-				/*----------Node Colour----------*/
 
 				//Change map to uniform color
 				sidebar.nodeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
@@ -148,38 +102,29 @@ HTMLWidgets.widget({
 				});
 
 				//Change node color to uniform, gradient or pie
-				sidebar.eventSystem.addEventListener("OnNodeColorChange", function(checked) {
-					if(checked.length == 0) {
+				sidebar.eventSystem.addEventListener("OnNodeColorChange", function(value) {
+					if(value === "uniform") {
 						sidebar.nodeGradPicker.setState(STATE_SINGLE);
 						if(shouldShareMap) graph.links.forEach(l => l.setColor(0.5));
 						nodeLegend.setNone();
-					} else if(checked.length == 1) {
-						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
-						graph.nodes.forEach(n => n.setColor(n.norm[checked[0]]));
-						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
-
-						//nodeLegend.setColumn(pointCounts, Parser.getMin(checked[0]), Parser.getMax(checked[0]), pointCounts.length);
-						nodeLegend.setBar(Parser.getMin(checked[0]), Parser.getMax(checked[0]));
 					} else {
-						sidebar.nodeGradPicker.setState(STATE_FIXED, checked.length);
+						let variable = data.getVariableByName(value);
+						if(variable instanceof ContinuousVariable) {
+							sidebar.nodeGradPicker.setState(STATE_GRADIENT);
+							graph.nodes.forEach(n => n.setColor(data.getContinuousBinVariableValueNormalised(n.userData, value, "mean")));
+							nodeLegend.setBar(data.getContinuousMin(value, "mean"), data.getContinuousMax(value, "mean"));
+							if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
+						} else {
+							let categories = variable.getCategories();
+							sidebar.nodeGradPicker.setState(STATE_FIXED, categories.length);
 
-						//Parse variables into normalised cumulative array
-						for(let i=0; i<graph.nodes.length; i++) {
-							var sum = 0;
-							var pie = new Array(checked.length);
-							for(let j=0; j<metaVars.length; j++) { 
-								pie[j] = graph.nodes[i].norm[metaVars[j]];
-								sum += pie[j];
+							for(let i=0; i<graph.nodes.length; i++) {
+								graph.nodes[i].setColorPie(data.getBinVariable(graph.nodes[i].userData, value).getValuesNormalised());
 							}
-							for(let j=0; j<metaVars.length; j++) {
-								pie[j] /= sum;
-							}
-							graph.nodes[i].setColorPie(pie);
+
+							if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes()); //Setting gradient makes no sense for pie uvs when there are more than 2 slices!
+							nodeLegend.setPie(categories, categories.length);
 						}
-
-						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes()); //Setting gradient makes no sense for pie uvs when there are more than 2 slices!
-
-						nodeLegend.setPie(metaVars, metaVars.length);
 					}
 					if(shouldShareMap) graph.links.forEach(l => l.updateColor());
 					shouldPaint = true;
@@ -203,19 +148,19 @@ HTMLWidgets.widget({
 					slider.reset();
 				});
 
-				/*----------Edge Colour----------*/
-
+				//Uniform edge color change
 				sidebar.edgeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
 					edgeMap.changeColor(color);
 					shouldPaint = true;
 				})
 
+				//Gradient edge color change
 				sidebar.edgeGradPicker.eventSystem.addEventListener("OnGradientChange", function(steps) {
 					edgeMap.changeColorMap(steps);
 					shouldPaint = true;
 				})
 
-				//Change edge colour
+				//Edge color type change
 				sidebar.eventSystem.addEventListener("OnEdgeColorChange", function(value) {
 					if(value === "nodes") {
 						graph.setLinkColorMap(nodeMap);
@@ -231,32 +176,14 @@ HTMLWidgets.widget({
 					} else {
 						graph.setLinkColorMap(edgeMap);
 						sidebar.edgeGradPicker.setState(STATE_GRADIENT);
-						graph.links.forEach(l => {l.setGradient(l.source.norm[value], l.target.norm[value]); l.updateColor()});
-						edgeLegend.setBar(Parser.getMin(value), Parser.getMax(value));
+
+						graph.links.forEach(l => {l.setGradient(data.getContinuousBinVariableValueNormalised(l.source.userData, value, "mean"), data.getContinuousBinVariableValueNormalised(l.target.userData, value, "mean")); l.updateColor()})
+						edgeLegend.setBar(data.getContinuousMin(value, "mean"), data.getContinuousMax(value, "mean"));
 						shouldShareMap = false;
 					}
 					shouldPaint = true;
 				});
 
-				//Edge colour dropdown
-				sidebar.eventSystem.addEventListener("OnEdgeColorDropdown", function(val) {
-					if(val == "interpolate") {
-						console.log("The user picked the",val,"option!");
-						//TODO
-					} else { //Average
-						console.log("The user picked the",val,"option!");
-						//TODO
-					}
-				});
-
-				/*----------Legend----------*/
-				/*
-				//Toggle ability to drag legends
-				sidebar.eventSystem.addEventListener("ToggleDrag", function() {
-					console.log("Toggle Drag was successfully toggled!");
-					//TODO
-				});
-				*/
 				//Toggle visibility of legends
 				sidebar.eventSystem.addEventListener("OnLegendToggle", function(val) {
 					if(val.value == "node-colour-legend") {
@@ -267,33 +194,6 @@ HTMLWidgets.widget({
 						//TODO
 					}
 				});
-				/*
-				//Change appearance of node legend
-				sidebar.eventSystem.addEventListener("OnNodeLegendDropdown", function(val) {
-					if(val == "line") {
-						console.log("The user picked the",val,"option!");
-						//TODO
-					} else if (val == "distribution") {
-						console.log("The user picked the",val,"option!");
-						//TODO
-					} else { //None
-						console.log("The user picked the",val,"option!");
-						//TODO
-					}
-				});
-
-				//Change appearance of edge legend
-				sidebar.eventSystem.addEventListener("OnEdgeLegendDropdown", function(val) {
-					if(val == "line") {
-						console.log("The user picked the",val,"option!");
-						//TODO
-					} else { //None
-						console.log("The user picked the",val,"option!");
-						//TODO
-					}
-				});
-				*/
-				/*----------Export----------*/
 
 				//Download image generated from export div
 				sidebar.eventSystem.addEventListener("OnExport", function(value) {
@@ -317,7 +217,6 @@ HTMLWidgets.widget({
 						}
 					);
 				});
-
 
 				//Zoom camera to accommodate simulated graph bounds
 				graph.eventSystem.addEventListener("onTick", function() {

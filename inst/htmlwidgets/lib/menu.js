@@ -1,14 +1,10 @@
 class menu {
-	constructor(graph, element, data, metaVars) {
+	constructor(graph, element, data) {
         var self = this;
-        this.data = data;
-
-        var vars = data ? Object.keys(data) : [];
 
 		this.domElement = document.createElement("div");
-        this.domElement.innerHTML = this.generateHTML(vars, metaVars);
+        this.domElement.innerHTML = this.generateHTML(data);
         this.eventSystem = new event();
-
         element.appendChild(this.domElement);
 
         //Accordion events
@@ -34,104 +30,12 @@ class menu {
             }, false);
         }
 
-        /*----------Selected----------*/
-
-        //Update table of values for selected node
-        graph.eventSystem.addEventListener("OnNodeSelect", function(node) {
-            var table = document.getElementById("tbody");
-            table.innerHTML = "";
-            var header = document.createElement("tr");
-            var headerFill = document.createElement("th");
-            var headerMean = document.createElement("th");
-            var headerSd = document.createElement("th");
-            headerFill.textContent = "";
-            headerMean.textContent = "Mean";
-            headerSd.textContent = "Points";
-            header.appendChild(headerFill);
-            header.appendChild(headerMean);
-            header.appendChild(headerSd);
-            table.appendChild(header);
-            
-            console.log(node);
-            console.log(metaVars);
-
-            vars.sort(function(a, b){return node.mean[b] - node.mean[a]});
-
-            for(let i=0; i<Math.min(10, metaVars.length); i++) {
-                var newRow = document.createElement("tr");
-                var headerVar = document.createElement("th");
-                headerVar.textContent = metaVars[i];
-                var meanCell = document.createElement("td");
-                if(node.mean[metaVars[i]] > 0) {
-                	meanCell.textContent = node.mean[metaVars[i]];
-                } else {
-                	meanCell.textContent = "-";
-                }
-                if(i == 0) {
-	                var pointsCell = document.createElement("td");
-	                pointsCell.setAttribute("rowspan", "10");
-	                if(node.points.length > 0) {
-	                	pointsCell.textContent = node.points.length;
-	                } else {
-	                	pointsCell.textContent = "-";
-	                }
-	                
-	                newRow.appendChild(headerVar);
-	                newRow.appendChild(meanCell);
-	                newRow.appendChild(pointsCell);
-	                table.appendChild(newRow);
-                } else {
-	                newRow.appendChild(headerVar);
-	                newRow.appendChild(meanCell);
-	                table.appendChild(newRow);
-                }
-            }
-
-            var accList = document.getElementsByClassName("accordion-item");
-            for(let i=0; i<accList.length; i++) {
-                if (accList[i].classList.contains("open")) {
-                    accList[i].classList.remove("open");
-                    accList[i].classList.add("close");
-                }
-            }
-            table.parentNode.parentNode.parentNode.setAttribute("class", "accordion-item open");
-
-            /*
-            //Add data to enlarged table
-            var bigTab = document.getElementById("bigTable");
-            for(let i=0; i<bigTab.rows.length; i++) {
-                if(i >= 2) {
-                    bigTab.deleteRow(i);
-                }
-            }
-            for(let i=0; i<node.points.length; i++) {
-                var newDataRow = document.createElement("tr");
-                for(let j=0; j<vars.length; j++) {
-                    var newDataCell = document.createElement("td");
-                    newDataCell.textContent = data[vars[j]][node.points[i]];
-                    newDataRow.appendChild(newDataCell);
-                }
-                bigTab.appendChild(newDataRow);
-            }
-            //TODO ------
-            */
-        });
-
 		//Close node data accordion when no node is selected
 		graph.eventSystem.addEventListener("OnNodeDeselect", function() {
 			var acc = document.getElementById("node-data").parentNode;
 			acc.setAttribute("class", "accordion-item close");
             //TODO -- Close enlarged table - closes on selecting another node
 		});
-
-		/*
-        //Expand table of node data
-        document.getElementById("expand-table").addEventListener("click", function() {
-            self.eventSystem.invokeEvent("OnTableExpansion");
-        });
-        */
-
-        /*----------Node Radius----------*/
 
         //Node size events
         var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
@@ -141,19 +45,14 @@ class menu {
             }
         }
 
-        /*----------Node Colour----------*/
-
         //Node color events
         this.nodeGradPicker = new gradientPicker(document.getElementById("node-color-picker-insert"));
-        var nodeColorMetaBoxes = document.getElementsByClassName("node-color-meta-boxes");
-        for(let i=0; i<nodeColorMetaBoxes.length; i++) {
-            nodeColorMetaBoxes[i].onclick = function() {//e.ctrlKey
-                var checked = Array.from(nodeColorMetaBoxes).filter(b => b.checked).map(b => b.value);
-                self.eventSystem.invokeEvent("OnNodeColorChange", checked);
-            }
+        var nodeColorMetaRadios = document.getElementsByClassName("node-color-meta-radio");
+        for(let i=0; i<nodeColorMetaRadios.length; i++) {
+            nodeColorMetaRadios[i].onclick = function() {
+                self.eventSystem.invokeEvent("OnNodeColorChange", this.value);
+            };
         }
-
-        /*----------Node Label----------*/
 
         //Node label events
         var labelradios = document.forms["labels"].elements["labeltype"];
@@ -166,7 +65,7 @@ class menu {
                             graph.nodes[j].removeLabelClassName('hiddenlabel');
                         }
                         switch(this.value) {
-                            case "size": graph.nodes[j].setLabelText(graph.nodes[j].points.length); break;
+                            case "size": graph.nodes[j].setLabelText(graph.nodes[j].userData.getPointCount()); break;
                             case "none" : graph.nodes[j].addLabelClassName('hiddenlabel'); break;
                             default : graph.nodes[j].setLabelText("Node " + j); break;
                         }
@@ -176,20 +75,16 @@ class menu {
             };
         }
 
-        /*----------Edge Width----------*/
-
-        //Slider for edge width
+        //Edge width change event
         var edgeWidthSlider = document.getElementById("edge-width-slider");
         edgeWidthSlider.addEventListener("input", function() {
             self.eventSystem.invokeEvent("OnEdgeWidthChange", edgeWidthSlider.value/100);
         });
 
-        //Reset edge width to default
+        //Edge width reset event
         document.getElementById("reset-edge-width").onclick = function () {
             self.eventSystem.invokeEvent("ResetEdgeWidth");
         };
-
-        /*----------Edge Colour----------*/
 
         //Edge color events
         this.edgeGradPicker = new gradientPicker(document.getElementById("edge-color-picker-insert")); //multiple gradient pickers causes error atm
@@ -200,40 +95,13 @@ class menu {
             }
         }
 
-        //Edge color dropdown
-        var edgeColor = document.getElementById("edge-color-dropdown");
-        edgeColor.addEventListener("select", function() {
-            self.eventSystem.invokeEvent("OnEdgeColorDropdown", edgeColor.options[edgeColor.selectedIndex].value);
-        });
-
-        /*----------Legend----------*/
-        /*
-        //Toggle draggable legends
-        document.forms["legends"].elements["locked"].onclick = function() {
-        	self.eventSystem.invokeEvent("ToggleDrag");
-        };
-		*/
-        //Toggle visibility of legends
+        //Legend events
         var legends = document.getElementsByClassName("legend-display");
         for(let i=0; i<legends.length; i++) {
             legends[i].onclick = function () {
                 self.eventSystem.invokeEvent("OnLegendToggle", legends[i].checked);
             }
         }
-		/*
-        //Node legend dropdown
-        var nodeLegend = document.getElementById("node-legend-dropdown");
-        nodeLegend.addEventListener("select", function() {
-            self.eventSystem.invokeEvent("OnNodeLegendDropdown", nodeLegend.options[nodeLegend.selectedIndex].value);
-        });
-
-        //Edge legend dropdown
-        var edgeLegend = document.getElementById("edge-legend-dropdown");
-        edgeLegend.addEventListener("select", function() {
-            self.eventSystem.invokeEvent("OnEdgeLegendDropdown", edgeLegend.options[edgeLegend.selectedIndex].value);
-        });
-		*/
-        /*----------Export----------*/
 
         //Export events
         var graphradios = document.forms["graphext"].elements["graphtype"];
@@ -242,7 +110,7 @@ class menu {
         });
     }
 
-    generateHTML(vars, metaVars) { //use Parser.getVariableType(metaVars[i]), will return TYPE_DISCRETE or TYPE_CONTINUOUS
+    generateHTML(data) {
         return /*html*/`
         <div class="unselectable sidenav">
             <br>
@@ -258,7 +126,7 @@ class menu {
                                 <th>Mean</th>
                                 <th>Points</th>
                             </tr>
-                            ${metaVars.map(v => `<tr><th>${v}</th><td>-</td><td>-</td></tr>`).join('')}
+                            ${data.getVariables().map(v => `<tr><th>${data.getVariableName(v.getVarId())}</th><td>-</td><td>-</td></tr>`).join('')}
                         </tbody>
                         </table><br>
                         <!-- a href="#" class="myButton" id="expand-table">Expand table</a -->
@@ -270,19 +138,22 @@ class menu {
                     <h4 class="accordion-item-heading">Node Radius</h4>
                     <div id="node-size" class="accordion-item-content">
                         <form name="node-size-meta">
-                        <input type="radio" name="nodesize" value="content" id="contentsize" checked />
-                        <label for="contentsize">Points</label><br>
-                        ${metaVars.map(v => `<input type="radio" name="nodesize" value="${v}" id="${v}size"/><label for="${v}size">${v}</label><br>`).join('')}
-                        <input type="radio" name="nodesize" value="none" id="nonesize"/>
+                        <input type="radio" name="nodesize" value="none" id="nonesize" checked/>
                         <label for="nonesize">Uniform</label><br>
+                        <input type="radio" name="nodesize" value="content" id="contentsize" />
+                        <label for="contentsize">Points</label><br>
+                        ${data.getContinuousVariables().map(v => data.getVariableName(v.getVarId())).map(v => `<input type="radio" name="nodesize" value="${v}" id="${v}size"/><label for="${v}size">${v}</label><br>`).join('')}
+                        
                         </form>
                     </div>
                 </div>
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Node Color</h4>
                     <div id="node-color" class="accordion-item-content">
-                        ${metaVars.map(v => `<input type="checkbox" class="node-color-meta-boxes" value="${v}" id="${v}"/><label for="${v}">${v}</label><br>`).join('')}
-                        <div id="node-color-picker-insert"></div>
+                    <input type="radio" name="nodeColor" value="uniform" id="nodecolor" class="node-color-meta-radio" checked/>
+                    <label for="nodecolor">Uniform</label><br>
+                    ${data.getVariableNames().map(v => `<input type="radio" name="nodeColor" value="${v}" id="${v}nodecolor" class="node-color-meta-radio"/><label for="${v}nodecolor">${v}</label><br>`).join('')}
+                    <div id="node-color-picker-insert"></div>
                     </div>
                 </div>
                 <div class="accordion-item close">
@@ -315,14 +186,11 @@ class menu {
                     <div class="accordion-item-content">
                         <input type="radio" name="edgeColor" value="nodes" id="edgecolornode" class="edge-color-meta-radio" checked/>
                         <label for="edgecolornode">Use Node Colors</label><br>
-                        ${metaVars.map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}
                         <input type="radio" name="edgeColor" value="uniform" id="edgecolor" class="edge-color-meta-radio" />
                         <label for="edgecolor">Uniform</label><br>
+                        ${data.getContinuousVariables().map(v => data.getVariableName(v.getVarId())).map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}
+                        
                         <div id="edge-color-picker-insert"></div><br>
-                        <select id="edge-color-dropdown">
-                            <option name="edge-color-dropdown" value="interpolate">Interpolate</option>
-                            <option name="edge-color-dropdown" value="average">Average</option>
-                        </select>
                     </div>
                 </div>
             </div>
@@ -373,10 +241,3 @@ class menu {
         </div>`;
     }
 }
-/* cool but unpolished
-<div class="tooltip">
-        <span class="tooltip-text">
-            This was made by Kieran Walsh and Kamile Taouk.
-        </span>
-    </div>
-*/
