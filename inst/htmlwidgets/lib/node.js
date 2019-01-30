@@ -48,7 +48,7 @@ class node extends Draggable2D {
 	constructor(index, labelText, data, color, parent) {
         super();
         this.index = index;
-        Object.assign(this, data);
+        this.userData = data;
 
         //Create mesh
         var geometry = new THREE.BufferGeometry();
@@ -98,32 +98,14 @@ class node extends Draggable2D {
         this.mesh.geometry.attributes.u.needsUpdate = true;
     }
 
-    setColorPie(values) { //e.g. [0.1, 0.7, 0.2]
-        //Calculate segment colors
+    setColorPie(values) { //e.g. [0.1, 0, 0.7, 0.2]
         let uvs = this.mesh.geometry.attributes.u.array;
-        let currIndex = -1;
-        let currVal = 0;
-        let nextSeg = 0;
-        for(let j=0; j<3 * segments; j++) {
-            if(j >= nextSeg) {
-                currIndex++;
-                currVal = j/3*segments;
-                nextSeg += values[currIndex] * 3 * segments;
+        for(let i=0, index=0, color=0; i<values.length; i++, color+=1/(values.length - 1)) { //-1 due to weird step spacing
+            for(let j=0; j<values[i] * segments * 3; j++, index++) {
+                uvs[index] = color;
             }
-            uvs[j] = currVal;
         }
         this.mesh.geometry.attributes.u.needsUpdate = true;
-
-        //Calculate majority color
-        let maxVal = 0;
-        let maxIndex = 0;
-        for(let i=0; i<values.length; i++) {
-            if(values[i] > maxVal) {
-                maxVal = values[i];
-                maxIndex = i;
-            }
-        }
-        this.color = maxIndex/values.length;
     }
 
     getColor() {
