@@ -100,8 +100,8 @@ class MultiLegend extends Draggable2D {
         this.meshes[0].position.set(-LEGEND_WIDTH/2, 40, 1);
 
         this.setLabelPool(2);
-        this.labels[0].element.textContent = min;
-        this.labels[1].element.textContent = max;
+        this.labels[0].element.textContent = min.toFixed(2);
+        this.labels[1].element.textContent = max.toFixed(2);
 
         this.labels[0].position.set(-LEGEND_WIDTH, -10, 0);
         this.labels[1].position.set(0, -10, 0);

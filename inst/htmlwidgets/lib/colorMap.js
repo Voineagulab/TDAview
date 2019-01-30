@@ -5,7 +5,7 @@ class ColorMap {
 		this.table = new Array(this.n).fill(null);
 
 		this.material.map = new THREE.DataTexture(new Uint8Array(3 * this.n).fill(0), this.n, 1, THREE.RGBFormat);
-		this.material.magFilter = this.material.minFilter = THREE.NearestFilter;
+		this.material.map.magFilter = THREE.LinearFilter;
 		
 		//Event system for updating materials
 		this.eventSystem = new event();

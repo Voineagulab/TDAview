@@ -54,12 +54,7 @@ class link {
         
         var geometry = new THREE.BufferGeometry();
         var indices = new Uint8Array([0, 1, 2, 0, 2, 3]);
-        var vertices = new Float32Array([
-            0.0, 0.0,
-            0.0, 0.0,
-            0.0, 0.0,
-            0.0, 0.0,
-        ]);
+        var vertices = new Float32Array(8).fill(0.0);
 
         var uv = new Float32Array(4).fill(0.0);
 
