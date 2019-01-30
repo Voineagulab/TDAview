@@ -90,41 +90,39 @@ class gradientPicker {
     }
 
     setState(state, count=0) {
-        if(this.state != state) {
-            if(state == STATE_SINGLE) {
-                this.setSelected(undefined);
-                this.hideSteps(this.state == STATE_GRADIENT ? this.steps : this.fixedSteps);
-                this.instruction.innerText = "Select Color:";
-            } else if(state == STATE_GRADIENT) {
-                let i=1;
-                while(this.steps.length < 2) {
-                    let s = this.createStep(this.steps);
-                    this.setStepTranslation(s, CONTAINER_WIDTH/3 * i++);
-                }
-                this.setSelected(this.steps[0]);
-                this.showSteps(this.steps);
-                if(this.state == STATE_FIXED) this.hideSteps(this.fixedSteps);
-                this.instruction.innerText = "Adjust Gradient:";
-            } else {
-                while(this.fixedSteps.length < count) {
-                    this.createStep(this.fixedSteps);
-                }
-                
-                while(this.fixedSteps > count) {
-                    this.destroyStepAt(this.fixedSteps[this.fixedSteps.length - 1]);
-                }
-
-                for(let i=0; i<this.fixedSteps.length; i++) {
-                    this.setStepTranslation(this.fixedSteps[i], CONTAINER_WIDTH/(count+1) * (i+1));
-                }
-                this.setSelected(this.fixedSteps[0])
-                this.showSteps(this.fixedSteps);
-                if(this.state == STATE_GRADIENT) this.hideSteps(this.steps);
-                this.instruction.innerText = "Select Colors:";
+        if(state == STATE_SINGLE) {
+            this.setSelected(undefined);
+            this.hideSteps(this.state == STATE_GRADIENT ? this.steps : this.fixedSteps);
+            this.instruction.innerText = "Select Color:";
+        } else if(state == STATE_GRADIENT) {
+            let i=1;
+            while(this.steps.length < 2) {
+                let s = this.createStep(this.steps);
+                this.setStepTranslation(s, CONTAINER_WIDTH/3 * i++);
             }
-            this.state = state;
-            this.updateBarGradient();
+            this.setSelected(this.steps[0]);
+            this.showSteps(this.steps);
+            if(this.state == STATE_FIXED) this.hideSteps(this.fixedSteps);
+            this.instruction.innerText = "Adjust Gradient:";
+        } else {
+            while(this.fixedSteps.length < count) {
+                this.createStep(this.fixedSteps);
+            }
+            
+            while(this.fixedSteps.length > count) {
+                this.destroyStepAt(this.fixedSteps, this.fixedSteps.length - 1);
+            }
+
+            for(let i=0; i<this.fixedSteps.length; i++) {
+                this.setStepTranslation(this.fixedSteps[i], CONTAINER_WIDTH/(count+1) * (i+1));
+            }
+            this.setSelected(this.fixedSteps[0])
+            this.showSteps(this.fixedSteps);
+            if(this.state == STATE_GRADIENT) this.hideSteps(this.steps);
+            this.instruction.innerText = "Select Colors:";
         }
+        this.state = state;
+        this.updateBarGradient();
         
     }
 
