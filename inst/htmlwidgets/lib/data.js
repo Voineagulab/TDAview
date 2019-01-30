@@ -30,157 +30,108 @@ class Utility {
     }
 }
 
-//Todo: order of categories gets messed up because of maps, store in array for legend
 class Data {
     constructor(mapper, metadata) {
+        this.metadata = metadata;
         this.adjacency = mapper.adjacency;
+        this.maxBinPoints = Utility.Max(mapper.points_in_vertex.map(array => array.length));
         
-        this.variableNames = metadata.map(column => column[0]);
-        this.variableIndices = this.variableNames.reduce((map, name, index) => (map[name] = index, map), {});
+        this.currentIndex = undefined;
+        this.indices = metadata.map(column => column[0]).reduce((map, name, index) => (map[name] = index, map), {});
 
-        this.maxPoints = Utility.Max(mapper.points_in_vertex.map(array => array.length));
-
+        this.variable = new CachedVariable();
+        this.mins = new ContinuousVariable();
+        this.maxs = new ContinuousVariable();
+        
         this.bins = new Array(mapper.num_vertices);
         for(let i=0; i<mapper.num_vertices; i++) {
-            this.bins[i] = new Bin(i, this.getVariableNames().length, mapper.points_in_vertex[i].length);
+            this.bins[i] = new Bin(mapper.points_in_vertex[i]);
         }
-
-        this.variables = new Array(metadata.length);
-        this.continuousMins = new Array(metadata.length);
-        this.continuousMaxs = new Array(metadata.length);
-        for(let i=0; i<metadata.length; i++) {
-            let firstEntry = metadata[i][1];
-            let globalEntries = metadata[i].slice(1);
-            let isCatagorical = isNaN(firstEntry);
-
-            this.variables[i] = isCatagorical ? CategoricalVariable.fromEntries(i, globalEntries) : ContinuousVariable.fromEntries(i, globalEntries);
-            
-            if(!isCatagorical) {
-                this.continuousMins[i] = new ContinuousVariable(i, Infinity, Infinity, Infinity, Infinity);
-                this.continuousMaxs[i] = new ContinuousVariable(i, -Infinity, -Infinity, -Infinity, -Infinity);
-            }
-
-            //Calculate local mins, maxes, means and standard deviates for each bin
-            for(let j=0; j<mapper.num_vertices; j++) {
-                let bin = this.bins[j];
-
-                var localEntries = mapper.points_in_vertex[j].map(value => metadata[i][value]).slice(1); //not -1? k
-                bin.setVariable(i, isCatagorical ? CategoricalVariable.fromEntries(i, localEntries) : ContinuousVariable.fromEntries(i, localEntries));
-
-                if(!isCatagorical) {
-                    let variable = bin.getVariable(i);
-                    this.continuousMins[i].transformProperties(variable, Math.min);
-                    this.continuousMaxs[i].transformProperties(variable, Math.max);
-                }
-            }
-        }
-    }
-
-    getVariables() {
-        return this.variables;
-    }
-
-    getVariableNames() {
-        return this.variableNames;
-    }
-
-    getVariableName(varId) {
-        return this.variableNames[varId];
-    }
-
-    getVariableByName(name) {
-        return this.variables[this.getVariableId(name)];
-    }
-
-    getVariableId(name) {
-        return this.variableIndices[name];
-    }
-
-    getVariableById(varId) {
-        return this.variables[varId];
-    }
-
-    getBins() {
-        return this.bins;
-    }
-
-    getBinById(binId) {
-        return this.bins[binId];
+        console.log(this)
     }
 
     getAdjacency() {
         return this.adjacency;
     }
 
-    getContinuousMin(name, value) {
-        return this.continuousMins[this.getVariableId(name)][value];
+    getBins() {
+        return this.bins;
     }
 
-    getContinuousMax(name, value) {
-        return this.continuousMaxs[this.getVariableId(name)][value];
+    loadVariable(name) {
+        let index = this.metadata.findIndex(col => col[0] === name);
+        if(index >= 0 && index !== this.currentIndex) {
+            this.currentIndex = index;
+            this.variable.setIsCategorical(isNaN(this.metadata[index][1]));
+            if(this.variable.getIsCategorical()) {
+                this.variable.getCategorical().setFromEntries(this.metadata[index].slice(1));
+                for(let i=0; i<this.bins.length; i++) {
+                    let entries = this.bins[i].points.map(value => this.metadata[index][value]).slice(1);
+                    this.bins[i].getCategorical().setFromEntries(entries);
+                }
+            } else {
+                this.variable.getContinuous().setFromEntries(this.metadata[index].slice(1));
+                this.mins.setProperties(Infinity, Infinity, Infinity, Infinity);
+                this.maxs.setProperties(-Infinity, -Infinity, -Infinity, -Infinity);
+                for(let i=0; i<this.bins.length; i++) {
+                    let localVariable = this.bins[i].getContinuous();
+                    localVariable.setFromEntries(this.bins[i].points.map(value => this.metadata[index][value]).slice(1));
+                    this.mins.transformProperties(localVariable, Math.min);
+                    this.maxs.transformProperties(localVariable, Math.max);
+                }
+            }
+        }
+        console.log(this);
     }
 
-    getContinuousBinVariableValue(bin, variableName, valueName) {
-        return bin.variables[this.getVariableId(variableName)].getValue(valueName);
+    getContinuousNormalised(bin, property) {
+        return Utility.Normalised(bin.getContinuous()[property], this.mins[property], this.maxs[property]);
     }
 
-    getContinuousBinVariableValueNormalised(bin, variableName, valueName) {
-        return Utility.Normalised(this.getContinuousBinVariableValue(bin, variableName, valueName), this.getContinuousMin(variableName, valueName), this.getContinuousMax(variableName, valueName));
+    getContinuousMin(property) {
+        return this.mins[property];
+    }   
+
+    getContinuousMax(property) {
+        return this.maxs[property];
     }
 
-    getCategoricalBinVariableCount(bin, variableName, category) {
-        return bin.getVariable(this.getVariableId(variableName)).getCount(category);
+    getPointsNormalised(bin) {
+        return bin.getPointCount() / this.maxBinPoints;
     }
 
-    getCategoricalBinVariableCategories(bin, variableName) {
-        return bin.getVariable(this.getVariableId(variableName)).getCategories();
+    getVariable() {
+        return this.variable;
     }
 
-    getCategoricalBinVariableValues(bin, variableName) {
-        return bin.getVariable(this.getVariableId(variableName)).getValues();
+    getVariableNames() {
+        return this.metadata.map(column => column[0]);
     }
 
-    getBinVariable(bin, variableName) {
-        return bin.getVariable(this.getVariableId(variableName));
-    }
-    
-    getBinPointsNormalised(bin) {
-        return bin.pointCount / this.maxPoints;
+    getContinuousNames() {
+        return this.getVariableNames().filter(name => !isNaN(name));
     }
 
-    getCategoricalVariables() {
-        return this.getVariables().filter(v => v instanceof  CategoricalVariable);
+    getCategoricalNames() {
+        return this.getVariableNames().filter(name => isNaN(name));
     }
-
-    getContinuousVariables() {
-        return this.getVariables().filter(v => v instanceof  ContinuousVariable);
-    }
-
-    
 }
 
 
-class Variable {
-    constructor(varId) {
-        this.varId = varId;
+class ContinuousVariable {
+    constructor(min=0, max=0, mean=0, sd=0) {
+        this.setProperties(min, max, mean, sd);
     }
 
-    getVarId() {
-        return this.varId;
+    setFromEntries(entries) {
+        this.setProperties(Utility.Min(entries), Utility.Max(entries), Utility.Mean(entries), Utility.SD(entries));
     }
-}
 
-class ContinuousVariable extends Variable {
-    constructor(varId, min, max, mean, sd) {
-        super(varId);
-        this.min = min; 
-        this.max = max;
+    setProperties(min, max, mean, sd) {
+        this.min = min;
+        this.max = max; 
         this.mean = mean;
         this.sd = sd;
-    }
-
-    static fromEntries(varId, entries) {
-        return new ContinuousVariable(varId, Utility.Min(entries), Utility.Max(entries), Utility.Mean(entries), Utility.SD(entries));
     }
 
     transformProperties(variable, func) {
@@ -189,25 +140,25 @@ class ContinuousVariable extends Variable {
         this.mean = func(this.mean, variable.mean);
         this.sd = func(this.sd, variable.sd);
     }
-    
-    getValue(value) {
-        return this[value];
-    }
 }
 
-class CategoricalVariable extends Variable {
-    constructor(varId, counts, sum) {
-        super(varId);
+class CategoricalVariable {
+    constructor(counts=undefined, sum=undefined) {
         this.counts = counts;
         this.sum = sum;
     }
 
-    static fromEntries(varId, entries) {
+    setFromEntries(entries) {
         var counts = {};
         for(let i=0; i<entries.length; i++) {
             counts[entries[i]] = (counts[entries[i]] || 0) + 1;
         }
-        return new CategoricalVariable(varId, counts, entries.length);
+        this.setProperties(counts, entries.length);
+    }
+
+    setProperties(counts, sum) {
+        this.counts = counts;
+        this.sum = sum;
     }
 
     getCount(category) {
@@ -229,28 +180,43 @@ class CategoricalVariable extends Variable {
     getValuesNormalised() {
         return Object.values(this.counts).map(value => value / this.sum);
     }
+}
 
-    getNonZeroCategories() {
-        return Object.keys(this.counts).filter(k => this.counts[k]);
+class CachedVariable {
+    constructor() {
+        this.isCatagorical = undefined;
+        this.continuous = new ContinuousVariable();
+        this.categorical = new CategoricalVariable();
+    }
+
+    getActive() {
+        return this.isCatagorical ? this.categorical : this.continuous;
+    }
+
+    setIsCategorical(isCatagorical) {
+        this.isCatagorical = isCatagorical;
+    }
+
+    getIsCategorical() {
+        return this.isCatagorical;
+    }
+
+    getCategorical() {
+        return this.categorical;
+    }
+
+    getContinuous() {
+        return this.continuous;
     }
 }
 
-class Bin {
-    constructor(binId, variableCount, pointCount) {
-        this.binId = binId;
-        this.pointCount = pointCount;
-        this.variables = new Array(variableCount);
-    }
-
-    setVariable(varId, variable) {
-        this.variables[varId] = variable;
-    }
-
-    getVariable(varId) {
-        return this.variables[varId];
+class Bin extends CachedVariable {
+    constructor(points) {
+        super();
+        this.points = points;
     }
 
     getPointCount() {
-        return this.pointCount;
+        return this.points.length;
     }
 }

@@ -126,7 +126,7 @@ class menu {
                                 <th>Mean</th>
                                 <th>Points</th>
                             </tr>
-                            ${data.getVariables().map(v => `<tr><th>${data.getVariableName(v.getVarId())}</th><td>-</td><td>-</td></tr>`).join('')}
+                            ${data.getVariableNames().map(v => `<tr><th>${v}</th><td>-</td><td>-</td></tr>`).join('')}
                         </tbody>
                         </table><br>
                         <!-- a href="#" class="myButton" id="expand-table">Expand table</a -->
@@ -142,7 +142,7 @@ class menu {
                         <label for="nonesize">Uniform</label><br>
                         <input type="radio" name="nodesize" value="content" id="contentsize" />
                         <label for="contentsize">Points</label><br>
-                        ${data.getContinuousVariables().map(v => data.getVariableName(v.getVarId())).map(v => `<input type="radio" name="nodesize" value="${v}" id="${v}size"/><label for="${v}size">${v}</label><br>`).join('')}
+                        ${data.getContinuousNames().map(v => `<input type="radio" name="nodesize" value="${v}" id="${v}size"/><label for="${v}size">${v}</label><br>`).join('')}
                         
                         </form>
                     </div>
@@ -188,7 +188,7 @@ class menu {
                         <label for="edgecolornode">Use Node Colors</label><br>
                         <input type="radio" name="edgeColor" value="uniform" id="edgecolor" class="edge-color-meta-radio" />
                         <label for="edgecolor">Uniform</label><br>
-                        ${data.getContinuousVariables().map(v => data.getVariableName(v.getVarId())).map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}
+                        ${data.getContinuousNames().map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}
                         
                         <div id="edge-color-picker-insert"></div><br>
                     </div>

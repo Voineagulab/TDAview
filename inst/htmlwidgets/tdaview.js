@@ -82,8 +82,8 @@ HTMLWidgets.widget({
 				sidebar.eventSystem.addEventListener("OnNodeSizeChange", function(value) {
 					switch(value) {
 						case "none": graph.nodes.forEach(n => n.setRadius(0.5)); break;
-						case "content": graph.nodes.forEach(n => n.setRadius(data.getBinPointsNormalised(n.userData))); break;
-						default: graph.nodes.forEach(n => n.setRadius(data.getContinuousBinVariableValueNormalised(n.userData, value, "mean")));
+						case "content": graph.nodes.forEach(n => n.setRadius(data.getPointsNormalised(n.userData))); break;
+						default: graph.nodes.forEach(n => n.setRadius(data.getContinuousNormalised(n.userData, "mean")));
 					}
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;
@@ -108,18 +108,19 @@ HTMLWidgets.widget({
 						if(shouldShareMap) graph.links.forEach(l => l.setColor(0.5));
 						nodeLegend.setNone();
 					} else {
-						let variable = data.getVariableByName(value);
+						data.loadVariable(value);
+						let variable = data.getVariable().getActive();
 						if(variable instanceof ContinuousVariable) {
 							sidebar.nodeGradPicker.setState(STATE_GRADIENT);
-							graph.nodes.forEach(n => n.setColor(data.getContinuousBinVariableValueNormalised(n.userData, value, "mean")));
-							nodeLegend.setBar(data.getContinuousMin(value, "mean"), data.getContinuousMax(value, "mean"));
+							graph.nodes.forEach(n => n.setColor(data.getContinuousNormalised(n.userData, "mean")));
+							nodeLegend.setBar(data.getContinuousMin("mean"), data.getContinuousMax("mean"));
 							if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
 						} else {
 							let categories = variable.getCategories();
 							sidebar.nodeGradPicker.setState(STATE_FIXED, categories.length);
 
 							for(let i=0; i<graph.nodes.length; i++) {
-								graph.nodes[i].setColorPie(data.getBinVariable(graph.nodes[i].userData, value).getValuesNormalised());
+								graph.nodes[i].setColorPie(graph.nodes[i].userData.getCategorical().getValuesNormalised());
 							}
 
 							if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes()); //Setting gradient makes no sense for pie uvs when there are more than 2 slices!
@@ -129,8 +130,6 @@ HTMLWidgets.widget({
 					if(shouldShareMap) graph.links.forEach(l => l.updateColor());
 					shouldPaint = true;
 				});
-
-				/*----------Edge Width----------*/
 
 				//Change edge width
 				sidebar.eventSystem.addEventListener("OnEdgeWidthChange", function(percent) {
