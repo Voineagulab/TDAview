@@ -83,11 +83,14 @@ HTMLWidgets.widget({
 					switch(value) {
 						case "none": graph.nodes.forEach(n => n.setRadius(0.5)); break;
 						case "content": graph.nodes.forEach(n => n.setRadius(data.getPointsNormalised(n.userData))); break;
-						default: {
-							data.loadVariable(value);
-							graph.nodes.forEach(n => n.setRadius(data.getContinuousNormalised(n.userData, "mean")));
-						}
 					}
+					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
+					shouldPaint = true;
+				});
+
+				sidebar.eventSystem.addEventListener("OnNodeSizeVariableChange", function(value) {
+					data.loadVariable(value);
+					graph.nodes.forEach(n => n.setRadius(data.getContinuousNormalised(n.userData, "mean")));
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
 					shouldPaint = true;
 				});
@@ -110,25 +113,29 @@ HTMLWidgets.widget({
 						sidebar.nodeGradPicker.setState(STATE_SINGLE);
 						if(shouldShareMap) graph.links.forEach(l => l.setColor(0.5));
 						nodeLegend.setNone();
+					}
+					if(shouldShareMap) graph.links.forEach(l => l.updateColor());
+					shouldPaint = true;
+				});
+
+				sidebar.eventSystem.addEventListener("OnNodeColorVariableChange", function(value) {
+					data.loadVariable(value);
+					let cachedVariable = data.getVariable();
+					if(!cachedVariable.getIsCategorical()) {
+						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
+						graph.nodes.forEach(n => n.setColor(data.getContinuousNormalised(n.userData, "mean")));
+						nodeLegend.setBar(data.getContinuousMin("mean"), data.getContinuousMax("mean"));
+						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
 					} else {
-						data.loadVariable(value);
-						let variable = data.getVariable().getActive();
-						if(variable instanceof ContinuousVariable) {
-							sidebar.nodeGradPicker.setState(STATE_GRADIENT);
-							graph.nodes.forEach(n => n.setColor(data.getContinuousNormalised(n.userData, "mean")));
-							nodeLegend.setBar(data.getContinuousMin("mean"), data.getContinuousMax("mean"));
-							if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
-						} else {
-							let categories = variable.getCategories();
-							sidebar.nodeGradPicker.setState(STATE_FIXED, categories.length);
+						let categories = cachedVariable.getCategorical().getCategories();
+						sidebar.nodeGradPicker.setState(STATE_FIXED, categories.length);
 
-							for(let i=0; i<graph.nodes.length; i++) {
-								graph.nodes[i].setColorPie(graph.nodes[i].userData.getCategorical().getValuesNormalised());
-							}
-
-							if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes()); //Setting gradient makes no sense for pie uvs when there are more than 2 slices!
-							nodeLegend.setPie(categories, categories.length);
+						for(let i=0; i<graph.nodes.length; i++) {
+							graph.nodes[i].setColorPie(graph.nodes[i].userData.getCategorical().getValuesNormalised());
 						}
+
+						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes()); //Setting gradient makes no sense for pie uvs when there are more than 2 slices!
+						nodeLegend.setPie(categories, categories.length);
 					}
 					if(shouldShareMap) graph.links.forEach(l => l.updateColor());
 					shouldPaint = true;

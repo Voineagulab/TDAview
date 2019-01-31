@@ -187,10 +187,6 @@ class CachedVariable {
         this.categorical = new CategoricalVariable();
     }
 
-    getActive() {
-        return this.isCatagorical ? this.categorical : this.continuous;
-    }
-
     setIsCategorical(isCatagorical) {
         this.isCatagorical = isCatagorical;
     }

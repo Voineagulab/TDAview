@@ -35,22 +35,62 @@ class menu {
 			var acc = document.getElementById("node-data").parentNode;
 			acc.setAttribute("class", "accordion-item close");
             //TODO -- Close enlarged table - closes on selecting another node
-		});
+        });
+        
+        function ValidateSizeVariableChange() {
+            //Enforce values are on list and trigger event
+            sizedatainput.value;
+            if(data.getContinuousNames().indexOf(sizedatainput.value) < 0) {
+                sizedatainput.value = "";
+            } else {
+                self.eventSystem.invokeEvent("OnNodeSizeVariableChange", sizedatainput.value);
+            }
+        }
 
         //Node size events
-        var sizeradios = document.forms["node-size-meta"].elements["nodesize"];
+        var sizeradios = document.getElementsByName("nodesize");
+        var sizedatainput = document.getElementById("continuoussizeinput");
+        sizedatainput.onchange = ValidateSizeVariableChange;
+        
         for(let i=0; i<sizeradios.length; i++) {
             sizeradios[i].onclick = function() {
                 self.eventSystem.invokeEvent("OnNodeSizeChange", this.value);
+                if(this.value !== "continuous") {
+                    sizedatainput.disabled = true;
+                } else {
+                    sizedatainput.disabled = false;
+                    ValidateSizeVariableChange();
+                }
+            }
+        }
+
+        function ValidateColorVariableChange() {
+            console.log("hi")
+            //Enforce values are on list and trigger event
+            nodeColorDataInput.value;
+            if(data.getVariableNames().indexOf(nodeColorDataInput.value) < 0) {
+                nodeColorDataInput.value = "";
+            } else {
+                self.eventSystem.invokeEvent("OnNodeColorVariableChange", nodeColorDataInput.value);
             }
         }
 
         //Node color events
         this.nodeGradPicker = new gradientPicker(document.getElementById("node-color-picker-insert"));
-        var nodeColorMetaRadios = document.getElementsByClassName("node-color-meta-radio");
+        var nodeColorMetaRadios = document.getElementsByName("nodecolor");
+        var nodeColorDataInput = document.getElementById("variablecolorinput");
+        nodeColorDataInput.onchange = ValidateColorVariableChange;
+
         for(let i=0; i<nodeColorMetaRadios.length; i++) {
             nodeColorMetaRadios[i].onclick = function() {
                 self.eventSystem.invokeEvent("OnNodeColorChange", this.value);
+                console.log(this.value);
+                if(this.value !== "variable") {
+                    nodeColorDataInput.disabled = true;
+                } else {
+                    nodeColorDataInput.disabled = false;
+                    ValidateColorVariableChange();
+                }
             };
         }
 
@@ -137,22 +177,32 @@ class menu {
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Node Radius</h4>
                     <div id="node-size" class="accordion-item-content">
-                        <form name="node-size-meta">
                         <input type="radio" name="nodesize" value="none" id="nonesize" checked/>
                         <label for="nonesize">Uniform</label><br>
                         <input type="radio" name="nodesize" value="content" id="contentsize" />
                         <label for="contentsize">Points</label><br>
-                        ${data.getContinuousNames().map(v => `<input type="radio" name="nodesize" value="${v}" id="${v}size"/><label for="${v}size">${v}</label><br>`).join('')}
-                        
-                        </form>
+                        <input type="radio" name="nodesize" value="continuous" id="continuoussize" />
+                        <label for="continuoussize">Variable</label><br>
+                        <input placeholder="Select:" list="continuoussizedatalist" name="continuoussizeinput" id="continuoussizeinput" autocomplete="off" disabled>
+                        <br>
+                        <datalist id="continuoussizedatalist">
+                        ${data.getContinuousNames().map(v => `<option value="${v}">`).join('')}
+                        </datalist>
                     </div>
                 </div>
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Node Color</h4>
                     <div id="node-color" class="accordion-item-content">
-                    <input type="radio" name="nodeColor" value="uniform" id="nodecolor" class="node-color-meta-radio" checked/>
-                    <label for="nodecolor">Uniform</label><br>
-                    ${data.getVariableNames().map(v => `<input type="radio" name="nodeColor" value="${v}" id="${v}nodecolor" class="node-color-meta-radio"/><label for="${v}nodecolor">${v}</label><br>`).join('')}
+                    <input type="radio" name="nodecolor" value="uniform" id="nodecoloruniform" checked/>
+                    <label for="nodecoloruniform">Uniform</label><br>
+                    <input type="radio" name="nodecolor" value="variable" id="nodecolorvariable"/>
+                    <label for="nodecolorvariable">Variable</label><br>
+                    <input placeholder="Select:" list="variablecolordatalist" name="variablecolorinput" id="variablecolorinput" autocomplete="off" disabled>
+                    <br>
+                    <datalist id="variablecolordatalist">
+                    ${data.getVariableNames().map(v => `<option value="${v}">`).join('')}
+                    </datalist>
+                    <br>
                     <div id="node-color-picker-insert"></div>
                     </div>
                 </div>
@@ -235,9 +285,6 @@ class menu {
                     </div>
                 </div>
             </div>
-
-            
-
         </div>`;
     }
 }
