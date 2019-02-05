@@ -12,14 +12,15 @@ class node extends Draggable2D {
                 "",
                 "uniform mat4 modelViewMatrix;",
                 "uniform mat4 projectionMatrix;",
+                "uniform sampler2D nodetex;",
                 "",
                 "attribute vec2 position;",
                 "attribute float u;",
-                "varying float vU;",
+                "varying vec4 vCol;",
                 "",
                 "void main() {",
                 "",
-                "   vU = u;",
+                "   vCol = texture2D( nodetex, vec2 ( u, 0.0 ) );",
                 "   gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position , 0.0, 1.0 );",
                 "",
                 "}"
@@ -27,17 +28,17 @@ class node extends Draggable2D {
             fragmentShader: [
                 "precision highp float;",
                 "",
-                "uniform sampler2D nodetex;",
-                "varying float vU;",
+                "varying vec4 vCol;",
                 "",
                 "void main() {",
                 "",
-                "    gl_FragColor = texture2D( nodetex, vec2 ( vU, 0.0 ) );",
+                "    gl_FragColor = vCol;",
                 "",
                 "}"
                 ].join("\n"),
             side: THREE.DoubleSide,
-            transparent: false
+            transparent: false,
+            vertexColors: THREE.VertexColors
         });
     }
 
@@ -100,11 +101,19 @@ class node extends Draggable2D {
 
     setColorPie(values) { //e.g. [0.1, 0, 0.7, 0.2]
         let uvs = this.mesh.geometry.attributes.u.array;
+        let maxVal = -Infinity;
+        let maxCol = 0.0;
         for(let i=0, index=0, color=0; i<values.length; i++, color+=1/(values.length - 1)) { //-1 due to weird step spacing
             for(let j=0; j<values[i] * segments * 3; j++, index++) {
                 uvs[index] = color;
             }
+
+            if(values[i] > maxVal) {
+                maxCol = color;
+                maxVal = values[i];
+            }
         }
+        this.color = maxCol;
         this.mesh.geometry.attributes.u.needsUpdate = true;
     }
 

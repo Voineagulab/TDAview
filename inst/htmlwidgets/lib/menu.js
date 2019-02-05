@@ -213,7 +213,7 @@ class menu {
                         <input type="radio" name="labeltype" value="name" id="name" checked />
                         <label for="name">Name</label><br>
                         <input type="radio" name="labeltype" value="size" id="size">
-                        <label for="size">Size</label><br>
+                        <label for="size">Points</label><br>
                         <input type="radio" name="labeltype" value="none" id="none">
                         <label for="none">None</label>
                         </form>

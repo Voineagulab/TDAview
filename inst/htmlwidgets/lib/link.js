@@ -11,14 +11,15 @@ class link {
                 "",
                 "uniform mat4 modelViewMatrix;",
                 "uniform mat4 projectionMatrix;",
+                "uniform sampler2D linktex;",
                 "",
                 "attribute vec2 position;",
                 "attribute float u;",
-                "varying float vU;",
+                "varying vec4 vColor;",
                 "",
                 "void main() {",
                 "",
-                "   vU = u;",
+                "   vColor = texture2D( linktex, vec2 ( u, 0.0 ) );",
                 "	gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position, -2.0, 1.0 );",
                 "",
                 "}"
@@ -26,17 +27,17 @@ class link {
             fragmentShader: [
                 "precision highp float;",
                 "",
-                "uniform sampler2D linktex;",
-                "varying float vU;",
+                "varying vec4 vColor;",
                 "",
                 "void main() {",
                 "",
-                "   gl_FragColor = texture2D( linktex, vec2 ( vU, 0.0 ) );",
+                "   gl_FragColor = vColor;",
                 "",
                 "}"
                 ].join("\n"),
             side: THREE.DoubleSide,
-            transparent: false
+            transparent: false,
+            vertexColors: THREE.VertexColors
         });
     }
 
