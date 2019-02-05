@@ -7,7 +7,7 @@ const STATE_SINGLE = 1;
 const STATE_GRADIENT = 2;
 const STATE_FIXED = 3;
 
-const CONTAINER_WIDTH = 185;
+const CONTAINER_WIDTH = 184;
 const BAR_WIDTH = 160;
 const STEP_WIDTH = 5;
 
