@@ -31,6 +31,35 @@ class Utility {
 }
 
 class Data {
+    static generateRandom() {
+        var mapper = {};
+        mapper.num_vertices = 1000;
+        mapper.adjacency = new Array(mapper.num_vertices);
+        mapper.points_in_vertex = new Array(mapper.num_vertices);
+        var num_points = mapper.num_vertices * 20;
+        var intake = new Array(num_points+1);
+        intake[0] = "Intake";
+        var condition = new Array(num_points+1);
+        condition[0] = "Condition";
+        var condition_categories = ["None", "Mild", "Moderate", "Severe"];
+        for(let i=0; i<mapper.adjacency.length; i++) {
+            mapper.adjacency[i] = new Array(mapper.num_vertices);
+            for(let j=0; j<mapper.adjacency[i].length; j++) {
+                mapper.adjacency[i][j] = Math.round(Math.random()*0.500525);
+            }
+            intake[i+1] = Math.random();
+            condition[i+1] = condition_categories[Math.floor(Math.random() * (condition_categories.length-1))];
+            mapper.points_in_vertex[i] = [i+1];
+        }
+
+        for(let i=mapper.num_vertices; i<num_points; i++) {
+            intake[i+1] = Math.random();
+            condition[i+1] = condition_categories[Math.round(Math.random() * (condition_categories.length-1))];
+            mapper.points_in_vertex[Math.round(Math.random() * (mapper.num_vertices-1)) ].push(i+1);
+        }
+        return new Data(mapper, [intake, condition]);
+    }
+
     constructor(mapper, metadata) {
         this.metadata = metadata;
         this.adjacency = mapper.adjacency;
