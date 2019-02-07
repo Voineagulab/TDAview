@@ -31,7 +31,7 @@ devtools::install_github("paultpearson/TDAmapper")
 library(TDAmapper)
 
 First.Example.data = data.frame(x = 2*cos(0.5*(1:100)), y=sin(1:100))
-First.Example.meta = c(sprintf("Positive", 1:50), sprintf("Negative", 1:50))
+First.Example.meta = c(c("Treatment", sprintf("Positive", 1:50), sprintf("Negative", 1:50)))
 First.Example.filter = First.Example.data$x
 First.Example.dist = dist(First.Example.data)
 
