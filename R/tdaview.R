@@ -7,7 +7,7 @@
 #' @param metadata single list of ordered categorical variables as strings
 #' @param labels single list of ordered node labels as strings
 #' @export
-tdaview <- function(mapper, metadata, labels, width = NULL, height = NULL, elementId = NULL) {
+tdaview <- function(mapper, metadata, labels = NULL, width = NULL, height = NULL, elementId = NULL) {
   # create widget
   htmlwidgets::createWidget(
     name = 'tdaview',

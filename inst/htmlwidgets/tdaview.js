@@ -48,8 +48,8 @@ HTMLWidgets.widget({
 
 				//Parse imported data
 				var data = new Data(x.mapper, x.metadata);
-				var metaVars = data.getVariableNames();
-
+				//var data = Data.generateRandom();
+				
 				//Create maps and legends
 				var nodeMap = new ColorMap('rainbow', 256);
 				nodeLegend = new MultiLegend(nodeMap, hudScene, hudCamera.right, hudCamera.bottom, aspect/2);
@@ -58,7 +58,7 @@ HTMLWidgets.widget({
 				edgeLegend = new MultiLegend(edgeMap, hudScene, hudCamera.right, hudCamera.bottom + 80, aspect/2);
 
 				//Create graph with point count radius initially
-				var graph = new forceGraph(data.getBins(), data.getAdjacency(), x.labels, nodeMap, shouldShareMap ? nodeMap : edgeMap);
+				var graph = new forceGraph(data.getBins(), data.getAdjacency(), new Array(100).fill(""), nodeMap, shouldShareMap ? nodeMap : edgeMap);
 				for(let i=0; i<graph.nodes.length; i++) {
 					graph.nodes[i].setRadius(0.5);
 				}

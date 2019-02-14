@@ -45,4 +45,4 @@ dependencies:
       - menu.js
       - gradientPicker.js
       - multiLegend.js
-      - parser.js
+      - data.js

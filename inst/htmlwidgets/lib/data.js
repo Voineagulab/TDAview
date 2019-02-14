@@ -33,48 +33,58 @@ class Utility {
 class Data {
     static generateRandom() {
         var mapper = {};
-        mapper.num_vertices = 1000;
+        var metadata = {};
+        mapper.num_vertices = 10000;
         mapper.adjacency = new Array(mapper.num_vertices);
         mapper.points_in_vertex = new Array(mapper.num_vertices);
         var num_points = mapper.num_vertices * 20;
-        var intake = new Array(num_points+1);
-        intake[0] = "Intake";
-        var condition = new Array(num_points+1);
-        condition[0] = "Condition";
+        metadata.Intake = new Array(num_points);
+        metadata.Condition = new Array(num_points);
         var condition_categories = ["None", "Mild", "Moderate", "Severe"];
         for(let i=0; i<mapper.adjacency.length; i++) {
             mapper.adjacency[i] = new Array(mapper.num_vertices);
             for(let j=0; j<mapper.adjacency[i].length; j++) {
-                mapper.adjacency[i][j] = Math.round(Math.random()*0.500525);
+                mapper.adjacency[i][j] = Math.round(Math.random()*0.50004);
             }
-            intake[i+1] = Math.random();
-            condition[i+1] = condition_categories[Math.floor(Math.random() * (condition_categories.length-1))];
+            metadata.Intake[i] = Math.random();
+            metadata.Condition[i] = condition_categories[Math.floor(Math.random() * (condition_categories.length-1))];
             mapper.points_in_vertex[i] = [i+1];
         }
 
         for(let i=mapper.num_vertices; i<num_points; i++) {
-            intake[i+1] = Math.random();
-            condition[i+1] = condition_categories[Math.round(Math.random() * (condition_categories.length-1))];
+            metadata.Intake[i] = Math.random();
+            metadata.Condition[i] = condition_categories[Math.round(Math.random() * (condition_categories.length-1))];
             mapper.points_in_vertex[Math.round(Math.random() * (mapper.num_vertices-1)) ].push(i+1);
         }
-        return new Data(mapper, [intake, condition]);
+        return new Data(mapper, metadata);
     }
 
     constructor(mapper, metadata) {
         this.metadata = metadata;
         this.adjacency = mapper.adjacency;
-        this.maxBinPoints = Utility.Max(mapper.points_in_vertex.map(array => array.length));
-        
-        this.currentIndex = undefined;
-        this.indices = metadata.map(column => column[0]).reduce((map, name, index) => (map[name] = index, map), {});
+        this.maxBinPoints = Utility.Max(mapper.points_in_vertex.map(obj => Object.keys(obj).length));
 
+        this.name = undefined;
         this.variable = new CachedVariable();
         this.mins = new ContinuousVariable();
         this.maxs = new ContinuousVariable();
-        
+
+        //Create bins for each node
         this.bins = new Array(mapper.num_vertices);
         for(let i=0; i<mapper.num_vertices; i++) {
-            this.bins[i] = new Bin(mapper.points_in_vertex[i]);
+            this.bins[i] = new Bin(Object.values(mapper.points_in_vertex[i]).map(index => index - 1));
+        }
+
+        //Determine defined types of variables
+        this.isNaN = {};
+        for(var key in metadata) {
+            let data = this.metadata[key];
+            for(let i=0; i<data.length; i++) {
+                if(data[i] !== null) {
+                    this.isNaN[key] = isNaN(data[i]);
+                    break;
+                }
+            }
         }
     }
 
@@ -87,28 +97,28 @@ class Data {
     }
 
     loadVariable(name) {
-        let index = this.metadata.findIndex(col => col[0] === name);
-        if(index >= 0 && index !== this.currentIndex) {
-            this.currentIndex = index;
-            this.variable.setIsCategorical(isNaN(this.metadata[index][1]));
+        if(this.metadata.hasOwnProperty(name) && name !== this.name) {
+            this.name = name;
+            this.variable.setIsCategorical(this.isNaN[name]);
             if(this.variable.getIsCategorical()) {
-                this.variable.getCategorical().setFromEntries(this.metadata[index].slice(1));
+                this.variable.getCategorical().setFromEntries(this.metadata[name]);
                 for(let i=0; i<this.bins.length; i++) {
-                    let entries = this.bins[i].points.map(value => this.metadata[index][value]).slice(1);
+                    let entries = this.bins[i].points.map(value => this.metadata[name][value]);
                     this.bins[i].getCategorical().setFromEntries(entries);
                 }
             } else {
-                this.variable.getContinuous().setFromEntries(this.metadata[index].slice(1));
+                this.variable.getContinuous().setFromEntries(this.metadata[name]);
                 this.mins.setProperties(Infinity, Infinity, Infinity, Infinity);
                 this.maxs.setProperties(-Infinity, -Infinity, -Infinity, -Infinity);
                 for(let i=0; i<this.bins.length; i++) {
                     let localVariable = this.bins[i].getContinuous();
-                    localVariable.setFromEntries(this.bins[i].points.map(value => this.metadata[index][value]).slice(1));
+                    localVariable.setFromEntries(this.bins[i].points.map(value => this.metadata[name][value]));
                     this.mins.transformProperties(localVariable, Math.min);
                     this.maxs.transformProperties(localVariable, Math.max);
                 }
             }
         }
+        
     }
 
     getContinuousNormalised(bin, property) {
@@ -132,15 +142,15 @@ class Data {
     }
 
     getVariableNames() {
-        return this.metadata.map(column => column[0]);
+        return Object.keys(this.metadata);
     }
 
     getContinuousNames() {
-        return this.metadata.map(column => column[0]).filter((name, index) => !isNaN(this.metadata[index][1]));
+        return this.getVariableNames().filter(name => this.isNaN[name] === false);
     }
 
     getCategoricalNames() {
-        return this.metadata.map(column => column[0]).filter((name, index) => isNaN(this.metadata[index][1]));
+        return this.getVariableNames().filter(name => this.isNaN[name] === true);
     }
 }
 
