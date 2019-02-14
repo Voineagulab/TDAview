@@ -69,9 +69,9 @@ class forceGraph extends THREE.Group {
 
         //Initiallise simulation
         this.simulation = d3.forceSimulation(this.nodes)
-            .force("link", d3.forceLink(this.links).strength(20 * 1/this.links.length))
+            .force("link", d3.forceLink(this.links).strength(10 * 1/this.links.length))
             .force('center', d3.forceCenter())
-            .force("charge", d3.forceManyBody().strength(-200).distanceMax(100).distanceMin(10))
+            .force("charge", d3.forceManyBody().strength(-150).distanceMax(100).distanceMin(10))
             .on("tick", function() {
                 this.eventSystem.invokeEvent("onTick");
             }.bind(this))
