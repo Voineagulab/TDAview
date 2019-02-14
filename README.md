@@ -7,7 +7,7 @@ A graph visualisation tool targeted at persistent homology applications, focusin
   - Control over colour, size and width for nodes and edges with real-time updates
   - Publishing results
 
-![alt-text](https://github.com/ktaouk1/TDAView/raw/master/src/TDAViewExample.PNG "Example Pic")
+![alt-text](https://github.com/ktaouk1/TDAView/raw/master/example.png "Example Pic")
 
 
 # Getting Started
