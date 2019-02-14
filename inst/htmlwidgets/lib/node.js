@@ -64,6 +64,19 @@ class node extends Draggable2D {
             vertices[j+5] = Math.cos(theta);
         }
 
+        //Calculate indices to skip triangles for a given level of detal from 0 to sqrt(segments)
+        var lod = 0; //lod <= sqrt(segments / 4) i.e. a square
+        var stride = 3 * Math.pow(2, lod) - 1;
+        var indices = new Array(3*segments).fill(0);
+        for(let i=0, j=0; j<3*segments; i+=3, j++) {
+            indices[i] = j;
+            indices[i+1] = j+1;
+            j += stride;
+            indices[i+2] = j;
+        }
+        
+        geometry.setIndex(indices);
+
         var uvs = new Float32Array(3 * segments).fill(color);
 
         geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2).setDynamic(true));
@@ -78,9 +91,9 @@ class node extends Draggable2D {
         var nodeDiv = document.createElement('div');
         nodeDiv.className = 'unselectable label nlabel';
         nodeDiv.textContent = labelText;
-        this.label = new THREE.CSS2DObject(nodeDiv);
-        this.mesh.add(this.label);
-        this.label.position.setY(1);
+        //this.label = new THREE.CSS2DObject(nodeDiv);
+        //this.mesh.add(this.label);
+        //this.label.position.setY(1);
 
         this.setRadius(1, 0, 1);
         this.setColor(color);
@@ -88,7 +101,7 @@ class node extends Draggable2D {
         parent.add(this.mesh);
     }
 
-    setRadius(value, min=5, max=50)  {
+    setRadius(value, min=2, max=8)  {
         this.r = value * (max - min) + min;
         this.mesh.scale.set(this.r, this.r, 1);
     }
