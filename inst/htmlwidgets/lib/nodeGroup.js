@@ -1,4 +1,4 @@
-const MAX_LOD_ZOOM = 40;
+const MAX_LOD_ZOOM = 50;
 const MIN_LOD_ZOOM = 0.1;
 
 class NodeGroup {
@@ -63,6 +63,7 @@ class NodeGroup {
             vertices[j+5] = Math.cos(theta);
         }
 
+        //TODO: Create all LOD possibilities and update buffer range - or use stride?
         let ids = new Float32Array(3 * segments);
         for(let i=0, j=0; i<segments; i++, j+=3) {
             ids[j] = ids[j+1] = ids[j+2] = i;
@@ -70,9 +71,22 @@ class NodeGroup {
 
         geometry.addAttribute("face_id", new THREE.BufferAttribute(ids, 1));
         geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2));
-        
-        var indices = new Array(3*segments).fill(0);
-        geometry.setIndex(indices); //if this works, can't we use indexing to strip redundant positions?
+
+        //Create all LOD possible indices and set levels array
+        let levelCount = Math.log2(this.segments);
+        this.levels = new Array(levelCount-2);
+        let indexCount = 2 * this.segments - 1;
+        let indices = new Array(3 * indexCount);
+        for(let i=1, stride=2, curr=0; i<levelCount-1; stride=3*Math.pow(2, ++i)-1) {
+            for(let j=0; j<3*this.segments; j++, curr+=3) {
+                indices[curr+0] = j;
+                indices[curr+1] = j+1;
+                j += stride;
+                indices[curr+2] = j;
+            }
+            this.levels[i-1] = 9*this.segments/(stride+1);
+        }
+        geometry.setIndex(indices);
 
         for(let i=0; i<slices; i++) {
             let runVectors = new Float32Array(2 * instance_count).fill(Infinity);
@@ -113,25 +127,26 @@ class NodeGroup {
     }
 
     setLODZoom(zoom) {
-        /*
-        for(let i=0; i<Math.sqrt(this.segments / 4); i++) {
-
-        }*/
-
+        //Update indices to skip vertices in fan
         var clamped = Math.min(Math.max(zoom, MIN_LOD_ZOOM), MAX_LOD_ZOOM);
         var t = 1.0 - (clamped - MIN_LOD_ZOOM)/(MAX_LOD_ZOOM - MIN_LOD_ZOOM);
-        var lod = Math.round(THREE.Math.lerp(0, Math.sqrt(this.segments / 4), t)); //lod <= sqrt(segments / 4) i.e. a square, in this case 4
-        lod = 3;
+        var lod = Math.floor(THREE.Math.lerp(0, Math.log2(this.segments/4), t));
         var stride = 3 * Math.pow(2, lod) - 1;
-        var indices = this.mesh.geometry.index.array;
-        
-        for(let i=0, j=0; j<3*segments; i+=3, j++) {
-            indices[i] = j;
-            indices[i+1] = j+1;
+        var index = this.mesh.geometry.index.array;
+        let i=0;
+        for(let j=0; j<3*this.segments; i+=3, j++) {
+            index[i] = j;
+            index[i+1] = j+1;
             j += stride;
-            indices[i+2] = j;
+            index[i+2] = j;
         }
-        console.log(this.mesh.geometry.index.array);
+
+        //Zero remainder of buffer
+        for(; i<index.length; i++) {
+            index[i] = 0;
+        }
+        
+        //Push buffer
         this.mesh.geometry.index.needsUpdate = true;
     }
 }
