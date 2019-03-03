@@ -1,4 +1,4 @@
-const MAX_LOD_ZOOM = 50;
+const MAX_LOD_ZOOM = 65;
 const MIN_LOD_ZOOM = 0.1;
 
 class NodeGroup {
@@ -10,6 +10,8 @@ class NodeGroup {
         var vertex_count = segments * 3;
         this.material = new THREE.RawShaderMaterial({
             uniforms: {
+                stride: { type: "f", value: 1.0},
+                face_max: { type: "f", value: segments},
                 nodetex: { type: "t", value: colormap.getTexture() },
             },
             vertexShader: /*glsl*/`
@@ -18,9 +20,12 @@ class NodeGroup {
                 uniform mat4 modelViewMatrix;
                 uniform mat4 projectionMatrix;
 
+                uniform float stride;
+                uniform float face_max;
+                
                 uniform sampler2D nodetex;
 
-                attribute float face_id;
+                attribute float vertex_id;
 
                 attribute vec2 position;
                 attribute float scale;
@@ -31,11 +36,12 @@ class NodeGroup {
 
                 void main() {
                     float u;
+                    float face_percent = floor(vertex_id/stride)/face_max;
 
-                    ${Array.from({ length: slices-1}, (_, i) => "if(run" + i + ".x>=(face_id)){u=run" + i + ".y;}else{").join('')}
+                    ${Array.from({ length: slices-1}, (_, i) => "if(run" + i + ".x>=face_percent){u=run" + i + ".y;}else{").join('')}
                     ${"u=run" + (slices-1) + ".y;" + "}".repeat(slices-1)}
                     
-                    vCol = texture2D( nodetex, vec2 ( u, 0.0 ) );
+                    vCol = texture2D( nodetex, vec2 ( u , 0.0 ) );
                     gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position * scale, 0.0, 1.0 );
                 }`,
             fragmentShader: /*glsl*/`
@@ -64,12 +70,12 @@ class NodeGroup {
         }
 
         //TODO: Create all LOD possibilities and update buffer range - or use stride?
-        let ids = new Float32Array(3 * segments);
-        for(let i=0, j=0; i<segments; i++, j+=3) {
-            ids[j] = ids[j+1] = ids[j+2] = i;
+        let ids = new Float32Array(3*segments);
+        for(let i=0; i<3*segments; i++) {
+            ids[i] = i;
         }
 
-        geometry.addAttribute("face_id", new THREE.BufferAttribute(ids, 1));
+        geometry.addAttribute("vertex_id", new THREE.BufferAttribute(ids, 1));
         geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2));
 
         //Create all LOD possible indices and set levels array
@@ -103,7 +109,7 @@ class NodeGroup {
         parent.add(this.mesh);
 
         //Set run values of first node
-        let runs = [new Run(20, 0.1), new Run(20, 0.7), new Run(24, 0.5)];
+        let runs = [new Run(0.1, 0.1), new Run(0.5, 0.3), new Run(0.15, 0.6), new Run(0.25, 0.9)];
         this.setNodeRuns(0, runs);
         this.updateRuns();
     }
@@ -113,7 +119,7 @@ class NodeGroup {
         if(runs.length <= this.slices) {
             for(let i=0, totalCount=0; i<runs.length; i++) {
                 var array = this.mesh.geometry.attributes["run" + i].array;
-                totalCount  += runs[i].count;
+                totalCount += runs[i].count;
                 array[2 * id + 0] = totalCount;
                 array[2 * id + 1] = runs[i].value;
             }
@@ -131,14 +137,14 @@ class NodeGroup {
         var clamped = Math.min(Math.max(zoom, MIN_LOD_ZOOM), MAX_LOD_ZOOM);
         var t = 1.0 - (clamped - MIN_LOD_ZOOM)/(MAX_LOD_ZOOM - MIN_LOD_ZOOM);
         var lod = Math.floor(THREE.Math.lerp(0, Math.log2(this.segments/4), t));
-        var stride = 3 * Math.pow(2, lod) - 1;
+        var stride = 3 * Math.pow(2, lod);
         var index = this.mesh.geometry.index.array;
         let i=0;
-        for(let j=0; j<3*this.segments; i+=3, j++) {
+        for(let j=0; j<3*this.segments; i+=3) {
             index[i] = j;
             index[i+1] = j+1;
             j += stride;
-            index[i+2] = j;
+            index[i+2] = j-1;
         }
 
         //Zero remainder of buffer
@@ -148,6 +154,19 @@ class NodeGroup {
         
         //Push buffer
         this.mesh.geometry.index.needsUpdate = true;
+
+        //Update uniforms
+        this.material.uniforms.stride.value = stride;
+        this.material.uniforms.face_max.value = (3*this.segments)/stride - 1;
+        
+
+        //vertex_ids = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+        //stride = 5 //NO, 6
+        //face_ids = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3];
+        //face_max = 3
+        //percentages = [0, 0, 0, 0, 0, 0.33, 0.33...];
+
+        //Does this separate individual triangles? Only if we use stride+1
     }
 }
 
