@@ -39,7 +39,7 @@ dependencies:
       - dragSystem2D.js
       - forceGraph.js
       - nodeRenderer.js
-      - link.js
+      - linkRenderer.js
       - colorMap.js
       - event.js
       - menu.js

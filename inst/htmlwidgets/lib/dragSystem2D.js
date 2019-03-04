@@ -34,7 +34,6 @@ class DragSystem2D {
         this.cameraOffset = new THREE.Vector2();
         this.panStart = new THREE.Vector2();
         element.addEventListener("wheel", function(e) {
-            console.log(self.camera.zoom);
             if(!e.ctrlKey) {
                 if(!self.zoomClock.running) {
                     self.zoomTarget = self.camera.zoom;

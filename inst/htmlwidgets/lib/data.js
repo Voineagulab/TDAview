@@ -44,7 +44,7 @@ class Data {
         for(let i=0; i<mapper.adjacency.length; i++) {
             mapper.adjacency[i] = new Array(mapper.num_vertices);
             for(let j=0; j<mapper.adjacency[i].length; j++) {
-                mapper.adjacency[i][j] = Math.round(Math.random()*0.50004);
+                mapper.adjacency[i][j] = Math.round(Math.random()*0.50001);
             }
             metadata.Intake[i] = Math.random();
             metadata.Condition[i] = condition_categories[Math.floor(Math.random() * (condition_categories.length-1))];
