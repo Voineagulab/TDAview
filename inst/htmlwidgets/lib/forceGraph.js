@@ -8,10 +8,11 @@ class forceGraph extends THREE.Group {
         this.initiallizing = true;
 
         //Create selection mesh
-        var selectionMesh = new THREE.Mesh(new THREE.CircleBufferGeometry(10, 64), new THREE.MeshBasicMaterial());
-        selectionMesh.visible = false;
-        selectionMesh.position.z = -1;
-        selectionMesh.scale.set(0.11, 0.11, 1);
+        this.selectionMesh = new THREE.Mesh(new THREE.CircleBufferGeometry(10, 64), new THREE.MeshBasicMaterial());
+        this.add(this.selectionMesh);
+        this.selectionMesh.visible = false;
+        this.selectionMesh.position.z = -1;
+        this.selectedNode = undefined;
 
         function onNodeDragStart() {
             self.simulation.alphaTarget(0.3).restart();
@@ -29,27 +30,30 @@ class forceGraph extends THREE.Group {
         }
 
         function onNodeSelect(node) {
+            self.selectedNode = node;
+            self.selectionMesh.visible = true;
+            self.updateSelectionScale();
+            self.updateSelectionPosition();
             self.eventSystem.invokeEvent("OnNodeSelect", node);
-            selectionMesh.visible = true;
-            node.mesh.add(selectionMesh);
         }
 
         function onNodeDeselect(node) {
             self.eventSystem.invokeEvent("OnNodeDeselect", node);
-            selectionMesh.visible = false;
+            self.selectedNode = undefined;
+            self.selectionMesh.visible = false;
         }
         
-        //Create nodes as single mesh
-        node.intMaterial(nodeColorMap);
+        //Create nodes
         this.nodes = new Array(data.length);
         for(let i=0; i<data.length; i++) {
-            this.nodes[i] = new node(i, labels[i], data[i], 0.0, this);
+            this.nodes[i] = new NodeInstance(i, data[i]);
             this.nodes[i].eventSystem.addEventListener("OnDragStart", onNodeDragStart);
             this.nodes[i].eventSystem.addEventListener("OnDrag", onNodeDrag);
             this.nodes[i].eventSystem.addEventListener("OnDragEnd", onNodeDragEnd);
             this.nodes[i].eventSystem.addEventListener("OnSelect", onNodeSelect);
             this.nodes[i].eventSystem.addEventListener("OnDeselect", onNodeDeselect);
         }
+        this.nodeRenderer = new NodeRenderer(nodeColorMap, this.nodes, this);
 
         //Create links as separate meshes
         this.links = [];
@@ -65,7 +69,10 @@ class forceGraph extends THREE.Group {
 
         //Initiallise event system
         this.eventSystem = new event();
-        this.eventSystem.addEventListener("onTick", this.updatePositions.bind(this));
+        this.eventSystem.addEventListener("onTick", function() {
+            self.updateSelectionPosition();
+            self.updatePositions();
+        });
 
         //Initiallise simulation
         this.simulation = d3.forceSimulation(this.nodes)
@@ -79,6 +86,20 @@ class forceGraph extends THREE.Group {
                 this.initiallizing = false;
                 this.eventSystem.invokeEvent("onEnd");
             }.bind(this));
+    }
+
+    updateSelectionPosition() {
+        if(this.selectedNode) {
+            this.selectionMesh.position.x = this.selectedNode.x;
+            this.selectionMesh.position.y = this.selectedNode.y;
+        }
+    }
+
+    updateSelectionScale() {
+        if(this.selectedNode) {
+            let scale = this.selectedNode.getRadius() * 0.125;
+            this.selectionMesh.scale.set(scale, scale, 1);
+        }
     }
 
     getBoundingBox() {
@@ -99,12 +120,48 @@ class forceGraph extends THREE.Group {
     setLinkColorMap(colormap) {
         link.updateColorMap(colormap);
     }
+
+    setNodeColor(node, value) {
+        node.setColor(value);
+        this.nodeRenderer.setColorBuffer(node);
+    }
+
+    setNodePie(node, percentages, colors) {
+        this.nodeRenderer.setPieBuffer(node, percentages, colors);
+
+        let max = 0;
+        for(let i=1; i<percentages.length; i++) {
+            if(percentages[i] > percentages[max]) {
+                max = i;
+            }
+        }
+        node.setColor(colors[max]);
+    }
+
+    setNodeScale(node, value) {
+        value = this.nodeRenderer.calculateScale(value);
+        node.setRadius(value);
+        this.nodeRenderer.setScaleBuffer(node);
+    }
+
+    setLODZoom(zoom) {
+        this.nodeRenderer.setLODZoom(zoom);
+    }
+
+    updateNodeColors() {
+        this.nodeRenderer.updateColors();
+    }
+
+    updateNodeScales() {
+        this.nodeRenderer.updateScales();
+    }
     
     updatePositions() {
         //Update node positions
         for(var i=0; i<this.nodes.length; i++) {
-            this.nodes[i].setPosition(this.nodes[i].x, this.nodes[i].y);
+            this.nodeRenderer.setOffsetBuffer(this.nodes[i]);
         }
+        this.nodeRenderer.updateOffsets();
 
         //Update link positions
         for(var i=0; i<this.links.length; i++) {

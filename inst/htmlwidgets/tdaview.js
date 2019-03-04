@@ -59,9 +59,8 @@ HTMLWidgets.widget({
 
 				//Create graph with point count radius initially
 				var graph = new forceGraph(data.getBins(), data.getAdjacency(), new Array(100).fill(""), nodeMap, shouldShareMap ? nodeMap : edgeMap);
-				for(let i=0; i<graph.nodes.length; i++) {
-					graph.nodes[i].setRadius(0.5);
-				}
+				graph.nodes.forEach(n => graph.setNodeScale(n, 0.5));
+				graph.updateNodeScales();
 
 				scene.add(graph);
 
@@ -81,17 +80,21 @@ HTMLWidgets.widget({
 				//Change node size to uniform, point count or variable
 				sidebar.eventSystem.addEventListener("OnNodeSizeChange", function(value) {
 					switch(value) {
-						case "none": graph.nodes.forEach(n => n.setRadius(0.5)); break;
-						case "content": graph.nodes.forEach(n => n.setRadius(data.getPointsNormalised(n.userData))); break;
+						case "none": graph.nodes.forEach(n => graph.setNodeScale(n, 0.5)); break;
+						case "content": graph.nodes.forEach(n => graph.setNodeScale(n, data.getPointsNormalised(n.userData))); break;
 					}
+					graph.updateNodeScales();
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
+					graph.updateSelectionScale();
 					shouldPaint = true;
 				});
 
 				sidebar.eventSystem.addEventListener("OnNodeSizeVariableChange", function(value) {
 					data.loadVariable(value);
-					graph.nodes.forEach(n => n.setRadius(data.getContinuousNormalised(n.userData, "mean")));
+					graph.nodes.forEach(n => graph.setNodeScale(n, data.getContinuousNormalised(n.userData, "mean")));
+					graph.updateNodeScales();
 					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
+					graph.updateSelectionScale();
 					shouldPaint = true;
 				});
 
@@ -123,21 +126,26 @@ HTMLWidgets.widget({
 					let cachedVariable = data.getVariable();
 					if(!cachedVariable.getIsCategorical()) {
 						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
-						graph.nodes.forEach(n => n.setColor(data.getContinuousNormalised(n.userData, "mean")));
+						graph.nodes.forEach(n => graph.setNodeColor(n, data.getContinuousNormalised(n.userData, "mean")));
 						nodeLegend.setBar(data.getContinuousMin("mean"), data.getContinuousMax("mean"));
 						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
 					} else {
 						let categories = cachedVariable.getCategorical().getCategories();
 						sidebar.nodeGradPicker.setState(STATE_FIXED, categories.length);
 
+						let array = new Array(categories.length)
+
 						for(let i=0; i<graph.nodes.length; i++) {
-							graph.nodes[i].setColorPie(graph.nodes[i].userData.getCategorical().getValuesNormalised());
+							let percentages = graph.nodes[i].userData.getCategorical().getValuesNormalised();
+							let colors = Array.from({length: percentages.length}, (_, i) => i/percentages.length);
+							graph.setNodePie(graph.nodes[i], percentages, colors);
 						}
 
 						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes()); //Setting gradient makes no sense for pie uvs when there are more than 2 slices!
 						nodeLegend.setPie(categories, categories.length);
 					}
 					if(shouldShareMap) graph.links.forEach(l => l.updateColor());
+					graph.updateNodeColors();
 					shouldPaint = true;
 				});
 
@@ -227,12 +235,17 @@ HTMLWidgets.widget({
 					);
 				});
 
+				graph.eventSystem.addEventListener("OnNodeSelect", function() {
+					shouldPaint = true;
+				});
+
 				//Zoom camera to accommodate simulated graph bounds
 				graph.eventSystem.addEventListener("onTick", function() {
 					if(graph.initiallizing && shouldAutoResize) {
 						var box = graph.getBoundingBox();
 						camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * window.devicePixelRatio;
 						camera.updateProjectionMatrix();
+						graph.setLODZoom(camera.zoom);
 					}
 					shouldPaint = true;
 				});
@@ -253,6 +266,7 @@ HTMLWidgets.widget({
 					if(dragSystem.animate()) {
 						shouldAutoResize = false;
 						shouldPaint = true;
+						graph.setLODZoom(camera.zoom);
 					}
 
 					if(shouldPaint) {
