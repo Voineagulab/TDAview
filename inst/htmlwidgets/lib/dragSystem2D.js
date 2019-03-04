@@ -41,7 +41,7 @@ class DragSystem2D {
                 }
                 self.zoomStart = self.camera.zoom
                 self.zoomClock.start();
-                self.zoomTarget = Math.max(0.0001, self.zoomTarget - e.deltaY * 0.05 * self.camera.zoom);
+                self.zoomTarget = Math.max(self.camera.zoom/2, self.zoomTarget - e.deltaY * 0.025 * self.camera.zoom);
                 
             }
         })
