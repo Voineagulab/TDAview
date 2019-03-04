@@ -1,8 +1,10 @@
-const MAX_LOD_ZOOM = 50;
-const MIN_LOD_ZOOM = 0.1;
+const MAX_NODE_SIZE = 8;
+const MIN_NODE_SIZE = 2;
+const LOD_ZOOMS = [1, 4, 20, 65];
+const LOD_VALUES = [4, 3, 2, 1];
 
-class NodeGroup {
-    constructor(colormap, nodes, parent, maxAttributes = 16, maxSegments = 64) {
+class NodeRenderer {
+    constructor(colormap, nodes, parent, maxAttributes = 16, maxSegments = 128) {
         this.segments = maxSegments;
         this.slices = maxAttributes - 4;
         this.instance_count = nodes.length;
@@ -76,7 +78,6 @@ class NodeGroup {
         geometry.addAttribute("vertex_id", new THREE.BufferAttribute(vertexIds, 1));
         geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2));
         
-
         //Initiallise index buffer
         let indices = new Array(this.vertex_count).fill(0.0);
         geometry.setIndex(indices);
@@ -90,47 +91,75 @@ class NodeGroup {
         //Initiallise node scales
         let offsets = new Float32Array(2 * this.instance_count);
         for(let i=0; i<offsets.length; i++) {
-            offsets[i] = 0;//Math.random() * 100;
+            offsets[i] = 0.0;
         }
-        let scales = new Float32Array(this.instance_count).fill(1.0);
+        let scales = new Float32Array(this.instance_count).fill(-1);
         geometry.addAttribute("scale", new THREE.InstancedBufferAttribute(scales, 1, 1));
         geometry.addAttribute("offset", new THREE.InstancedBufferAttribute(offsets, 2, 1));
 
-        geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 1);
+        geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), Infinity);
         geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-0.5, -0.5, 0), new THREE.Vector3(0.5, 0.5, 0));
 
         this.mesh = new THREE.Mesh(geometry, this.material);
         parent.add(this.mesh);
-
-        //Set run values of first node
-        let runs = [new Run(0.1, 0.1), new Run(0.5, 0.3), new Run(0.15, 0.6), new Run(0.25, 0.9)];
-        this.setNodeRuns(this.instance_count-1, runs);
-        this.updateRuns();
     }
 
-    //TODO: instead pass in two arrays, one for percentages and one for values
-    setNodeRuns(id, runs) {
-        if(runs.length <= this.slices) {
-            for(let i=0, totalPercent=0; i<runs.length; i++) {
+    setOffsetBuffer(node) {
+        let array = this.mesh.geometry.attributes.offset.array;
+        array[2 * node.id + 0] = node.getPositionX();
+        array[2 * node.id + 1] = node.getPositionY();
+    }
+
+    setScaleBuffer(node) {
+        let array = this.mesh.geometry.attributes.scale.array;
+        array[node.id] = node.getRadius();
+    }
+
+    setColorBuffer(node) {
+        let array = this.mesh.geometry.attributes.run0.array;
+        array[2 * node.id + 0] = 1.0;
+        array[2 * node.id + 1] = node.getColor();
+    }
+
+    setPieBuffer(node, percentages, colors) {
+        if(percentages.length <= this.slices) {
+            for(let i=0, totalPercent=0; i<percentages.length; i++) {
                 var array = this.mesh.geometry.attributes["run" + i].array;
-                totalPercent += runs[i].percentage;
-                array[2 * id + 0] = totalPercent;
-                array[2 * id + 1] = runs[i].value;
+                totalPercent += percentages[i];
+                array[2 * node.id + 0] = totalPercent;
+                array[2 * node.id + 1] = colors[i];
             }
         }
     }
 
-    updateRuns() {
+    updateColors() {
         for(let i=0; i<this.slices; i++) {
             this.mesh.geometry.attributes["run" + i].needsUpdate = true;
         }
     }
 
+    updateScales() {
+        this.mesh.geometry.attributes.scale.needsUpdate = true;
+    }
+
+    updateOffsets() {
+        this.mesh.geometry.attributes.offset.needsUpdate = true;
+
+    }
+
+    calculateScale(value, min=2, max=8) {
+        return value * (max - min) + min;
+    }
+
     setLODZoom(zoom) {
         //Update indices to skip vertices in fan
-        var clamped = Math.min(Math.max(zoom, MIN_LOD_ZOOM), MAX_LOD_ZOOM);
-        var t = 1.0 - (clamped - MIN_LOD_ZOOM)/(MAX_LOD_ZOOM - MIN_LOD_ZOOM);
-        var lod = Math.floor(THREE.Math.lerp(0, Math.log2(this.segments/4), t));
+        let lod = 0;
+        for(let i=0; i<LOD_ZOOMS.length; i++) {
+            if(zoom <= LOD_ZOOMS[i]) {
+                lod = LOD_VALUES[i];
+                break;
+            }
+        }
 
         if(lod != this.current_lod) {
             this.current_lod = lod;
@@ -161,17 +190,64 @@ class NodeGroup {
     }
 }
 
-//TODO: store other data since mesh centrallised
-class NodeInstance {
-    constructor() {
-
+class NodeInstance extends Draggable2D {
+    constructor(id, data) {
+        super();
+        this.id = id;
+        this.userData = data;
+        this.color = 0.0;
+        this.r = 1.0;
+        this.x = this.y = 0.0;
+        this.fx = this.fy = null;
     }
-}
 
-//TODO: simplify representation of tuple
-class Run {
-    constructor(percentage, value) {
-        this.percentage = percentage;
-        this.value = value;
+    getPositionX() {
+        return this.x;
+    }
+
+    getPositionY() {
+        return this.y;
+    }
+
+    getPosition() {
+        return new THREE.Vector3(this.x, this.y, 0);
+    }
+
+    setColor(value) {
+        this.color = value;
+    }
+
+    getColor() {
+        return this.color;
+    }
+
+    setRadius(value) {
+        this.r = value;
+    }
+
+    getRadius() {
+        return this.r;
+    }
+
+    boundsContains(vector) {
+        let targ = this.getPosition();
+        let r = this.r;
+
+        //Check if inside bounding box;
+        if(vector.x >= targ.x - r && 
+            vector.x <= targ.x + r && 
+            vector.y >= targ.y - r && 
+            vector.y <= targ.y + r) {
+            //Check if inside circle
+            
+            if(Math.pow(vector.x - targ.x, 2) + Math.pow(vector.y - targ.y, 2) <= r*r) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boundsCenter() {
+        return this.getPosition().clone();
     }
 }
