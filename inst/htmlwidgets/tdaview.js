@@ -84,8 +84,7 @@ HTMLWidgets.widget({
 						case "content": graph.nodes.forEach(n => graph.setNodeScale(n, data.getPointsNormalised(n.userData))); break;
 					}
 					graph.updateNodeScales();
-					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
-					graph.updateSelectionScale();
+					graph.applyLinkPositions();
 					shouldPaint = true;
 				});
 
@@ -93,8 +92,7 @@ HTMLWidgets.widget({
 					data.loadVariable(value);
 					graph.nodes.forEach(n => graph.setNodeScale(n, data.getContinuousNormalised(n.userData, "mean")));
 					graph.updateNodeScales();
-					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
-					graph.updateSelectionScale();
+					graph.applyLinkPositions();
 					shouldPaint = true;
 				});
 
@@ -114,10 +112,10 @@ HTMLWidgets.widget({
 				sidebar.eventSystem.addEventListener("OnNodeColorChange", function(value) {
 					if(value === "uniform") {
 						sidebar.nodeGradPicker.setState(STATE_SINGLE);
-						if(shouldShareMap) graph.links.forEach(l => l.setColor(0.5));
+						if(shouldShareMap) graph.links.forEach(l => graph.setLinkColor(l, 0.5));
 						nodeLegend.setNone();
 					}
-					if(shouldShareMap) graph.links.forEach(l => l.updateColor());
+					if(shouldShareMap) graph.updateLinkColors();
 					shouldPaint = true;
 				});
 
@@ -128,12 +126,10 @@ HTMLWidgets.widget({
 						sidebar.nodeGradPicker.setState(STATE_GRADIENT);
 						graph.nodes.forEach(n => graph.setNodeColor(n, data.getContinuousNormalised(n.userData, "mean")));
 						nodeLegend.setBar(data.getContinuousMin("mean"), data.getContinuousMax("mean"));
-						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes());
+						if(shouldShareMap) graph.links.forEach(l => graph.setLinkGradientFromNodes(l));
 					} else {
 						let categories = cachedVariable.getCategorical().getCategories();
 						sidebar.nodeGradPicker.setState(STATE_FIXED, categories.length);
-
-						let array = new Array(categories.length)
 
 						for(let i=0; i<graph.nodes.length; i++) {
 							let percentages = graph.nodes[i].userData.getCategorical().getValuesNormalised();
@@ -141,25 +137,25 @@ HTMLWidgets.widget({
 							graph.setNodePie(graph.nodes[i], percentages, colors);
 						}
 
-						if(shouldShareMap) graph.links.forEach(l => l.setGradientFromNodes()); //Setting gradient makes no sense for pie uvs when there are more than 2 slices!
+						if(shouldShareMap) graph.links.forEach(l => graph.setLinkGradientFromNodes(l));
 						nodeLegend.setPie(categories, categories.length);
 					}
-					if(shouldShareMap) graph.links.forEach(l => l.updateColor());
+					if(shouldShareMap) graph.updateLinkColors();
 					graph.updateNodeColors();
 					shouldPaint = true;
 				});
 
 				//Change edge width
 				sidebar.eventSystem.addEventListener("OnEdgeWidthChange", function(percent) {
-					link.setWidth(percent);
-					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
+					graph.setLinkWidth(percent);
+					graph.applyLinkPositions();
 					shouldPaint = true;
 				});
 
 				//Reset edge width
 				sidebar.eventSystem.addEventListener("ResetEdgeWidth", function() {
-					link.setWidth(0.5);
-					graph.links.forEach(l => {l.setPositionFromNodes(); l.updatePosition();});
+					graph.setLinkWidth(0.5);
+					graph.applyLinkPositions();
 					shouldPaint = true;
 					var slider = document.forms["edge-slider"];
 					slider.reset();
@@ -182,7 +178,7 @@ HTMLWidgets.widget({
 					if(value === "nodes") {
 						graph.setLinkColorMap(nodeMap);
 						sidebar.edgeGradPicker.setState(STATE_SINGLE); //STATE_DISABLED
-						graph.links.forEach(l => {l.setGradientFromNodes(); l.updateColor()});
+						graph.applyLinkPositions();
 						edgeLegend.setNone();
 						shouldShareMap = true;
 					} else if(value === "uniform") {
@@ -191,12 +187,13 @@ HTMLWidgets.widget({
 						edgeLegend.setNone();
 						shouldShareMap = false;
 					} else {
+						/*
 						graph.setLinkColorMap(edgeMap);
 						sidebar.edgeGradPicker.setState(STATE_GRADIENT);
 
 						graph.links.forEach(l => {l.setGradient(data.getContinuousBinVariableValueNormalised(l.source.userData, value, "mean"), data.getContinuousBinVariableValueNormalised(l.target.userData, value, "mean")); l.updateColor()})
 						edgeLegend.setBar(data.getContinuousMin(value, "mean"), data.getContinuousMax(value, "mean"));
-						shouldShareMap = false;
+						shouldShareMap = false;*/
 					}
 					shouldPaint = true;
 				});

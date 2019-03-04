@@ -53,30 +53,24 @@ class forceGraph extends THREE.Group {
             this.nodes[i].eventSystem.addEventListener("OnSelect", onNodeSelect);
             this.nodes[i].eventSystem.addEventListener("OnDeselect", onNodeDeselect);
         }
-        this.nodeRenderer = new NodeRenderer(nodeColorMap, this.nodes, this);
 
-        //Create links as separate meshes
-        this.links = [];
-        link.initMaterial(edgeColorMap);
-        for(let i=0; i<adjacency[0].length; i++) {
-            let row = adjacency[i];
-            for(let j=0; j<row.length; j++) {
-                if(row[j]) {
-                    this.links.push(new link(this.nodes[i], this.nodes[j], this));
-                }
-            }
-        }
+        this.nodeRenderer = new NodeRenderer(nodeColorMap, this.nodes, this);
+        this.linkRenderer = new LinkRenderer(edgeColorMap, this.nodes, adjacency, this);
+
+
+        this.links = this.linkRenderer.links;
 
         //Initiallise event system
         this.eventSystem = new event();
         this.eventSystem.addEventListener("onTick", function() {
             self.updateSelectionPosition();
-            self.updatePositions();
+            self.applyNodePositions();
+            self.applyLinkPositions();
         });
 
         //Initiallise simulation
         this.simulation = d3.forceSimulation(this.nodes)
-            .force("link", d3.forceLink(this.links).strength(20 * 1/this.links.length))
+            .force("link", d3.forceLink(this.linkRenderer.links).strength(20 * 1/this.links.length))
             .force('center', d3.forceCenter())
             .force("charge", d3.forceManyBody().strength(-100).distanceMax(100).distanceMin(10))
             .on("tick", function() {
@@ -118,7 +112,7 @@ class forceGraph extends THREE.Group {
     }
 
     setLinkColorMap(colormap) {
-        link.updateColorMap(colormap);
+        this.linkRenderer.setColorMap(colormap);
     }
 
     setNodeColor(node, value) {
@@ -154,19 +148,37 @@ class forceGraph extends THREE.Group {
 
     updateNodeScales() {
         this.nodeRenderer.updateScales();
+        this.updateSelectionScale();
     }
+
+    setLinkWidth(value) {
+        this.linkRenderer.setWidth(value);
+    }
+
     
-    updatePositions() {
-        //Update node positions
+    setLinkColor(link, color) {
+        this.linkRenderer.setColor(link, color);
+    }
+
+    setLinkGradientFromNodes(link) {
+        this.linkRenderer.setGradientFromNodes(link);
+    }
+
+    updateLinkColors() {
+        this.linkRenderer.updateColors();
+    }
+
+    applyNodePositions() {
         for(var i=0; i<this.nodes.length; i++) {
             this.nodeRenderer.setOffsetBuffer(this.nodes[i]);
         }
         this.nodeRenderer.updateOffsets();
+    }
 
-        //Update link positions
+    applyLinkPositions() {
         for(var i=0; i<this.links.length; i++) {
-            this.links[i].setPositionFromNodes();
-            this.links[i].updatePosition();
+            this.linkRenderer.setPositionFromNodes(this.links[i]);
         }
+        this.linkRenderer.updatePositions();
     }
 }
