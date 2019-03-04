@@ -1,7 +1,7 @@
 /*
 Public Events: OnChange
 */
-const zoomTime = 0.08;
+const zoomTime = 0.05;
 
 class DragSystem2D {
     constructor(element, renderer, camera) {
@@ -34,13 +34,15 @@ class DragSystem2D {
         this.cameraOffset = new THREE.Vector2();
         this.panStart = new THREE.Vector2();
         element.addEventListener("wheel", function(e) {
+            console.log(self.camera.zoom);
             if(!e.ctrlKey) {
                 if(!self.zoomClock.running) {
                     self.zoomTarget = self.camera.zoom;
                 }
-                self.zoomStart = camera.zoom
+                self.zoomStart = self.camera.zoom
                 self.zoomClock.start();
-                self.zoomTarget = Math.max(0.1, self.zoomTarget - e.deltaY * 0.0025);
+                self.zoomTarget = Math.max(0.0001, self.zoomTarget - e.deltaY * 0.05 * self.camera.zoom);
+                
             }
         })
 
@@ -144,7 +146,7 @@ class DragSystem2D {
             if(this.zoomClock.elapsedTime > zoomTime) {
                 this.zoomClock.stop();
             } else {
-                let t = this.zoomClock.getElapsedTime()/zoomTime;
+                let t = Math.min(this.zoomClock.getElapsedTime()/zoomTime, 1);
                 this.camera.zoom = THREE.Math.lerp(this.zoomStart, this.zoomTarget, t);
                 this.camera.updateProjectionMatrix()
                 return true;
