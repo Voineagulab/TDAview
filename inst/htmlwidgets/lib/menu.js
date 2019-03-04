@@ -57,6 +57,7 @@ class menu {
                 self.eventSystem.invokeEvent("OnNodeSizeChange", this.value);
                 if(this.value !== "continuous") {
                     sizedatainput.disabled = true;
+                    sizedatainput.value = "";
                 } else {
                     sizedatainput.disabled = false;
                     ValidateSizeVariableChange();
@@ -65,7 +66,6 @@ class menu {
         }
 
         function ValidateColorVariableChange() {
-            console.log("hi")
             //Enforce values are on list and trigger event
             nodeColorDataInput.value;
             if(data.getVariableNames().indexOf(nodeColorDataInput.value) < 0) {
@@ -84,9 +84,9 @@ class menu {
         for(let i=0; i<nodeColorMetaRadios.length; i++) {
             nodeColorMetaRadios[i].onclick = function() {
                 self.eventSystem.invokeEvent("OnNodeColorChange", this.value);
-                console.log(this.value);
                 if(this.value !== "variable") {
                     nodeColorDataInput.disabled = true;
+                    nodeColorDataInput.value = "";
                 } else {
                     nodeColorDataInput.disabled = false;
                     ValidateColorVariableChange();
@@ -175,12 +175,12 @@ class menu {
             </div>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Node Radius</h4>
+                    <h4 class="accordion-item-heading">Node Scale</h4>
                     <div id="node-size" class="accordion-item-content">
                         <input type="radio" name="nodesize" value="none" id="nonesize" checked/>
                         <label for="nonesize">Uniform</label><br>
                         <input type="radio" name="nodesize" value="content" id="contentsize" />
-                        <label for="contentsize">Points</label><br>
+                        <label for="contentsize">Cardinality</label><br>
                         <input type="radio" name="nodesize" value="continuous" id="continuoussize" />
                         <label for="continuoussize">Variable</label><br>
                         <input placeholder="Select:" list="continuoussizedatalist" name="continuoussizeinput" id="continuoussizeinput" autocomplete="off" disabled>
