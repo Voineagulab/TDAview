@@ -135,14 +135,6 @@ class menu {
             }
         }
 
-        //Legend events
-        var legends = document.getElementsByClassName("legend-display");
-        for(let i=0; i<legends.length; i++) {
-            legends[i].onclick = function () {
-                self.eventSystem.invokeEvent("OnLegendToggle", legends[i].checked);
-            }
-        }
-
         //Export events
         var graphradios = document.forms["graphext"].elements["graphtype"];
         document.getElementById("graphexport").addEventListener("click", function() {
@@ -175,7 +167,7 @@ class menu {
             </div>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Node Scale</h4>
+                    <h4 class="accordion-item-heading">Scale Nodes</h4>
                     <div id="node-size" class="accordion-item-content">
                         <input type="radio" name="nodesize" value="none" id="nonesize" checked/>
                         <label for="nonesize">Uniform</label><br>
@@ -191,7 +183,7 @@ class menu {
                     </div>
                 </div>
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Node Color</h4>
+                    <h4 class="accordion-item-heading">Color Nodes</h4>
                     <div id="node-color" class="accordion-item-content">
                     <input type="radio" name="nodecolor" value="uniform" id="nodecoloruniform" checked/>
                     <label for="nodecoloruniform">Uniform</label><br>
@@ -207,7 +199,7 @@ class menu {
                     </div>
                 </div>
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Node Label</h4>
+                    <h4 class="accordion-item-heading">Label Nodes</h4>
                     <div id="labelselect" class="accordion-item-content">
                         <form name="labels">
                         <input type="radio" name="labeltype" value="name" id="name" checked />
@@ -222,7 +214,7 @@ class menu {
             </div>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Edge Width</h4>
+                    <h4 class="accordion-item-heading">Scale Edges</h4>
                     <div class="accordion-item-content">
                         <form name="edge-slider">
                         <input type="range" min="1" max="100" value="50" class="slider" id="edge-width-slider"><br><br>
@@ -232,7 +224,7 @@ class menu {
                 </div>
 
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Edge Color</h4>
+                    <h4 class="accordion-item-heading">Color Edges</h4>
                     <div class="accordion-item-content">
                         <input type="radio" name="edgeColor" value="nodes" id="edgecolornode" class="edge-color-meta-radio" checked/>
                         <label for="edgecolornode">Use Node Colors</label><br>
@@ -246,34 +238,7 @@ class menu {
             </div>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Legend</h4>
-                    <div class="accordion-item-content">
-                        <form name="legends">
-                        <!-- <input type="checkbox" name="locked" value="locked" id="locked" />
-                        <label for="locked">Lock positions</label><br><br> -->
-                        <input type="checkbox" class="legend-display" name="legenddisplay" value="node-colour-legend" id="node-colour-legend" />
-                        <label for="node-colour-legend">Toggle node colour</label><br>
-                        <input type="checkbox" class="legend-display" name="legenddisplay" value="node-size-legend" id="node-size-legend" />
-                        <label for="node-size-legend">Toggle node size</label>
-                        <!-- Node --<br>
-                        <select id="node-legend-dropdown">
-                            <option value="none">None</option>
-                            <option value="line">Line</option>
-                            <option value="distribution">Distribution</option>
-                        </select><br>
-                        Edge --<br>
-                        <select id="edge-legend-dropdown">
-                            <option value="none">None</option>
-                            <option value="line">Line</option>
-                        </select><br><br>
-                        <a href="#" class="myButton" id="reset">Reset to default</a> -->
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-wrapper">
-                <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Export</h4>
+                    <h4 class="accordion-item-heading">Render</h4>
                     <div class="accordion-item-content">
                         <form name="graphext">
                         <input type="radio" name="graphtype" value="png" id="png" checked />
