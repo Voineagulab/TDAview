@@ -142,6 +142,10 @@ class forceGraph extends THREE.Group {
         this.nodeRenderer.setLODZoom(zoom);
     }
 
+    setPixelZoom(height) {
+        this.nodeRenderer.setPixelZoom(height);
+    }
+
     updateNodeColors() {
         this.nodeRenderer.updateColors();
     }

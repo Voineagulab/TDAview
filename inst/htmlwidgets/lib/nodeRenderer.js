@@ -1,20 +1,14 @@
 const MAX_NODE_SIZE = 8;
 const MIN_NODE_SIZE = 2;
-const LOD_ZOOMS = [1, 4, 20, 65];
-const LOD_VALUES = [4, 3, 2, 1];
 
 class NodeRenderer {
-    constructor(colormap, nodes, parent, maxAttributes = 16, maxSegments = 128) {
-        this.segments = maxSegments;
-        this.slices = maxAttributes - 4;
+    constructor(colormap, nodes, parent, maxAttributes = 16, maxVaryings = 8) {
+        this.slices = Math.min(maxAttributes-4, 2*maxVaryings-1);
         this.instance_count = nodes.length;
-        this.vertex_count = this.segments * 3;
-        this.current_lod = 0;
 
         this.material = new THREE.RawShaderMaterial({
             uniforms: {
-                stride: { type: "f", value: 1.0},
-                face_max: { type: "f", value: this.segments},
+                zoomScale: {type: "f", value: 1.0},
                 nodetex: { type: "t", value: colormap.getTexture() },
             },
             vertexShader: /*glsl*/`
@@ -22,90 +16,73 @@ class NodeRenderer {
 
                 uniform mat4 modelViewMatrix;
                 uniform mat4 projectionMatrix;
-
-                uniform float stride;
-                uniform float face_max;
-                
-                uniform sampler2D nodetex;
-
-                attribute float vertex_id;
+                uniform float zoomScale;
 
                 attribute vec2 position;
-                attribute vec2 offset;
                 attribute float scale;
-
                 ${Array.from({ length: this.slices }, (_, i) => "attribute vec2 run" + i + ";").join('')}
 
-                varying vec4 vCol;
+                varying vec2 vPosition;
+                ${Array.from({ length: this.slices }, (_, i) => "varying vec2 vRun" + i + ";").join('')}
 
                 void main() {
-                    float u;
-                    float face_percent = floor(vertex_id/stride)/face_max;
+                    vPosition = position;
+                    ${Array.from({ length: this.slices }, (_, i) => "vRun" + i + " = run" + i + ";").join('')}
 
-                    ${Array.from({ length: this.slices-1}, (_, i) => "if(run" + i + ".x>=face_percent){u=run" + i + ".y;}else{").join('')}
-                    ${"u=run" + (this.slices-1) + ".y;" + "}".repeat(this.slices-1)}
-                    
-                    vCol = texture2D( nodetex, vec2 ( u , 0.0 ) );
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4 ( offset + position * scale, 0.0, 1.0 );
+                    gl_PointSize = scale * zoomScale;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4 (position, 0.0, 1.0);
                 }`,
             fragmentShader: /*glsl*/`
                 precision highp float;
+                #define M_PI 3.1415926535897932384626433832795
 
-                varying vec4 vCol;
+                uniform sampler2D nodetex;
+                
+                varying vec2 vPosition;
+                ${Array.from({ length: this.slices }, (_, i) => "varying vec2 vRun" + i + ";").join('')}
 
                 void main() {
-                    gl_FragColor = vCol;
+                    vec2 cxy = 2.0 * gl_PointCoord - 1.0;
+                    float r = dot(cxy, cxy);
+                    if (r > 1.0) discard;
+                
+                    float pixelPercent = (1.0 + atan(cxy.x, cxy.y) / M_PI) / 2.0;
+
+                    float u;
+                    ${Array.from({ length: this.slices-1}, (_, i) => "if(vRun" + i + ".x>=pixelPercent){u=vRun" + i + ".y;}else{").join('')}
+                    ${"u=vRun" + (this.slices-1) + ".y;" + "}".repeat(this.slices-1)}
+
+                    gl_FragColor = vec4(texture2D( nodetex, vec2 ( u , 1.0) ).xyz, 1.0);
                 }`,
             side: THREE.BackSide,
-            transparent: false,
-            vertexColors: THREE.VertexColors,
+            transparent: true,
         });
-        let geometry = new THREE.InstancedBufferGeometry();
 
-        //Create vertices and associated ids
-        let vertexIds = Float32Array.from({length: this.vertex_count}, (_, i) => i);
-        let vertices = new Float32Array(2 * this.vertex_count);
-        for(let i=0, j=0, k=0; i<this.segments; i++, j+=6, k+=3) {
-            vertices[j] = vertices[j+1] = 0.0;
-            var theta = i/this.segments * Math.PI * 2;
-            vertices[j+2] = Math.sin(theta);
-            vertices[j+3] = Math.cos(theta);
-            theta = (i+1)/this.segments * Math.PI * 2;
-            vertices[j+4] = Math.sin(theta);
-            vertices[j+5] = Math.cos(theta);
-        }
-        
-        geometry.addAttribute("vertex_id", new THREE.BufferAttribute(vertexIds, 1));
-        geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2));
-        
-        //Initiallise index buffer
-        let indices = new Array(this.vertex_count).fill(0.0);
-        geometry.setIndex(indices);
+        //this.material.sizeAttenuation = true; this is for perspective cameras. Current x1.7 seems to depend on innerheight
+        let geometry = new THREE.BufferGeometry();
 
         //Create paired attributes for pie slice run-length encoding
         for(let i=0; i<this.slices; i++) {
             let runVectors = new Float32Array(2 * this.instance_count).fill(Infinity);
-            geometry.addAttribute("run" + i, new THREE.InstancedBufferAttribute(runVectors, 2, 1));
+            geometry.addAttribute("run" + i, new THREE.BufferAttribute(runVectors, 2));
         }
 
-        //Initiallise node scales
-        let offsets = new Float32Array(2 * this.instance_count);
-        for(let i=0; i<offsets.length; i++) {
-            offsets[i] = 0.0;
-        }
-        let scales = new Float32Array(this.instance_count).fill(-1);
-        geometry.addAttribute("scale", new THREE.InstancedBufferAttribute(scales, 1, 1));
-        geometry.addAttribute("offset", new THREE.InstancedBufferAttribute(offsets, 2, 1));
+        //Initialise node scales
+        let offsets = new Float32Array(2 * this.instance_count).fill(0.0);
+        let scales = new Float32Array(this.instance_count).fill(1.0);
+        geometry.addAttribute("scale", new THREE.BufferAttribute(scales, 1));
+        geometry.addAttribute("position", new THREE.BufferAttribute(offsets, 2));
 
         geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), Infinity);
         geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-0.5, -0.5, 0), new THREE.Vector3(0.5, 0.5, 0));
 
-        this.mesh = new THREE.Mesh(geometry, this.material);
+        this.mesh = new THREE.Points(geometry, this.material);
+        this.mesh.frustumCulled = false;
         parent.add(this.mesh);
     }
 
     setOffsetBuffer(node) {
-        let array = this.mesh.geometry.attributes.offset.array;
+        let array = this.mesh.geometry.attributes.position.array;
         array[2 * node.id + 0] = node.getPositionX();
         array[2 * node.id + 1] = node.getPositionY();
     }
@@ -136,6 +113,7 @@ class NodeRenderer {
         for(let i=0; i<this.slices; i++) {
             this.mesh.geometry.attributes["run" + i].needsUpdate = true;
         }
+        
     }
 
     updateScales() {
@@ -143,7 +121,7 @@ class NodeRenderer {
     }
 
     updateOffsets() {
-        this.mesh.geometry.attributes.offset.needsUpdate = true;
+        this.mesh.geometry.attributes.position.needsUpdate = true;
 
     }
 
@@ -152,41 +130,11 @@ class NodeRenderer {
     }
 
     setLODZoom(zoom) {
-        //Update indices to skip vertices in fan
-        let lod = 0;
-        for(let i=0; i<LOD_ZOOMS.length; i++) {
-            if(zoom <= LOD_ZOOMS[i]) {
-                lod = LOD_VALUES[i];
-                break;
-            }
-        }
+        return;
+    }
 
-        if(lod != this.current_lod) {
-            this.current_lod = lod;
-
-            var stride = 3 * Math.pow(2, lod);
-            var indices = this.mesh.geometry.index.array;
-
-            let i=0;
-            for(let j=0; j<this.vertex_count; i+=3) {
-                indices[i] = j;
-                indices[i+1] = j+1;
-                j += stride;
-                indices[i+2] = j-1;
-            }
-    
-            //Zero remainder of buffer
-            for(; i<indices.length; i++) {
-                indices[i] = 0;
-            }
-            
-            //Push buffer
-            this.mesh.geometry.index.needsUpdate = true;
-    
-            //Update uniforms
-            this.material.uniforms.stride.value = stride;
-            this.material.uniforms.face_max.value = (this.vertex_count)/stride - 1;
-        }
+    setPixelZoom(height) {
+        this.material.uniforms.zoomScale.value = height;
     }
 }
 

@@ -7,6 +7,7 @@ HTMLWidgets.widget({
 		var renderer, labelRenderer;
 		var nodeLegend, edgeLegend;
 		var frustumSize = 1000;
+		var graph;
 		var shouldPaint = true;
 		var shouldAutoResize = true;
 		var shouldShareMap = true;
@@ -58,7 +59,7 @@ HTMLWidgets.widget({
 				edgeLegend = new MultiLegend(edgeMap, hudScene, hudCamera.right, hudCamera.bottom + 80, aspect/2);
 
 				//Create graph with point count radius initially
-				var graph = new forceGraph(data.getBins(), data.getAdjacency(), new Array(100).fill(""), nodeMap, shouldShareMap ? nodeMap : edgeMap);
+				graph = new forceGraph(data.getBins(), data.getAdjacency(), new Array(100).fill(""), nodeMap, shouldShareMap ? nodeMap : edgeMap);
 				graph.nodes.forEach(n => graph.setNodeScale(n, 0.5));
 				graph.updateNodeScales();
 
@@ -242,7 +243,7 @@ HTMLWidgets.widget({
 						var box = graph.getBoundingBox();
 						camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * window.devicePixelRatio;
 						camera.updateProjectionMatrix();
-						graph.setLODZoom(camera.zoom);
+						graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
 					}
 					shouldPaint = true;
 				});
@@ -263,7 +264,7 @@ HTMLWidgets.widget({
 					if(dragSystem.animate()) {
 						shouldAutoResize = false;
 						shouldPaint = true;
-						graph.setLODZoom(camera.zoom);
+						graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
 					}
 
 					if(shouldPaint) {
@@ -292,7 +293,9 @@ HTMLWidgets.widget({
 				camera.bottom = - frustumSize/2;
 				camera.updateProjectionMatrix();
 				renderer.setSize(width, height);
+				renderer.setPixelRatio(window.devicePixelRatio);
 				labelRenderer.setSize(width, height);
+				graph.setPixelZoom(camera.zoom * height * window.devicePixelRatio / frustumSize * 2);
 				shouldPaint = true;
 			}
 		};
