@@ -4,14 +4,18 @@ class LinkRenderer {
 
         this.material = new THREE.RawShaderMaterial({
             uniforms: {
-                linktex: { type: 't', value: linkmap.getTexture() }
+                backgroundColor: {value: new THREE.Color() },
+                linkAlpha: {value: 1.0},
+                linkTex: {value: linkmap.getTexture() }
             },
             vertexShader: /*glsl*/`
                 precision highp float;
                 
                 uniform mat4 modelViewMatrix;
                 uniform mat4 projectionMatrix;
-                uniform sampler2D linktex;
+                uniform sampler2D linkTex;
+                uniform float linkAlpha;
+                uniform vec3 backgroundColor;
                 
                 attribute vec2 position;
                 attribute float u;
@@ -19,7 +23,7 @@ class LinkRenderer {
                 varying vec4 vColor;
                 
                 void main() {
-                    vColor = texture2D( linktex, vec2 ( u, 0.0 ) );
+                    vColor = vec4( mix( backgroundColor, texture2D( linkTex, vec2 ( u , 1.0) ).xyz, linkAlpha), 1.0);
                     gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position, -2.0, 1.0 );
                 }`,
             fragmentShader: /*glsl*/`
@@ -70,8 +74,16 @@ class LinkRenderer {
         parent.add(this.mesh);
     }
 
+    setAlpha(value) {
+        this.material.uniforms.linkAlpha.value = value;
+    }
+
+    setBackgroundColor(value) {
+        this.material.uniforms.backgroundColor.value = value;
+    }
+
     setColorMap(map) {
-        this.material.uniforms.linktex.value = map.getTexture();
+        this.material.uniforms.linkTex.value = map.getTexture();
     }
 
     setWidth(value) {

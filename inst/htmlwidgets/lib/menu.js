@@ -115,6 +115,16 @@ class menu {
             };
         }
 
+        var nodeAlphaSlider = document.getElementById("node-alpha-slider");
+        nodeAlphaSlider.addEventListener("input", function() {
+            self.eventSystem.invokeEvent("OnNodeAlphaChange", nodeAlphaSlider.value/100);
+        })
+
+        var edgeAlphaSlider = document.getElementById("edge-alpha-slider");
+        edgeAlphaSlider.addEventListener("input", function() {
+            self.eventSystem.invokeEvent("OnEdgeAlphaChange", edgeAlphaSlider.value/100);
+        })
+
         //Edge width change event
         var edgeWidthSlider = document.getElementById("edge-width-slider");
         edgeWidthSlider.addEventListener("input", function() {
@@ -199,6 +209,7 @@ class menu {
                     </datalist>
                     <br>
                     <div id="node-color-picker-insert"></div>
+                    <input type="range" min="1" max="100" value="100" class="slider" id="node-alpha-slider"><br><br>
                     </div>
                 </div>
                 <div class="accordion-item close">
@@ -236,6 +247,7 @@ class menu {
                         <!-- ${data.getContinuousNames().map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}-->
                         
                         <div id="edge-color-picker-insert"></div><br>
+                        <input type="range" min="1" max="100" value="100" class="slider" id="edge-alpha-slider"><br><br>
                     </div>
                 </div>
             </div>

@@ -8,15 +8,17 @@ class NodeRenderer {
 
         this.material = new THREE.RawShaderMaterial({
             uniforms: {
-                zoomScale: {type: "f", value: 1.0},
-                nodetex: { type: "t", value: colormap.getTexture() },
+                backgroundColor: {value: new THREE.Color()},
+                nodeZoom: {value: 1.0},
+                nodeAlpha: {value: 1.0},
+                nodeTex: {value: colormap.getTexture() },
             },
             vertexShader: /*glsl*/`
                 precision highp float;
 
                 uniform mat4 modelViewMatrix;
                 uniform mat4 projectionMatrix;
-                uniform float zoomScale;
+                uniform float nodeZoom;
 
                 attribute vec2 position;
                 attribute float scale;
@@ -29,15 +31,17 @@ class NodeRenderer {
                     vPosition = position;
                     ${Array.from({ length: this.slices }, (_, i) => "vRun" + i + " = run" + i + ";").join('')}
 
-                    gl_PointSize = scale * zoomScale;
+                    gl_PointSize = scale * nodeZoom;
                     gl_Position = projectionMatrix * modelViewMatrix * vec4 (position, 0.0, 1.0);
                 }`,
             fragmentShader: /*glsl*/`
                 precision highp float;
                 #define M_PI 3.1415926535897932384626433832795
 
-                uniform sampler2D nodetex;
-                
+                uniform sampler2D nodeTex;
+                uniform float nodeAlpha;
+                uniform vec3 backgroundColor;
+            
                 varying vec2 vPosition;
                 ${Array.from({ length: this.slices }, (_, i) => "varying vec2 vRun" + i + ";").join('')}
 
@@ -52,10 +56,10 @@ class NodeRenderer {
                     ${Array.from({ length: this.slices-1}, (_, i) => "if(vRun" + i + ".x>=pixelPercent){u=vRun" + i + ".y;}else{").join('')}
                     ${"u=vRun" + (this.slices-1) + ".y;" + "}".repeat(this.slices-1)}
 
-                    gl_FragColor = vec4(texture2D( nodetex, vec2 ( u , 1.0) ).xyz, 1.0);
+                    gl_FragColor = vec4( mix( backgroundColor, texture2D( nodeTex, vec2 ( u , 1.0) ).xyz, nodeAlpha), 1.0);
                 }`,
             side: THREE.BackSide,
-            transparent: true,
+            transparent: false,
         });
 
         //this.material.sizeAttenuation = true; this is for perspective cameras. Current x1.7 seems to depend on innerheight
@@ -79,6 +83,14 @@ class NodeRenderer {
         this.mesh = new THREE.Points(geometry, this.material);
         this.mesh.frustumCulled = false;
         parent.add(this.mesh);
+    }
+
+    setAlpha(value) {
+        this.material.uniforms.nodeAlpha.value = value;
+    }
+
+    setBackgroundColor(value) {
+        this.material.uniforms.backgroundColor.value = value;
     }
 
     setOffsetBuffer(node) {
@@ -121,7 +133,6 @@ class NodeRenderer {
 
     updateOffsets() {
         this.mesh.geometry.attributes.position.needsUpdate = true;
-
     }
 
     calculateScale(value, min=2, max=8) {
@@ -133,7 +144,7 @@ class NodeRenderer {
     }
 
     setPixelZoom(height) {
-        this.material.uniforms.zoomScale.value = height;
+        this.material.uniforms.nodeZoom.value = height;
     }
 }
 
@@ -151,8 +162,8 @@ class NodeInstance extends Draggable2D {
             let div = document.createElement('div');
             div.className = "unselectable label";
             this.label = new THREE.CSS2DObject(div);
-            this.label.element.textContent = data.name;
             parent.add(this.label);
+            this.setLabelText(data.name);
         }
     }
 
@@ -204,6 +215,18 @@ class NodeInstance extends Draggable2D {
 
     boundsCenter() {
         return this.getPosition().clone();
+    }
+
+    setLabelText(text) {
+        this.label.element.textContent = text;
+    }
+
+    removeLabelClassName(name) {
+        this.label.element.classList.remove(name);
+    }
+
+    addLabelClassName(name) {
+        this.label.element.classList.add(name);
     }
 
     updateLabelPosition() {

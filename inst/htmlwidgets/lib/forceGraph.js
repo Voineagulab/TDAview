@@ -140,6 +140,19 @@ class forceGraph extends THREE.Group {
         this.nodeRenderer.setScaleBuffer(node);
     }
 
+    setNodeAlpha(value) {
+        this.nodeRenderer.setAlpha(value);
+    }
+
+    setLinkAlpha(value) {
+        this.linkRenderer.setAlpha(value);
+    }
+
+    setBackgroundColor(value) {
+        this.nodeRenderer.setBackgroundColor(value);
+        this.linkRenderer.setBackgroundColor(value);
+    }
+
     setLODZoom(zoom) {
         this.nodeRenderer.setLODZoom(zoom);
     }

@@ -145,6 +145,19 @@ HTMLWidgets.widget({
 					shouldPaint = true;
 				});
 
+				//Change node alpha
+				sidebar.eventSystem.addEventListener("OnNodeAlphaChange", function(percent) {
+					graph.setNodeAlpha(percent);
+					shouldPaint = true;
+				});
+
+				//Change edge alpha
+				sidebar.eventSystem.addEventListener("OnEdgeAlphaChange", function(percent) {
+					graph.setLinkAlpha(percent);
+					shouldPaint = true;
+					console.log("hi");
+				});
+
 				//Change edge width
 				sidebar.eventSystem.addEventListener("OnEdgeWidthChange", function(percent) {
 					graph.setLinkWidth(percent);
@@ -200,6 +213,7 @@ HTMLWidgets.widget({
 
 				sidebar.backColorPicker.eventSystem.addEventListener("OnColorChange", function(color) {
 					scene.background.setHex("0x" + color);
+					graph.setBackgroundColor(new THREE.Color("#" + color));
 					shouldPaint = true;
 				})
 				sidebar.backColorPicker.picker.set("#4b515b");
