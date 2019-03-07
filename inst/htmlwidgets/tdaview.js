@@ -26,7 +26,7 @@ HTMLWidgets.widget({
 				//Create scenes
 				var scene = new THREE.Scene();
 				var hudScene = new THREE.Scene();
-				scene.background = new THREE.Color(0x4b515b);
+				scene.background = new THREE.Color();
 
 				//Create renderers
 				renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -48,8 +48,7 @@ HTMLWidgets.widget({
 				exportDiv.appendChild(labelRenderer.domElement);
 
 				//Parse imported data
-				var data = new Data(x.mapper, x.metadata);
-				//var data = Data.generateRandom();
+				var data = x.random ? Data.generateRandom() : new Data(x.mapper, x.metadata);
 				
 				//Create maps and legends
 				var nodeMap = new ColorMap('rainbow', 256);
@@ -134,7 +133,7 @@ HTMLWidgets.widget({
 
 						for(let i=0; i<graph.nodes.length; i++) {
 							let percentages = graph.nodes[i].userData.getCategorical().getValuesNormalised();
-							let colors = Array.from({length: percentages.length}, (_, i) => i/percentages.length);
+							let colors = Array.from({length: percentages.length}, (_, i) => i/(percentages.length-1));
 							graph.setNodePie(graph.nodes[i], percentages, colors);
 						}
 
@@ -198,6 +197,12 @@ HTMLWidgets.widget({
 					}
 					shouldPaint = true;
 				});
+
+				sidebar.backColorPicker.eventSystem.addEventListener("OnColorChange", function(color) {
+					scene.background.setHex("0x" + color);
+					shouldPaint = true;
+				})
+				sidebar.backColorPicker.picker.set("#4b515b");
 
 				//Toggle visibility of legends
 				sidebar.eventSystem.addEventListener("OnLegendToggle", function(val) {

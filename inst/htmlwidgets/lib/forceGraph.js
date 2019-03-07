@@ -22,6 +22,7 @@ class forceGraph extends THREE.Group {
         function onNodeDrag(node, vector) {
             node.fx = vector.x;
             node.fy = vector.y;
+            node.updateLabelPosition();
         }
     
         function onNodeDragEnd(node) {
@@ -46,7 +47,7 @@ class forceGraph extends THREE.Group {
         //Create nodes
         this.nodes = new Array(data.length);
         for(let i=0; i<data.length; i++) {
-            this.nodes[i] = new NodeInstance(i, data[i]);
+            this.nodes[i] = new NodeInstance(i, data[i], this);
             this.nodes[i].eventSystem.addEventListener("OnDragStart", onNodeDragStart);
             this.nodes[i].eventSystem.addEventListener("OnDrag", onNodeDrag);
             this.nodes[i].eventSystem.addEventListener("OnDragEnd", onNodeDragEnd);
@@ -75,6 +76,7 @@ class forceGraph extends THREE.Group {
             .force("charge", d3.forceManyBody().strength(-100).distanceMax(100).distanceMin(10))
             .on("tick", function() {
                 this.eventSystem.invokeEvent("onTick");
+                this.updateNodeLabelPositions();
             }.bind(this))
             .on("end", function() {
                 this.initiallizing = false;
@@ -155,10 +157,15 @@ class forceGraph extends THREE.Group {
         this.updateSelectionScale();
     }
 
+    updateNodeLabelPositions() {
+        for(let i=0; i<this.nodes.length; i++) {
+            this.nodes[i].updateLabelPosition();
+        }
+    }
+
     setLinkWidth(value) {
         this.linkRenderer.setWidth(value);
     }
-
     
     setLinkColor(link, color) {
         this.linkRenderer.setColor(link, color);

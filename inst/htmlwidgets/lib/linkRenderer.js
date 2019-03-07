@@ -1,5 +1,5 @@
 class LinkRenderer {
-    constructor(linkmap, nodes, adjacency, parent, width = 0.4) {
+    constructor(linkmap, nodes, adjacency, parent, width = 0.1) {
         this.width = width;
 
         this.material = new THREE.RawShaderMaterial({

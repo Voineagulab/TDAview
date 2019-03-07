@@ -140,6 +140,9 @@ class menu {
         document.getElementById("graphexport").addEventListener("click", function() {
             self.eventSystem.invokeEvent("OnExport", graphradios.value);
         });
+
+
+        this.backColorPicker = new gradientPicker(document.getElementById("back-color-picker-insert"));
     }
 
     generateHTML(data) {
@@ -240,6 +243,8 @@ class menu {
                 <div class="accordion-item close">
                     <h4 class="accordion-item-heading">Render</h4>
                     <div class="accordion-item-content">
+
+                    <div id="back-color-picker-insert"></div><br>
                         <form name="graphext">
                         <input type="radio" name="graphtype" value="png" id="png" checked />
                         <label for="png">PNG</label><br>

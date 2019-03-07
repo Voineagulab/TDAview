@@ -113,7 +113,6 @@ class NodeRenderer {
         for(let i=0; i<this.slices; i++) {
             this.mesh.geometry.attributes["run" + i].needsUpdate = true;
         }
-        
     }
 
     updateScales() {
@@ -139,7 +138,7 @@ class NodeRenderer {
 }
 
 class NodeInstance extends Draggable2D {
-    constructor(id, data) {
+    constructor(id, data, parent) {
         super();
         this.id = id;
         this.userData = data;
@@ -147,6 +146,14 @@ class NodeInstance extends Draggable2D {
         this.r = 1.0;
         this.x = this.y = 0.0;
         this.fx = this.fy = null;
+
+        if(data.name) {
+            let div = document.createElement('div');
+            div.className = "unselectable label";
+            this.label = new THREE.CSS2DObject(div);
+            this.label.element.textContent = data.name;
+            parent.add(this.label);
+        }
     }
 
     getPositionX() {
@@ -197,5 +204,12 @@ class NodeInstance extends Draggable2D {
 
     boundsCenter() {
         return this.getPosition().clone();
+    }
+
+    updateLabelPosition() {
+        if(this.label) {
+            this.label.position.x = this.x;
+            this.label.position.y = this.y + this.r * 2;
+        }
     }
 }

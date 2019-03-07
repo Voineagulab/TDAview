@@ -1,3 +1,8 @@
+const DATA_TYPE_NUMBER = 1;
+const DATA_TYPE_CATEGORY = 2;
+const DATA_TYPE_ID = 3;
+const DATA_TYPE_DATE = 4;
+
 class Utility {
     static Min(array) {
         return Math.min(...array);
@@ -34,7 +39,7 @@ class Data {
     static generateRandom() {
         var mapper = {};
         var metadata = {};
-        mapper.num_vertices = 10000;
+        mapper.num_vertices = 100;
         mapper.adjacency = new Array(mapper.num_vertices);
         mapper.points_in_vertex = new Array(mapper.num_vertices);
         var num_points = mapper.num_vertices * 20;
@@ -44,7 +49,7 @@ class Data {
         for(let i=0; i<mapper.adjacency.length; i++) {
             mapper.adjacency[i] = new Array(mapper.num_vertices);
             for(let j=0; j<mapper.adjacency[i].length; j++) {
-                mapper.adjacency[i][j] = Math.round(Math.random()*0.50001);
+                mapper.adjacency[i][j] = Math.round(Math.random()*0.508);
             }
             metadata.Intake[i] = Math.random();
             metadata.Condition[i] = condition_categories[Math.floor(Math.random() * (condition_categories.length-1))];
@@ -56,10 +61,14 @@ class Data {
             metadata.Condition[i] = condition_categories[Math.round(Math.random() * (condition_categories.length-1))];
             mapper.points_in_vertex[Math.round(Math.random() * (mapper.num_vertices-1)) ].push(i+1);
         }
-        return new Data(mapper, metadata);
+
+
+        let labels = Array.from({length: mapper.num_vertices}, (_, i) => "Node " + i);
+
+        return new Data(mapper, metadata, labels);
     }
 
-    constructor(mapper, metadata) {
+    constructor(mapper, metadata, labels = undefined) {
         this.metadata = metadata;
         this.adjacency = mapper.adjacency;
         this.maxBinPoints = Utility.Max(mapper.points_in_vertex.map(obj => Object.keys(obj).length));
@@ -72,16 +81,16 @@ class Data {
         //Create bins for each node
         this.bins = new Array(mapper.num_vertices);
         for(let i=0; i<mapper.num_vertices; i++) {
-            this.bins[i] = new Bin(Object.values(mapper.points_in_vertex[i]).map(index => index - 1));
+            this.bins[i] = new Bin(Object.values(mapper.points_in_vertex[i]).map(index => index - 1), labels ? labels[i] : undefined);
         }
 
         //Determine defined types of variables
-        this.isNaN = {};
+        this.types = {};
         for(var key in metadata) {
             let data = this.metadata[key];
             for(let i=0; i<data.length; i++) {
                 if(data[i] !== null) {
-                    this.isNaN[key] = isNaN(data[i]);
+                    this.types[key] = isNaN(data[i]) ? DATA_TYPE_CATEGORY : DATA_TYPE_NUMBER;
                     break;
                 }
             }
@@ -99,7 +108,7 @@ class Data {
     loadVariable(name) {
         if(this.metadata.hasOwnProperty(name) && name !== this.name) {
             this.name = name;
-            this.variable.setIsCategorical(this.isNaN[name]);
+            this.variable.setIsCategorical(this.types[name] === DATA_TYPE_CATEGORY);
             if(this.variable.getIsCategorical()) {
                 this.variable.getCategorical().setFromEntries(this.metadata[name]);
                 for(let i=0; i<this.bins.length; i++) {
@@ -146,11 +155,11 @@ class Data {
     }
 
     getContinuousNames() {
-        return this.getVariableNames().filter(name => this.isNaN[name] === false);
+        return this.getVariableNames().filter(name => this.types[name] === DATA_TYPE_NUMBER);
     }
 
     getCategoricalNames() {
-        return this.getVariableNames().filter(name => this.isNaN[name] === true);
+        return this.getVariableNames().filter(name => this.types[name] === DATA_TYPE_CATEGORY);
     }
 }
 
@@ -244,9 +253,10 @@ class CachedVariable {
 }
 
 class Bin extends CachedVariable {
-    constructor(points) {
+    constructor(points, name = undefined) {
         super();
         this.points = points;
+        this.name = name;
     }
 
     getPointCount() {
