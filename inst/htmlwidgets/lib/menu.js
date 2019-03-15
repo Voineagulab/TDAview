@@ -157,6 +157,11 @@ class menu {
             self.eventSystem.invokeEvent("OnZoomChange", self.sidezoom.value/100);
         });
 
+        this.sidezoom.style.width = 0.5 * window.innerHeight + "px";
+        window.addEventListener("resize", function() {
+            this.sidezoom.style.width = 0.5 * window.innerHeight + "px";
+        });
+
         this.backColorPicker = new gradientPicker(document.getElementById("back-color-picker-insert"));
     }
 
@@ -218,7 +223,7 @@ class menu {
                     </datalist>
                     <br>
                     <div id="node-color-picker-insert"></div>
-                    <input type="range" min="1" max="100" value="100" class="slider" id="node-alpha-slider"><br><br>
+                    <input type="range" min="0" max="100" value="100" class="slider" id="node-alpha-slider"><br><br>
                     </div>
                 </div>
                 <div class="accordion-item close">
@@ -240,7 +245,7 @@ class menu {
                     <h4 class="accordion-item-heading">Scale Edges</h4>
                     <div class="accordion-item-content">
                         <form name="edge-slider">
-                        <input type="range" min="1" max="100" value="50" class="slider" id="edge-width-slider"><br><br>
+                        <input type="range" min="0" max="100" value="50" class="slider" id="edge-width-slider"><br><br>
                         <a href="#" class="myButton" id="reset-edge-width">Reset</a>
                         </form>
                     </div>
@@ -256,7 +261,7 @@ class menu {
                         <!-- ${data.getContinuousNames().map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}-->
                         
                         <div id="edge-color-picker-insert"></div><br>
-                        <input type="range" min="1" max="100" value="100" class="slider" id="edge-alpha-slider"><br><br>
+                        <input type="range" min="0" max="100" value="100" class="slider" id="edge-alpha-slider"><br><br>
                     </div>
                 </div>
             </div>
@@ -277,7 +282,7 @@ class menu {
                 </div>
             </div>
         </div>
-        <input id="sidezoom" type="range" step="any" class="vranger"/>
+        <input id="sidezoom" type="range" min="0" max="100" value="0" step="any" class="vranger"/>
         `;
     }
 }
