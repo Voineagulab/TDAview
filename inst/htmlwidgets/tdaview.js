@@ -255,6 +255,7 @@ HTMLWidgets.widget({
 					camera.zoom = THREE.Math.lerp(getZoomMin(window.devicePixelRatio), getZoomMax(), value);
 					camera.updateProjectionMatrix();
 					graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
+					shouldAutoResize = false;
 					shouldPaint = true;
 				});
 
