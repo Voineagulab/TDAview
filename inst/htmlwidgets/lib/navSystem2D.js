@@ -41,7 +41,7 @@ class NavSystem2D {
                 }
                 self.zoomStart = self.camera.zoom
                 self.zoomClock.start();
-                self.zoomTarget = self.zoomTarget - e.deltaY * 0.025 * self.zoomTarget;
+                self.zoomTarget = Math.max(0.1, self.zoomTarget - (e.deltaY > 0 ? 1 : -1) * 0.1 * camera.zoom);
             }
         });
 
