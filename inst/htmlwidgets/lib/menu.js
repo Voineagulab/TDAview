@@ -157,11 +157,6 @@ class menu {
             self.eventSystem.invokeEvent("OnZoomChange", self.sidezoom.value/100);
         });
 
-        this.sidezoom.style.width = 0.5 * window.innerHeight + "px";
-        window.addEventListener("resize", function() {
-            this.sidezoom.style.width = 0.5 * window.innerHeight + "px";
-        });
-
         this.backColorPicker = new gradientPicker(document.getElementById("back-color-picker-insert"));
     }
 

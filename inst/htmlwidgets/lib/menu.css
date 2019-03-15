@@ -21,9 +21,9 @@
 
 .vranger {
     position: absolute;
-    transform: rotate(270deg);
-    right: 1px;
-    bottom: 50%;
+    left: 260px;
+    bottom: 10px;
+    width: 20%;
   }
 
 
