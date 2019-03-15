@@ -151,8 +151,17 @@ class menu {
             self.eventSystem.invokeEvent("OnExport", graphradios.value);
         });
 
+        //Zoom events
+        this.sidezoom = document.getElementById("sidezoom");
+        this.sidezoom.addEventListener("input", function() {
+            self.eventSystem.invokeEvent("OnZoomChange", self.sidezoom.value/100);
+        });
 
         this.backColorPicker = new gradientPicker(document.getElementById("back-color-picker-insert"));
+    }
+
+    setZoomCustom(value) {
+        this.sidezoom.value = value * 100;
     }
 
     generateHTML(data) {
@@ -267,6 +276,8 @@ class menu {
                     </div>
                 </div>
             </div>
-        </div>`;
+        </div>
+        <input id="sidezoom" type="range" step="any" class="vranger"/>
+        `;
     }
 }

@@ -3,7 +3,7 @@ Public Events: OnChange
 */
 const zoomTime = 0.05;
 
-class DragSystem2D {
+class NavSystem2D {
     constructor(element, renderer, camera) {
         var self = this;
 
@@ -27,6 +27,7 @@ class DragSystem2D {
 
         this.eventSystem = new event();
 
+
         //Zoom camera smoothly in response to wheel
         this.zoomStart = undefined;
         this.zoomTarget = undefined;
@@ -41,9 +42,8 @@ class DragSystem2D {
                 self.zoomStart = self.camera.zoom
                 self.zoomClock.start();
                 self.zoomTarget = self.zoomTarget - e.deltaY * 0.025 * self.zoomTarget;
-                
             }
-        })
+        });
 
         element.addEventListener("mousedown", function() {
             self.isMouseDown = true;

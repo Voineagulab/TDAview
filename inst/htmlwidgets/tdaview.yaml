@@ -36,7 +36,7 @@ dependencies:
       - gradientPicker.css
     script:
       - draggable2D.js
-      - dragSystem2D.js
+      - navSystem2D.js
       - forceGraph.js
       - nodeRenderer.js
       - linkRenderer.js

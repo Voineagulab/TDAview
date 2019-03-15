@@ -19,6 +19,16 @@
     width: 0px;
 }
 
+.vranger {
+    position: absolute;
+    transform: rotate(270deg);
+    transform: rotate(270deg);
+    right: -10%;
+    top: 50%;
+    bottom: 50%;
+    width: 30%;
+  }
+
 
 /* Table styling */
 

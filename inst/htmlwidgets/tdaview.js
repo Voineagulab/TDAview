@@ -155,7 +155,6 @@ HTMLWidgets.widget({
 				sidebar.eventSystem.addEventListener("OnEdgeAlphaChange", function(percent) {
 					graph.setLinkAlpha(percent);
 					shouldPaint = true;
-					console.log("hi");
 				});
 
 				//Change edge width
@@ -252,6 +251,13 @@ HTMLWidgets.widget({
 					);
 				});
 
+				sidebar.eventSystem.addEventListener("OnZoomChange", function(value) {
+					camera.zoom = THREE.Math.lerp(getZoomMin(window.devicePixelRatio), getZoomMax(), value);
+					camera.updateProjectionMatrix();
+					graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
+					shouldPaint = true;
+				});
+
 				graph.eventSystem.addEventListener("OnNodeSelect", function() {
 					shouldPaint = true;
 				});
@@ -260,30 +266,40 @@ HTMLWidgets.widget({
 				graph.eventSystem.addEventListener("onTick", function() {
 					if(graph.initiallizing && shouldAutoResize) {
 						var box = graph.getBoundingBox();
-						camera.zoom = Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * window.devicePixelRatio;
+						camera.zoom = getZoomMin(window.devicePixelRatio);
 						camera.updateProjectionMatrix();
 						graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
 					}
 					shouldPaint = true;
 				});
 
+				function getZoomMin(pixelRatio) {
+					var box = graph.getBoundingBox();
+					return Math.min(width / (box.max.x - box.min.x), height / (box.max.y - box.min.y)) * pixelRatio;
+				}
+
+				function getZoomMax(pixelRatio) {
+					return 50;
+				}
+
 				//Initiallise drag system
-				let dragSystem = new DragSystem2D(exportDiv, renderer, camera);
-				dragSystem.eventSystem.addEventListener("OnChange", function() {
+				let navSystem = new NavSystem2D(exportDiv, renderer, camera);
+				navSystem.eventSystem.addEventListener("OnChange", function() {
 					shouldPaint = true;
 				});
 				let graphRect = new DragRect2D(camera);
 				let hudRect = new DragRect2D(hudCamera);
 				graphRect.addDraggable(graph.nodes);
 				hudRect.addDraggable([nodeLegend, edgeLegend]);
-				dragSystem.addRect(graphRect);
-				dragSystem.addRect(hudRect);
+				navSystem.addRect(graphRect);
+				navSystem.addRect(hudRect);
 
 				function animate() {
-					if(dragSystem.animate()) {
+					if(navSystem.animate()) {
+						graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
+						sidebar.setZoomCustom((camera.zoom - getZoomMin(window.devicePixelRatio))/getZoomMax());
 						shouldAutoResize = false;
 						shouldPaint = true;
-						graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
 					}
 
 					if(shouldPaint) {
