@@ -231,8 +231,9 @@ HTMLWidgets.widget({
 				//Download image generated from export div
 				sidebar.eventSystem.addEventListener("OnExport", function(value) {
 					html2canvas(exportDiv, {
-						width: width + 250,
-						height: height
+						x: 250,
+						width: width,
+						height: height,
 					}).then(function(canvas) {
 							//Generate image from canvas
 							var imgtype = value.toLowerCase();
