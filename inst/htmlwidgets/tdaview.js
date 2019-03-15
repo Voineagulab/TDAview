@@ -321,8 +321,9 @@ HTMLWidgets.widget({
 				animate();
 			},
 			
-			resize: function(width, height) {
-				width -= 250;
+			resize: function(newWidth, newHeight) {
+				width = newWidth - 250;
+				height = newHeight;
 				var aspect = width / height;
 				camera.left = - frustumSize * aspect/2;
 				camera.right = frustumSize * aspect/2;
