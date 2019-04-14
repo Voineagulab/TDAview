@@ -27,7 +27,7 @@ class NavSystem2D {
 
         this.eventSystem = new event();
 
-
+        
         //Zoom camera smoothly in response to wheel
         this.zoomStart = undefined;
         this.zoomTarget = undefined;
@@ -75,9 +75,14 @@ class NavSystem2D {
 
                     if(self.hovering) {
                         //Drag element
+                        self.mouseWorld.z = 0;
                         self.mouseWorld.unproject(self.hoverRect.camera);
                         self.mouseWorld.z = 0;
+                        
                         self.hovering.eventSystem.invokeEvent("OnDrag", self.hovering, self.mouseWorld.add(self.hoverOffset));
+                        let center = self.hovering.boundsCenter();
+                        self.hoverRect.rectGraphic.position.set(center.x, center.y, 2);
+                        self.eventSystem.invokeEvent("OnChange");
                     } else {
                         //Pan camera (need world drag start to avoid feedback)
                         self.mouseWorld.x -= self.dragStart.x;
@@ -102,14 +107,31 @@ class NavSystem2D {
                     self.mouseWorld.z = 0;
 
                     for(let i=0; i<rect.draggable.length; i++) {
-                        if(rect.draggable[i].boundsContains(self.mouseWorld)) {
+                        if(rect.draggable[i].boundsContains.call(rect.draggable[i], self.mouseWorld)) {
                             self.hovering = rect.draggable[i];
-                            self.hoverOffset = self.hovering.boundsCenter().sub(self.mouseWorld);
                             self.hoverRect = rect;
+                            let center = self.hovering.boundsCenter();
+
+                            //Resize and display rect graphic
+                            if(self.hovering.shouldScale) {
+                                if(self.hoverRect.rectGraphic.visible == false) {
+                                    self.hoverRect.rectGraphic.visible = true;
+                                }
+                                self.hoverRect.rectGraphic.scale.set(self.hovering.boundsWidth(), self.hovering.boundsHeight(), 1);
+                                self.hoverRect.rectGraphic.position.set(center.x, center.y, 2);
+                                self.eventSystem.invokeEvent("OnChange");
+                            }
+
+                            
+                            self.hoverOffset = center.sub(self.mouseWorld);
                             return;
                         }
                     }
                     self.hovering = undefined;
+                    if(rect.rectGraphic.visible == true) {
+                        rect.rectGraphic.visible = false;
+                    }
+                    self.eventSystem.invokeEvent("OnChange");
                 }
             }
         });
@@ -128,6 +150,7 @@ class NavSystem2D {
 
                 if(self.hovering) {
                     self.selected = self.hovering;
+                    console.log(self.selected);
                     self.selected.eventSystem.invokeEvent("OnSelect", self.selected);
                     self.eventSystem.invokeEvent("OnChange");
                 }
@@ -156,9 +179,15 @@ class NavSystem2D {
 }
 
 class DragRect2D {
-    constructor(camera) {
+    constructor(camera, scene) {
         this.camera = camera;
         this.draggable = [];
+
+        this.rectGraphic = new THREE.Mesh( new THREE.PlaneGeometry(), new THREE.MeshBasicMaterial( {color: 0xaaaaff, side: THREE.DoubleSide}));
+        this.rectGraphic.material.transparent = true;
+        this.rectGraphic.material.opacity = 0.25;
+        //scene.add(this.rectGraphic);
+
     }
 
     addDraggable(items) {
