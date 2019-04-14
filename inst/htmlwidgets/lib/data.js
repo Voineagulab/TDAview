@@ -259,6 +259,10 @@ class Bin extends CachedVariable {
         this.name = name;
     }
 
+    getName() {
+        return this.name;
+    }
+
     getPointCount() {
         return this.points.length;
     }
