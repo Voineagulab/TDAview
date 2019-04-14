@@ -2,7 +2,7 @@
 Public Events: OnNodeSelect, OnNodeDeselect, OnTick, OnEnd
 */
 class forceGraph extends THREE.Group {
-    constructor(data, adjacency, labels, nodeColorMap, edgeColorMap) {
+    constructor(data, adjacency, labels, nodeColorMap, edgeColorMap, selectColor="ffffff") {
         super();
         var self = this;
         this.initiallizing = true;
@@ -13,6 +13,7 @@ class forceGraph extends THREE.Group {
         this.selectionMesh.visible = false;
         this.selectionMesh.position.z = -1;
         this.selectedNode = undefined;
+        this.selectionMesh.material.color.setHex("0x" + selectColor);
 
         function onNodeDragStart() {
             self.simulation.alphaTarget(0.3).restart();
@@ -149,7 +150,6 @@ class forceGraph extends THREE.Group {
     }
 
     setBackgroundColor(value) {
-        this.nodeRenderer.setBackgroundColor(value);
         this.linkRenderer.setBackgroundColor(value);
     }
 
@@ -204,5 +204,9 @@ class forceGraph extends THREE.Group {
             this.linkRenderer.setPositionFromNodes(this.links[i]);
         }
         this.linkRenderer.updatePositions();
+    }
+
+    setSelectColor(color) {
+        this.selectionMesh.material.color.setHex("0x" + color);
     }
 }

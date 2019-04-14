@@ -8,13 +8,12 @@ const STYLE_BAR = 1;
 const STYLE_COLUMN = 2;
 const STYLE_PIE = 3;
 
-class MultiLegend extends Draggable2D {
-    constructor(colorMap, parent, x, y, scale) {
-        super();
+class MultiLegend extends Scalable2D {
+    constructor(colorMap, parent, x, y, textColor="ffffff") {
+        super(parent);
         this.colorMap = colorMap;
         this.group = new THREE.Group();
         this.group.position.set(x-80, y+80, 0);
-        this.group.scale.set(scale, scale, 1);
         parent.add(this.group);
 
         this.meshes = [];
@@ -26,9 +25,13 @@ class MultiLegend extends Draggable2D {
         this.style = STYLE_NONE;
         this.visible = true;
 
+        this.textColor = textColor;
+
+        this.bounds = new THREE.Box2();
+
         this.eventSystem.addEventListener("OnDrag", function(self, vector) {
-            self.group.position.set(vector.x, vector.y, 0);
-		});
+            self.group.position.set(vector.x + self.boundsWidth()/2, vector.y - self.boundsHeight()/2, 0);
+        });
     }
 
     setMeshPool(count) {
@@ -60,6 +63,7 @@ class MultiLegend extends Draggable2D {
         while(this.labels.length < count) {
             let div = document.createElement('div');
             div.className = "unselectable label";
+            div.style.color = "#" + this.textColor;
             let label = new THREE.CSS2DObject(div);
             this.labels.push(label);
             this.group.add(label);
@@ -97,7 +101,10 @@ class MultiLegend extends Draggable2D {
         this.meshes[0].geometry.uvsNeedUpdate = true;
 
         this.meshes[0].scale.set(LEGEND_WIDTH, 20, 1);
-        this.meshes[0].position.set(-LEGEND_WIDTH/2, 40, 1);
+        this.meshes[0].position.set(-LEGEND_WIDTH/2, 10, 1);
+
+        this.bounds.min.set(-LEGEND_WIDTH, 0);
+        this.bounds.max.set(0, 20);
 
         this.setLabelPool(2);
         this.labels[0].element.textContent = min.toFixed(2);
@@ -154,11 +161,25 @@ class MultiLegend extends Draggable2D {
         }
     }
 
+    setTextColor(color) {
+        this.textColor = color;
+    }
+
     boundsContains(vector) {
-		return (vector.x >= this.group.position.x-LEGEND_WIDTH && vector.x <= this.group.position.x && vector.y >= this.group.position.y && vector.y <= this.group.position.y + COLUMN_HEIGHT);
+        let temp = vector.clone().sub(this.group.position);
+		return this.bounds.containsPoint(temp);
     }
 
     boundsCenter() {
-        return this.group.position.clone();
+        let center = new THREE.Vector2();
+        return this.bounds.getCenter(center).add(this.group.position);
+    }
+
+    boundsWidth() {
+        return this.bounds.max.x - this.bounds.min.x;
+    }
+
+    boundsHeight() {
+        return this.bounds.max.y - this.bounds.min.y;
     }
 }
