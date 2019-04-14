@@ -57,7 +57,7 @@ class menu {
                 self.eventSystem.invokeEvent("OnNodeSizeChange", this.value);
                 if(this.value !== "continuous") {
                     sizedatainput.disabled = true;
-                    sizedatainput.value = "";
+                    //sizedatainput.value = "";
                 } else {
                     sizedatainput.disabled = false;
                     ValidateSizeVariableChange();
@@ -86,7 +86,7 @@ class menu {
                 self.eventSystem.invokeEvent("OnNodeColorChange", this.value);
                 if(this.value !== "variable") {
                     nodeColorDataInput.disabled = true;
-                    nodeColorDataInput.value = "";
+                    //nodeColorDataInput.value = "";
                 } else {
                     nodeColorDataInput.disabled = false;
                     ValidateColorVariableChange();
@@ -94,20 +94,28 @@ class menu {
             };
         }
 
-        //Node label events
+        //Node label events TODO trigger events only here
         var labelradios = document.forms["labels"].elements["labeltype"];
         var prevValue = "";
         for(let i=0; i<labelradios.length; i++) {
             labelradios[i].onclick = function() {
-                if(prevValue != this.value) {
+                if(prevValue !== this.value) {
                     for(let j=0; j<graph.nodes.length; j++) {
-                        if(prevValue == "none") {
+                        if(prevValue === "none") {
                             graph.nodes[j].removeLabelClassName('hiddenlabel');
                         }
+
+                        let text = "";
                         switch(this.value) {
-                            case "size": graph.nodes[j].setLabelText(graph.nodes[j].userData.getPointCount()); break;
-                            case "none" : graph.nodes[j].addLabelClassName('hiddenlabel'); break;
-                            default : graph.nodes[j].setLabelText("Node " + j); break;
+                            case "name" : text = graph.nodes[j].userData.getName(); break;
+                            case "size": text = graph.nodes[j].userData.getPointCount(); break;
+                            case "id" : text = j; break;
+                        }
+
+                        if(text === "") {
+                            graph.nodes[j].addLabelClassName('hiddenlabel');
+                        } else {
+                            graph.nodes[j].setLabelText(text);
                         }
                     }
                 }
@@ -115,10 +123,21 @@ class menu {
             };
         }
 
-        var nodeAlphaSlider = document.getElementById("node-alpha-slider");
-        nodeAlphaSlider.addEventListener("input", function() {
-            self.eventSystem.invokeEvent("OnNodeAlphaChange", nodeAlphaSlider.value/100);
-        })
+        //TODO abstract setting classnames and DOM efficiency into setLabelText(emptystring)
+        let namesGiven = 0;
+        for(let i=0; i<graph.nodes.length; i++) {
+            let name = graph.nodes[i].userData.getName();
+            if(name) {
+                namesGiven++;;
+            }
+            graph.nodes[i].setLabelText(name);
+        }
+
+        if(namesGiven === 0) {
+            labelradios[0].disabled = true;
+            labelradios[3].checked = true;
+        }
+        console.log(namesGiven);
 
         var edgeAlphaSlider = document.getElementById("edge-alpha-slider");
         edgeAlphaSlider.addEventListener("input", function() {
@@ -131,17 +150,21 @@ class menu {
             self.eventSystem.invokeEvent("OnEdgeWidthChange", edgeWidthSlider.value/100);
         });
 
-        //Edge width reset event
-        document.getElementById("reset-edge-width").onclick = function () {
-            self.eventSystem.invokeEvent("ResetEdgeWidth");
-        };
-
         //Edge color events
-        this.edgeGradPicker = new gradientPicker(document.getElementById("edge-color-picker-insert")); //multiple gradient pickers causes error atm
+        this.edgeGradPicker = new colorPicker(document.getElementById("edge-color-picker-insert")); //multiple gradient pickers causes error atm
         var edgeColorMetaRadios = document.getElementsByClassName("edge-color-meta-radio");
         for(let i=0; i<edgeColorMetaRadios.length; i++) {
             edgeColorMetaRadios[i].onclick = function() {
                 self.eventSystem.invokeEvent("OnEdgeColorChange", this.value);
+            }
+        }
+
+        //Label color events
+        this.labelGradPicker = new colorPicker(document.getElementById("label-color-picker-insert"));
+        var edgeColorMetaRadios = document.getElementsByClassName("label-color-meta-radio");
+        for(let i=0; i<edgeColorMetaRadios.length; i++) {
+            edgeColorMetaRadios[i].onclick = function() {
+                self.eventSystem.invokeEvent("OnLabelColorChange", this.value);
             }
         }
 
@@ -157,7 +180,7 @@ class menu {
             self.eventSystem.invokeEvent("OnZoomChange", self.sidezoom.value/100);
         });
 
-        this.backColorPicker = new gradientPicker(document.getElementById("back-color-picker-insert"));
+        this.backColorPicker = new colorPicker(document.getElementById("back-color-picker-insert"));
     }
 
     setZoomCustom(value) {
@@ -189,90 +212,107 @@ class menu {
             </div>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Scale Nodes</h4>
+                    <h4 class="accordion-item-heading">Nodes</h4>
                     <div id="node-size" class="accordion-item-content">
-                        <input type="radio" name="nodesize" value="none" id="nonesize" checked/>
-                        <label for="nonesize">Uniform</label><br>
-                        <input type="radio" name="nodesize" value="content" id="contentsize" />
-                        <label for="contentsize">Cardinality</label><br>
-                        <input type="radio" name="nodesize" value="continuous" id="continuoussize" />
-                        <label for="continuoussize">Variable</label><br>
-                        <input placeholder="Select:" list="continuoussizedatalist" name="continuoussizeinput" id="continuoussizeinput" autocomplete="off" disabled>
-                        <br>
-                        <datalist id="continuoussizedatalist">
-                        ${data.getContinuousNames().map(v => `<option value="${v}">`).join('')}
-                        </datalist>
+                        <fieldset>
+                        <legend>Color</legend>
+                            <input type="radio" name="nodecolor" value="uniform" id="nodecoloruniform" checked/>
+                            <label for="nodecoloruniform">Uniform</label><br>
+                            <input type="radio" name="nodecolor" value="variable" id="nodecolorvariable"/>
+                            <label for="nodecolorvariable">Variable</label><br>
+                            <input placeholder="Select:" list="variablecolordatalist" name="variablecolorinput" id="variablecolorinput" autocomplete="off" disabled>
+                            <br>
+                            <datalist id="variablecolordatalist">
+                            ${data.getVariableNames().map(v => `<option value="${v}">`).join('')}
+                            </datalist>
+                            <br>
+                            <div id="node-color-picker-insert"></div>
+                        </fieldset>
+                        <fieldset>
+                        <legend>Size</legend>
+                            <input type="radio" name="nodesize" value="none" id="nonesize" checked/>
+                            <label for="nonesize">Uniform<br>
+                            <input type="radio" name="nodesize" value="content" id="contentsize" /></label>
+                            <label for="contentsize">Points</label><br>
+                            <input type="radio" name="nodesize" value="continuous" id="continuoussize" />
+                            <label for="continuoussize">Variable</label><br>
+                            <input placeholder="Select:" list="continuoussizedatalist" name="continuoussizeinput" id="continuoussizeinput" autocomplete="off" disabled>
+                            <datalist id="continuoussizedatalist">
+                            ${data.getContinuousNames().map(v => `<option value="${v}">`).join('')}
+                            </datalist>
+                        </fieldset>
                     </div>
                 </div>
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Color Nodes</h4>
-                    <div id="node-color" class="accordion-item-content">
-                    <input type="radio" name="nodecolor" value="uniform" id="nodecoloruniform" checked/>
-                    <label for="nodecoloruniform">Uniform</label><br>
-                    <input type="radio" name="nodecolor" value="variable" id="nodecolorvariable"/>
-                    <label for="nodecolorvariable">Variable</label><br>
-                    <input placeholder="Select:" list="variablecolordatalist" name="variablecolorinput" id="variablecolorinput" autocomplete="off" disabled>
-                    <br>
-                    <datalist id="variablecolordatalist">
-                    ${data.getVariableNames().map(v => `<option value="${v}">`).join('')}
-                    </datalist>
-                    <br>
-                    <div id="node-color-picker-insert"></div>
-                    <input type="range" min="0" max="100" value="100" class="slider" id="node-alpha-slider"><br><br>
+                    <h4 class="accordion-item-heading">Edges</h4>
+                    <div class="accordion-item-content">
+                        <fieldset>
+                        <legend>Color</legend>
+                            <input type="radio" name="edgeColor" value="nodes" id="edgecolornode" class="edge-color-meta-radio" checked/>
+                            <label for="edgecolornode">From Nodes</label><br>
+                            <input type="radio" name="edgeColor" value="uniform" id="edgecolor" class="edge-color-meta-radio" />
+                            <label for="edgecolor">Uniform</label><br><br>
+                            <div id="edge-color-picker-insert"></div>
+                        </fieldset>
+                        <fieldset>
+                        <legend>Style</legend>
+                            Opacity
+                            <br>
+                            <input type="range" min="0" max="100" value="100" class="slider" id="edge-alpha-slider"><br>
+                            Scale
+                            <br>
+                            <input type="range" min="0" max="100" value="10" class="slider" id="edge-width-slider"><br>
+                        </fieldset>
                     </div>
                 </div>
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Label Nodes</h4>
-                    <div id="labelselect" class="accordion-item-content">
-                        <form name="labels">
-                        <input type="radio" name="labeltype" value="name" id="name" checked />
-                        <label for="name">Name</label><br>
-                        <input type="radio" name="labeltype" value="size" id="size">
-                        <label for="size">Points</label><br>
-                        <input type="radio" name="labeltype" value="none" id="none">
-                        <label for="none">None</label>
-                        </form>
+                    <h4 class="accordion-item-heading">Labels</h4>
+                    <div class="accordion-item-content">
+                        <fieldset>
+                        <legend>Nodes</legend>
+                            <form name="labels">
+                            <input type="radio" name="labeltype" value="name" id="name" checked />
+                            <label for="name">Given Name</label><br>
+                            <input type="radio" name="labeltype" value="id" id="id" />
+                            <label for="id">ID</label><br>
+                            <input type="radio" name="labeltype" value="size" id="size">
+                            <label for="size">Points</label><br>
+                            <input type="radio" name="labeltype" value="none" id="none">
+                            <label for="none">None</label>
+                            </form>
+                        </fieldset>
+                        <fieldset>
+                        <legend>Color</legend>
+                            <input type="radio" name="labelColor" value="background" id="labelcolorbackground" class="label-color-meta-radio" checked/>
+                            <label for="labelcolorbackground">From Background</label><br>
+                            <input type="radio" name="labelColor" value="uniform" id="labelcolor" class="label-color-meta-radio" />
+                            <label for="labelcolor">Uniform</label><br><br>
+                            <div id="label-color-picker-insert"></div>
+                        </fieldset>
                     </div>
                 </div>
+                
             </div>
             <div class="accordion-wrapper">
                 <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Scale Edges</h4>
-                    <div class="accordion-item-content">
-                        <form name="edge-slider">
-                        <input type="range" min="0" max="100" value="50" class="slider" id="edge-width-slider"><br><br>
-                        <a href="#" class="myButton" id="reset-edge-width">Reset</a>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Color Edges</h4>
-                    <div class="accordion-item-content">
-                        <input type="radio" name="edgeColor" value="nodes" id="edgecolornode" class="edge-color-meta-radio" checked/>
-                        <label for="edgecolornode">Use Node Colors</label><br>
-                        <input type="radio" name="edgeColor" value="uniform" id="edgecolor" class="edge-color-meta-radio" />
-                        <label for="edgecolor">Uniform</label><br>
-                        <!-- ${data.getContinuousNames().map(v => `<input type="radio" name="edgeColor" value="${v}" id="${v}edgecolor" class="edge-color-meta-radio"/><label for="${v}edgecolor">${v}</label><br>`).join('')}-->
-                        
-                        <div id="edge-color-picker-insert"></div><br>
-                        <input type="range" min="0" max="100" value="100" class="slider" id="edge-alpha-slider"><br><br>
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-wrapper">
-                <div class="accordion-item close">
-                    <h4 class="accordion-item-heading">Render</h4>
+                    <h4 class="accordion-item-heading">Save</h4>
                     <div class="accordion-item-content">
 
-                    <div id="back-color-picker-insert"></div><br>
+                    <fieldset>
+                    <legend>Background</legend>
+                        <div id="back-color-picker-insert"></div>
+                    </fieldset>
+
+                    <fieldset>
+                    <legend>Format</legend>
                         <form name="graphext">
-                        <input type="radio" name="graphtype" value="png" id="png" checked />
-                        <label for="png">PNG</label><br>
-                        <input type="radio" name="graphtype" value="jpeg" id="jpeg">
-                        <label for="jpeg">JPEG</label><br><br>
-                        <a href="#" class="myButton" id="graphexport">Export Graph</a>
+                            <input type="radio" name="graphtype" value="png" id="png" checked />
+                            <label for="png">PNG</label><br>
+                            <input type="radio" name="graphtype" value="jpeg" id="jpeg">
+                            <label for="jpeg">JPEG</label><br><br>
+                            <a href="#" class="myButton" id="graphexport">Export</a>
                         </form>
+                    </fieldset>
                     </div>
                 </div>
             </div>

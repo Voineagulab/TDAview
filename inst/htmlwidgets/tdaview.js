@@ -5,7 +5,7 @@ HTMLWidgets.widget({
 	factory: function(element, width, height) {
 		var camera, hudCamera;
 		var renderer, labelRenderer;
-		var nodeLegend, edgeLegend;
+		var nodeLegend;
 		var frustumSize = 1000;
 		var graph;
 		var shouldPaint = true;
@@ -14,6 +14,12 @@ HTMLWidgets.widget({
 
 		return {
 			renderValue: function(x) {
+				if (!WEBGL.isWebGLAvailable() ) {
+					var warning = WEBGL.getWebGLErrorMessage();
+					document.getElementById( 'container' ).appendChild( warning );
+					return;
+				}
+
 				width -= 250;
 
 				//Create cameras
@@ -52,10 +58,9 @@ HTMLWidgets.widget({
 				
 				//Create maps and legends
 				var nodeMap = new ColorMap('rainbow', 256);
-				nodeLegend = new MultiLegend(nodeMap, hudScene, hudCamera.right, hudCamera.bottom, aspect/2);
+				nodeLegend = new MultiLegend(nodeMap, hudScene, hudCamera.right, hudCamera.bottom);
 
 				var edgeMap = new ColorMap('rainbow', 512);
-				edgeLegend = new MultiLegend(edgeMap, hudScene, hudCamera.right, hudCamera.bottom + 80, aspect/2);
 
 				//Create graph with point count radius initially
 				graph = new forceGraph(data.getBins(), data.getAdjacency(), new Array(100).fill(""), nodeMap, shouldShareMap ? nodeMap : edgeMap);
@@ -71,11 +76,6 @@ HTMLWidgets.widget({
 					nodeLegend.setVisible(value);
 					shouldPaint = true;
 				});
-
-				sidebar.eventSystem.addEventListener("OnEdgeLegendToggle", function(value) {
-					edgeLegend.setVisible(value);
-					shouldPaint = true;
-				})
 
 				//Change node size to uniform, point count or variable
 				sidebar.eventSystem.addEventListener("OnNodeSizeChange", function(value) {
@@ -145,12 +145,6 @@ HTMLWidgets.widget({
 					shouldPaint = true;
 				});
 
-				//Change node alpha
-				sidebar.eventSystem.addEventListener("OnNodeAlphaChange", function(percent) {
-					graph.setNodeAlpha(percent);
-					shouldPaint = true;
-				});
-
 				//Change edge alpha
 				sidebar.eventSystem.addEventListener("OnEdgeAlphaChange", function(percent) {
 					graph.setLinkAlpha(percent);
@@ -162,15 +156,6 @@ HTMLWidgets.widget({
 					graph.setLinkWidth(percent);
 					graph.applyLinkPositions();
 					shouldPaint = true;
-				});
-
-				//Reset edge width
-				sidebar.eventSystem.addEventListener("ResetEdgeWidth", function() {
-					graph.setLinkWidth(0.5);
-					graph.applyLinkPositions();
-					shouldPaint = true;
-					var slider = document.forms["edge-slider"];
-					slider.reset();
 				});
 
 				//Uniform edge color change
@@ -189,33 +174,43 @@ HTMLWidgets.widget({
 				sidebar.eventSystem.addEventListener("OnEdgeColorChange", function(value) {
 					if(value === "nodes") {
 						graph.setLinkColorMap(nodeMap);
-						sidebar.edgeGradPicker.setState(STATE_SINGLE); //STATE_DISABLED
 						graph.applyLinkPositions();
-						edgeLegend.setNone();
+						graph.links.forEach(l => graph.setLinkGradientFromNodes(l));
+						graph.updateLinkColors();
 						shouldShareMap = true;
 					} else if(value === "uniform") {
 						graph.setLinkColorMap(edgeMap);
-						sidebar.edgeGradPicker.setState(STATE_SINGLE);
-						edgeLegend.setNone();
 						shouldShareMap = false;
-					} else {
-						/*
-						graph.setLinkColorMap(edgeMap);
-						sidebar.edgeGradPicker.setState(STATE_GRADIENT);
-
-						graph.links.forEach(l => {l.setGradient(data.getContinuousBinVariableValueNormalised(l.source.userData, value, "mean"), data.getContinuousBinVariableValueNormalised(l.target.userData, value, "mean")); l.updateColor()})
-						edgeLegend.setBar(data.getContinuousMin(value, "mean"), data.getContinuousMax(value, "mean"));
-						shouldShareMap = false;*/
 					}
 					shouldPaint = true;
 				});
 
+				//Label color type change
+				sidebar.eventSystem.addEventListener("OnLabelColorChange", function(value) {
+					console.log(value);
+					if(value === "background") {
+						shouldSetLabelColorAutomatically = true;
+						setLabelColorsAutomatic(customBackgroundColor);
+					} else if(value === "uniform") {
+						shouldSetLabelColorAutomatically = false;
+						setLabelColors(customLabelColor);
+
+					}
+					shouldPaint = true;
+				});
+
+
 				sidebar.backColorPicker.eventSystem.addEventListener("OnColorChange", function(color) {
 					scene.background.setHex("0x" + color);
 					graph.setBackgroundColor(new THREE.Color("#" + color));
+					if(shouldSetLabelColorAutomatically) {
+						customBackgroundColor = color;
+						setLabelColorsAutomatic(customBackgroundColor);
+					}
 					shouldPaint = true;
-				})
-				sidebar.backColorPicker.picker.set("#4b515b");
+				});
+
+				sidebar.backColorPicker.picker.set("#252a33");
 
 				//Toggle visibility of legends
 				sidebar.eventSystem.addEventListener("OnLegendToggle", function(val) {
@@ -225,6 +220,38 @@ HTMLWidgets.widget({
 					} else if (val.value == "node-size-legend") {
 						console.log("The user picked the",val.value,"option!");
 						//TODO
+					}
+				});
+
+				var colorableLabels = document.getElementsByClassName("label");
+				var customLabelColor = "ffffff";
+				var customBackgroundColor = "000000";
+				var shouldSetLabelColorAutomatically = true;
+				var setLabelColors = function(color) {
+					for(let i=0; i<colorableLabels.length; i++) {
+						colorableLabels[i].style.color = "#" + color;
+					}
+					nodeLegend.setTextColor(color);
+					graph.setSelectColor(color);
+					shouldPaint = true;
+				};
+
+				var setLabelColorsAutomatic = function(backgroundColor) {
+					var targetObject = {};
+					let colorObject = new THREE.Color("#" + backgroundColor);
+					let lightness = colorObject.getHSL(targetObject).l;
+					if(lightness < 0.1833) {
+						setLabelColors("ffffff");
+
+					} else if(lightness > 0.175) {
+						setLabelColors("000000");
+					}
+				}
+
+				sidebar.labelGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
+					customLabelColor = color;
+					if(!shouldSetLabelColorAutomatically) {
+						setLabelColors(color);
 					}
 				});
 
@@ -267,7 +294,6 @@ HTMLWidgets.widget({
 				//Zoom camera to accommodate simulated graph bounds
 				graph.eventSystem.addEventListener("onTick", function() {
 					if(graph.initiallizing && shouldAutoResize) {
-						var box = graph.getBoundingBox();
 						camera.zoom = getZoomMin(window.devicePixelRatio);
 						camera.updateProjectionMatrix();
 						graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
@@ -285,14 +311,14 @@ HTMLWidgets.widget({
 				}
 
 				//Initiallise drag system
-				let navSystem = new NavSystem2D(exportDiv, renderer, camera);
+				let navSystem = new NavSystem2D(exportDiv, renderer, camera, scene);
 				navSystem.eventSystem.addEventListener("OnChange", function() {
 					shouldPaint = true;
 				});
-				let graphRect = new DragRect2D(camera);
-				let hudRect = new DragRect2D(hudCamera);
+				let graphRect = new DragRect2D(camera, scene);
+				let hudRect = new DragRect2D(hudCamera, hudScene);
 				graphRect.addDraggable(graph.nodes);
-				hudRect.addDraggable([nodeLegend, edgeLegend]);
+				hudRect.addDraggable([nodeLegend]);
 				navSystem.addRect(graphRect);
 				navSystem.addRect(hudRect);
 

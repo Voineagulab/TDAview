@@ -9,6 +9,7 @@ dependencies:
     script: 
       - three.min.js
       - css2drenderer.js
+      - compatibility.js
   - name: JQUERY
     version: 3.3.1
     src: "htmlwidgets/lib/JQUERY"
@@ -43,6 +44,7 @@ dependencies:
       - colorMap.js
       - event.js
       - menu.js
+      - colorPicker.js
       - gradientPicker.js
       - multiLegend.js
       - data.js
