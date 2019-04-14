@@ -8,7 +8,6 @@ class NodeRenderer {
 
         this.material = new THREE.RawShaderMaterial({
             uniforms: {
-                backgroundColor: {value: new THREE.Color()},
                 nodeZoom: {value: 1.0},
                 nodeAlpha: {value: 1.0},
                 nodeTex: {value: colormap.getTexture() },
@@ -35,12 +34,14 @@ class NodeRenderer {
                     gl_Position = projectionMatrix * modelViewMatrix * vec4 (position, 0.0, 1.0);
                 }`,
             fragmentShader: /*glsl*/`
+            #ifdef GL_OES_standard_derivatives
+                #extension GL_OES_standard_derivatives : enable
+            #endif
                 precision highp float;
-                #define M_PI 3.1415926535897932384626433832795
+
+                #define M_PI 3.14159265358979
 
                 uniform sampler2D nodeTex;
-                uniform float nodeAlpha;
-                uniform vec3 backgroundColor;
             
                 varying vec2 vPosition;
                 ${Array.from({ length: this.slices }, (_, i) => "varying vec2 vRun" + i + ";").join('')}
@@ -48,18 +49,35 @@ class NodeRenderer {
                 void main() {
                     vec2 cxy = 2.0 * gl_PointCoord - 1.0;
                     float r = dot(cxy, cxy);
+                    float a;
+
+                #ifdef GL_OES_standard_derivatives
+                    float d = fwidth(r);
+                    a = 1.0 - smoothstep(1.0 - d, 1.0 + d, r);
+                #else
                     if (r > 1.0) discard;
-                
-                    float pixelPercent = (1.0 + atan(cxy.x, cxy.y) / M_PI) / 2.0;
+                    a = 1.0;
+                #endif
 
-                    float u;
-                    ${Array.from({ length: this.slices-1}, (_, i) => "if(vRun" + i + ".x>=pixelPercent){u=vRun" + i + ".y;}else{").join('')}
-                    ${"u=vRun" + (this.slices-1) + ".y;" + "}".repeat(this.slices-1)}
+                    float pixelPercent = 1.0 - (1.0 + atan(cxy.x, cxy.y) / M_PI) / 2.0;
+                    vec2 curr;
 
-                    gl_FragColor = vec4( mix( backgroundColor, texture2D( nodeTex, vec2 ( u , 1.0) ).xyz, nodeAlpha), 1.0);
+                #ifdef GL_OES_standard_derivatives
+                    vec2 prev;
+                    if(pixelPercent<=vRun0.x){curr=vRun0;prev=vRun0;}else{
+                    ${Array.from({ length: this.slices-2}, (_, i) => "if(pixelPercent<=vRun" + (i+1) + ".x){curr=vRun" + (i+1) + ";prev=vRun" + (i) + ";}else{").join('')}
+                    ${"curr=vRun" + (this.slices-1) + ";prev=vRun" + (this.slices-1) + ";" + "}".repeat(this.slices-1)}
+                    d = mod(fwidth(pixelPercent), 1.0);
+                    vec3 c = mix(texture2D( nodeTex, vec2 ( prev.y , 1.0) ).xyz, texture2D( nodeTex, vec2 ( curr.y , 1.0) ).xyz, clamp((pixelPercent - prev.x) / d, 0.0, 1.0));
+                    gl_FragColor = vec4( c, a);
+                #else
+                    ${Array.from({ length: this.slices-1}, (_, i) => "if(pixelPercent<=vRun" + i + ".x){curr=vRun" + i + ";}else{").join('')}
+                    ${"curr=vRun" + (this.slices-1) + ";" + "}".repeat(this.slices-1)}
+                    gl_FragColor = vec4( texture2D( nodeTex, vec2 ( curr.y , 1.0) ).xyz, a);
+                #endif
                 }`,
             side: THREE.BackSide,
-            transparent: false,
+            transparent: true,
         });
 
         //this.material.sizeAttenuation = true; this is for perspective cameras. Current x1.7 seems to depend on innerheight
@@ -87,10 +105,6 @@ class NodeRenderer {
 
     setAlpha(value) {
         this.material.uniforms.nodeAlpha.value = value;
-    }
-
-    setBackgroundColor(value) {
-        this.material.uniforms.backgroundColor.value = value;
     }
 
     setOffsetBuffer(node) {
@@ -158,13 +172,10 @@ class NodeInstance extends Draggable2D {
         this.x = this.y = 0.0;
         this.fx = this.fy = null;
 
-        if(data.name) {
-            let div = document.createElement('div');
-            div.className = "unselectable label";
-            this.label = new THREE.CSS2DObject(div);
-            parent.add(this.label);
-            this.setLabelText(data.name);
-        }
+        let div = document.createElement('div');
+        div.className = "unselectable label";
+        this.label = new THREE.CSS2DObject(div);
+        parent.add(this.label);
     }
 
     getPositionX() {
