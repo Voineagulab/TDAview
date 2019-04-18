@@ -70,6 +70,13 @@ class forceGraph extends THREE.Group {
             self.applyLinkPositions();
         });
 
+        //Initiallise nodes in a circle for consistent layouts
+        for(let i=0; i<this.nodes.length; i++) {
+            let rad = i/this.nodes.length * 2 * Math.PI;
+            this.nodes[i].x = Math.sin(rad);
+            this.nodes[i].y = Math.cos(rad);
+        }
+
         //Initiallise simulation
         this.simulation = d3.forceSimulation(this.nodes)
             .force("link", d3.forceLink(this.linkRenderer.links).strength(20 * 1/this.links.length))
