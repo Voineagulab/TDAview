@@ -85,6 +85,7 @@ HTMLWidgets.widget({
 					}
 					graph.updateNodeScales();
 					graph.applyLinkPositions();
+					graph.updateNodeLabelPositions();
 					shouldPaint = true;
 				});
 
