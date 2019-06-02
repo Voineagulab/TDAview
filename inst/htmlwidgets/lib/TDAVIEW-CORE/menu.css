@@ -20,13 +20,12 @@
     width: 0px;
 }
 
-.vranger {
+input[type="range"].vranger {
     position: absolute;
     left: 260px;
     bottom: 10px;
     width: 20%;
-  }
-
+}
 
 /* Table styling */
 
@@ -138,7 +137,7 @@ select {
     background-color: #ddd;
 }
 
-.open .accordion-item-heading::after {
+.open_acc .accordion-item-heading::after {
     margin: 0px;
     background-color: #bdc3c7;
     color: #101314;
@@ -150,7 +149,7 @@ select {
     margin-left: 5px;
 }
 
-.close .accordion-item-heading::after {
+.close_acc .accordion-item-heading::after {
     margin: 0px;
     background-color: #bdc3c7;
     color: #101314;
@@ -174,7 +173,7 @@ select {
     transition: all .175s ease-in-out .175s;
 }
 
-.open .accordion-item-content {
+.open_acc .accordion-item-content {
     padding: 10px;
     
     width: 100%;
@@ -185,7 +184,7 @@ select {
     z-index: 5;
 }
 
-.close .accordion-item-content {
+.close_acc .accordion-item-content {
     padding-left: 10px;
 
     width: 100%;

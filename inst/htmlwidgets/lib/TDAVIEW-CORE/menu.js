@@ -13,27 +13,32 @@ class menu {
         for(let i=0; i<accHD.length; i++) {
             accHD[i].addEventListener('click', function() {
                 for(let i=0; i<accItem.length; i++) {
-                    if (accItem[i].classList.contains("open") && accItem[i] != this.parentNode) {
-                        accItem[i].classList.remove("open");
-                        accItem[i].classList.add("close");
+                    if (accItem[i].classList.contains("open_acc") && accItem[i] != this.parentNode) {
+                        accItem[i].classList.remove("open_acc");
+                        accItem[i].classList.add("close_acc");
                     }
                 }
 
-                if(this.parentNode.classList.contains("open")) {
-                    this.parentNode.classList.remove("open");
-                    this.parentNode.classList.add("close");
+                if(this.parentNode.classList.contains("open_acc")) {
+                    this.parentNode.classList.remove("open_acc");
+                    this.parentNode.classList.add("close_acc");
                 } else {
-                    this.parentNode.classList.remove("close");
-                    this.parentNode.classList.add("open");
+                    this.parentNode.classList.remove("close_acc");
+                    this.parentNode.classList.add("open_acc");
                 }
                 
             }, false);
         }
 
+        graph.eventSystem.addEventListener("OnNodeSelect", function() {
+			var acc = document.getElementById("node-data").parentNode;
+			acc.setAttribute("class", "accordion-item open_acc");
+        });
+
 		//Close node data accordion when no node is selected
 		graph.eventSystem.addEventListener("OnNodeDeselect", function() {
 			var acc = document.getElementById("node-data").parentNode;
-			acc.setAttribute("class", "accordion-item close");
+			acc.setAttribute("class", "accordion-item close_acc");
             //TODO -- Close enlarged table - closes on selecting another node
         });
         
@@ -137,7 +142,6 @@ class menu {
             labelradios[0].disabled = true;
             labelradios[3].checked = true;
         }
-        console.log(namesGiven);
 
         var edgeAlphaSlider = document.getElementById("edge-alpha-slider");
         edgeAlphaSlider.addEventListener("input", function() {
@@ -161,11 +165,17 @@ class menu {
 
         //Label color events
         this.labelGradPicker = new colorPicker(document.getElementById("label-color-picker-insert"));
-        var edgeColorMetaRadios = document.getElementsByClassName("label-color-meta-radio");
-        for(let i=0; i<edgeColorMetaRadios.length; i++) {
-            edgeColorMetaRadios[i].onclick = function() {
+        var labelColorMetaRadios = document.getElementsByClassName("label-color-meta-radio");
+        for(let i=0; i<labelColorMetaRadios.length; i++) {
+            labelColorMetaRadios[i].onclick = function() {
                 self.eventSystem.invokeEvent("OnLabelColorChange", this.value);
             }
+        }
+
+        //Label size events
+        var labelSizeInput = document.getElementById("labelSize");
+        labelSizeInput.onchange = function() {
+            self.eventSystem.invokeEvent("OnLabelSizeChange", labelSizeInput.value);
         }
 
         //Export events
@@ -193,17 +203,22 @@ class menu {
             <br>
             <h1 class="heading"></h1><br>
             <div class="accordion-wrapper">
-                <div class="accordion-item close">
+                <div class="accordion-item close_acc">
                     <h4 class="accordion-item-heading">Selected</h4>
                     <div id="node-data" class="accordion-item-content">
+                        <input placeholder="Select:" list="variableselectdatalist" name="variableselectinput" id="variableselectinput" autocomplete="off">
+                        <br>
+                        <datalist id="variableselectdatalist">
+                        ${data.getVariableNames().map(v => `<option value="${v}">`).join('')}
+                        </datalist>
                         <table>
                         <tbody id="tbody">
                             <tr>
                                 <th></th>
                                 <th>Mean</th>
                                 <th>Points</th>
+                                <th>TTest</th>
                             </tr>
-                            ${data.getVariableNames().map(v => `<tr><th>${v}</th><td>-</td><td>-</td></tr>`).join('')}
                         </tbody>
                         </table><br>
                         <!-- a href="#" class="myButton" id="expand-table">Expand table</a -->
@@ -211,7 +226,7 @@ class menu {
                 </div>
             </div>
             <div class="accordion-wrapper">
-                <div class="accordion-item close">
+                <div class="accordion-item close_acc">
                     <h4 class="accordion-item-heading">Nodes</h4>
                     <div id="node-size" class="accordion-item-content">
                         <fieldset>
@@ -243,7 +258,7 @@ class menu {
                         </fieldset>
                     </div>
                 </div>
-                <div class="accordion-item close">
+                <div class="accordion-item close_acc">
                     <h4 class="accordion-item-heading">Edges</h4>
                     <div class="accordion-item-content">
                         <fieldset>
@@ -265,7 +280,7 @@ class menu {
                         </fieldset>
                     </div>
                 </div>
-                <div class="accordion-item close">
+                <div class="accordion-item close_acc">
                     <h4 class="accordion-item-heading">Labels</h4>
                     <div class="accordion-item-content">
                         <fieldset>
@@ -289,12 +304,16 @@ class menu {
                             <label for="labelcolor">Uniform</label><br><br>
                             <div id="label-color-picker-insert"></div>
                         </fieldset>
+                        <fieldset>
+                        <legend>Size</legend>
+                            <input type="text" id="labelSize" value="1"><br>
+                        </fieldset>
                     </div>
                 </div>
                 
             </div>
             <div class="accordion-wrapper">
-                <div class="accordion-item close">
+                <div class="accordion-item close_acc">
                     <h4 class="accordion-item-heading">Save</h4>
                     <div class="accordion-item-content">
 

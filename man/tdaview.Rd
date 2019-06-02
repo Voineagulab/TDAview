@@ -2,9 +2,9 @@
 % Please edit documentation in R/tdaview.R
 \name{tdaview}
 \alias{tdaview}
-\title{<TDAView>}
+\title{<tdaview>}
 \usage{
-tdaview(mapper, metadata, labels, width = NULL, height = NULL,
+tdaview(mapper, metadata, labels = NULL, width = NULL, height = NULL,
   elementId = NULL)
 }
 \arguments{

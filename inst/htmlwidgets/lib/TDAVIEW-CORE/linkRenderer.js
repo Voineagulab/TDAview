@@ -1,5 +1,6 @@
-class LinkRenderer {
-    constructor(linkmap, nodes, adjacency, parent, width = 0.1) {
+class LinkRenderer extends THREE.Group {
+    constructor(linkmap, count, width = 0.1) {
+        super();
         this.width = width;
 
         this.material = new THREE.RawShaderMaterial({
@@ -36,25 +37,25 @@ class LinkRenderer {
                 }`,
             side: THREE.FrontSide,
             transparent: false,
-            vertexColors: THREE.VertexColors
-        });
+            //blending: THREE.AdditiveBlending, //this works but goes light instead of dark
+            //blending: THREE.MultiplyBlending //this works except requires 1.0 alpha
+            /*blending: THREE.CustomBlending,
+            blendEquation: THREE.AddEquation,
+            blendSrc: THREE.DstColorFactor,
+            blendDst: THREE.ZeroFactor,*/
 
-        this.links = [];
-        for(let i=0, curr=0; i<adjacency[0].length; i++) {
-            let row = adjacency[i];
-            for(let j=0; j<row.length; j++) {
-                if(row[j]) {
-                    this.links.push(new LinkInstance(curr++, nodes[i], nodes[j]));
-                }
-            }
-        }
+            /*blendEquationAlpha: THREE.NormalEquation,
+            blendSrcAlpha: THREE.OneMinusSrcAlphaFactor,
+            blendDstAlpha: THREE.ZeroFactor*/
+            
+        });
 
         let geometry = new THREE.BufferGeometry();
 
-        let vertices = new Float32Array(8 * this.links.length);
+        let vertices = new Float32Array(8 * count);
         geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 2));
 
-        let indices = new Array(6 * this.links.length);
+        let indices = new Array(6 * count);
         for(let i=0, j=0; i<indices.length; i+=6, j+=4) {
             indices[i+0] = indices[i+3] = j+0;
             indices[i+1] = j+1;
@@ -64,14 +65,14 @@ class LinkRenderer {
 
         geometry.setIndex(indices);
 
-        let uv = new Float32Array(4 * this.links.length);
+        let uv = new Float32Array(4 * count);
         geometry.addAttribute("u", new THREE.BufferAttribute(uv, 1));
 
         geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), Infinity);
         geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-0.5, -0.5, 0), new THREE.Vector3(0.5, 0.5, 0));
         
         this.mesh = new THREE.Mesh(geometry, this.material);
-        parent.add(this.mesh);
+        this.add(this.mesh);
     }
 
     setAlpha(value) {
@@ -92,13 +93,13 @@ class LinkRenderer {
 
     setColor(link, value) {
         var array = this.mesh.geometry.attributes.u.array;
-        var index = 4 * link.id;
+        var index = 4 * link.link_id;
         array[index + 0] = array[index + 1] = array[index + 2] = array[index + 3] = value;
     }
 
     setGradient(link, from, to) {
         var array = this.mesh.geometry.attributes.u.array;
-        var index = 4 * link.id;
+        var index = 4 * link.link_id;
         array[index + 0] = array[index + 1] = from;
         array[index + 2] = array[index + 3] = to;
     }
@@ -123,7 +124,7 @@ class LinkRenderer {
         
         //Assign all vector components to buffer
         var p = this.mesh.geometry.attributes.position.array;
-        var index = 8 * link.id;
+        var index = 8 * link.link_id;
         p[index + 0] = p0.x; p[index + 1] = p0.y;
         p[index + 2] = p1.x; p[index + 3] = p1.y;
         p[index + 4] = p2.x; p[index + 5] = p2.y;
@@ -137,7 +138,7 @@ class LinkRenderer {
 
 class LinkInstance {
     constructor(id, source, target) {
-        this.id = id;
+        this.link_id = id;
         this.source = source;
         this.target = target;
     }

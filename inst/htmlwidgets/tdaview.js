@@ -32,13 +32,13 @@ HTMLWidgets.widget({
 				//Create scenes
 				var scene = new THREE.Scene();
 				var hudScene = new THREE.Scene();
-				scene.background = new THREE.Color();
 
 				//Create renderers
 				renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true });
+				renderer.context.disable(renderer.context.DEPTH_TEST)
 				renderer.setSize(width, height);
 				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setClearColor(0x000000, 0);
+				renderer.setClearColor(0xffffff, 1.0);
 				renderer.depth = false;
 				renderer.sortObjects = false;
 				renderer.autoClear = false;
@@ -63,7 +63,7 @@ HTMLWidgets.widget({
 				var edgeMap = new ColorMap('rainbow', 512);
 
 				//Create graph with point count radius initially
-				graph = new forceGraph(data.getBins(), data.getAdjacency(), new Array(100).fill(""), nodeMap, shouldShareMap ? nodeMap : edgeMap);
+				graph = new forceGraph(data.getBins(), data.getAdjacency(), nodeMap, shouldShareMap ? nodeMap : edgeMap);
 				graph.nodes.forEach(n => graph.setNodeScale(n, 0.5));
 				graph.updateNodeScales();
 
@@ -187,10 +187,9 @@ HTMLWidgets.widget({
 
 				//Label color type change
 				sidebar.eventSystem.addEventListener("OnLabelColorChange", function(value) {
-					console.log(value);
 					if(value === "background") {
 						shouldSetLabelColorAutomatically = true;
-						setLabelColorsAutomatic(customBackgroundColor);
+						setLabelColorsAutomatic(customBackgroundColor); //TODO: Changing background while automatic label color is disabled prevents labels from switching to black/white when they should
 					} else if(value === "uniform") {
 						shouldSetLabelColorAutomatically = false;
 						setLabelColors(customLabelColor);
@@ -199,10 +198,18 @@ HTMLWidgets.widget({
 					shouldPaint = true;
 				});
 
+				//Label size change
+				sidebar.eventSystem.addEventListener("OnLabelSizeChange", function(value) {
+					graph.setFontSize(value);
+					graph.updateNodeLabelSizes();
+				});
+
 
 				sidebar.backColorPicker.eventSystem.addEventListener("OnColorChange", function(color) {
-					scene.background.setHex("0x" + color);
-					graph.setBackgroundColor(new THREE.Color("#" + color));
+					let col = new THREE.Color("#" + color);
+					//document.body.style.backgroundColor = "#" + color; //TODO: this doesn't work with HTML2CANVAS
+					renderer.setClearColor(col);
+					graph.setBackgroundColor(col);
 					if(shouldSetLabelColorAutomatically) {
 						customBackgroundColor = color;
 						setLabelColorsAutomatic(customBackgroundColor);
@@ -255,8 +262,11 @@ HTMLWidgets.widget({
 					}
 				});
 
+
 				//Download image generated from export div
 				sidebar.eventSystem.addEventListener("OnExport", function(value) {
+					//Shiny.onInputChange("mygraph_render_as_format", "pdf");
+					
 					html2canvas(exportDiv, {
 						x: 250,
 						width: width,
@@ -283,6 +293,8 @@ HTMLWidgets.widget({
 					camera.zoom = THREE.Math.lerp(getZoomMin(window.devicePixelRatio), getZoomMax(), value);
 					camera.updateProjectionMatrix();
 					graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
+					graph.setFontZoom(camera.zoom);
+					graph.updateNodeLabelSizes();
 					shouldAutoResize = false;
 					shouldPaint = true;
 				});
@@ -292,10 +304,13 @@ HTMLWidgets.widget({
 				});
 
 				//Zoom camera to accommodate simulated graph bounds
+				
 				graph.eventSystem.addEventListener("onTick", function() {
 					if(graph.initiallizing && shouldAutoResize) {
 						camera.zoom = getZoomMin(window.devicePixelRatio);
 						camera.updateProjectionMatrix();
+						graph.setFontZoom(camera.zoom);
+						graph.updateNodeLabelSizes();
 						graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
 					}
 					shouldPaint = true;
@@ -319,6 +334,7 @@ HTMLWidgets.widget({
 				let hudRect = new DragRect2D(hudCamera, hudScene);
 				graphRect.addDraggable(graph.nodes);
 				hudRect.addDraggable([nodeLegend]);
+				hudRect.addDraggable(nodeLegend.scaleGraphic.handles);
 				navSystem.addRect(graphRect);
 				navSystem.addRect(hudRect);
 
@@ -326,6 +342,8 @@ HTMLWidgets.widget({
 					if(navSystem.animate()) {
 						graph.setPixelZoom(camera.zoom * window.innerHeight * window.devicePixelRatio / frustumSize * 2);
 						sidebar.setZoomCustom((camera.zoom - getZoomMin(window.devicePixelRatio))/getZoomMax());
+						graph.setFontZoom(camera.zoom);
+						graph.updateNodeLabelSizes();
 						shouldAutoResize = false;
 						shouldPaint = true;
 					}

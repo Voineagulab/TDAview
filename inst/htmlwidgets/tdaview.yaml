@@ -3,33 +3,33 @@ dependencies:
     version: 5.0
     src: "htmlwidgets/lib/D3"
     script: d3.min.js
-  - name: THREE
+  - name: three
     version: 95
     src: "htmlwidgets/lib/THREE"
     script: 
       - three.min.js
       - css2drenderer.js
       - compatibility.js
-  - name: JQUERY
+  - name: jquery
     version: 3.3.1
     src: "htmlwidgets/lib/JQUERY"
     script: jquery.min.js
-  - name: HTML2CANVAS
+  - name: html2canvas
     version: 1.0.0
     src: "htmlwidgets/lib/HTML2CANVAS"
     script: html2canvas.min.js
-  - name: FONTAWESOME
+  - name: fontawesome
     version: 4.1.0
     src: "htmlwidgets/lib/FONTAWESOME"
     stylesheet: "font-awesome.css"
-  - name: COLORPICKER
+  - name: colorpicker
     version: 4.1.0
     src: "htmlwidgets/lib/COLORPICKER"
     script: color-picker.min.js
     stylesheet: color-picker.min.css
   - name: "tdaview-core"
     version: 1.0
-    src: "htmlwidgets/lib"
+    src: "htmlwidgets/lib/TDAVIEW-CORE"
     stylesheet:
       - style.css
       - menu.css

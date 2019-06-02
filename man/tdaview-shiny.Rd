@@ -3,12 +3,12 @@
 \name{tdaview-shiny}
 \alias{tdaview-shiny}
 \alias{tdaviewOutput}
-\alias{renderTdaview}
+\alias{rendertdaview}
 \title{Shiny bindings for tdaview}
 \usage{
-tdaviewOutput(outputId, width = "100\%", height = "400px")
+tdaviewOutput(outputId, width = "100\%", height = "100\%")
 
-renderTdaview(expr, env = parent.frame(), quoted = FALSE)
+rendertdaview(expr, env = parent.frame(), quoted = FALSE)
 }
 \arguments{
 \item{outputId}{output variable to read from}

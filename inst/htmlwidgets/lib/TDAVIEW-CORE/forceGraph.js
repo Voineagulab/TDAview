@@ -2,21 +2,22 @@
 Public Events: OnNodeSelect, OnNodeDeselect, OnTick, OnEnd
 */
 class forceGraph extends THREE.Group {
-    constructor(data, adjacency, labels, nodeColorMap, edgeColorMap, selectColor="ffffff") {
+    constructor(data, adjacency, nodeColorMap, edgeColorMap, selectColor="ffffff") {
         super();
         var self = this;
         this.initiallizing = true;
+        this.fontSize = 1;
+        this.fontZoom = 0;
 
         //Create selection mesh
         this.selectionMesh = new THREE.Mesh(new THREE.CircleBufferGeometry(10, 64), new THREE.MeshBasicMaterial());
-        this.add(this.selectionMesh);
         this.selectionMesh.visible = false;
         this.selectionMesh.position.z = -1;
         this.selectedNode = undefined;
         this.selectionMesh.material.color.setHex("0x" + selectColor);
 
         function onNodeDragStart() {
-            self.simulation.alphaTarget(0.3).restart();
+            self.simulation.alphaTarget(0.7).restart();
             self.initiallizing = false;
         }
     
@@ -44,7 +45,7 @@ class forceGraph extends THREE.Group {
             self.selectedNode = undefined;
             self.selectionMesh.visible = false;
         }
-        
+
         //Create nodes
         this.nodes = new Array(data.length);
         for(let i=0; i<data.length; i++) {
@@ -55,12 +56,26 @@ class forceGraph extends THREE.Group {
             this.nodes[i].eventSystem.addEventListener("OnSelect", onNodeSelect);
             this.nodes[i].eventSystem.addEventListener("OnDeselect", onNodeDeselect);
         }
+        
+        //TODO: assumes Mapper output is symmetric (random output was not)
+        this.links = [];
+        for(let i=0, curr=0; i<adjacency[0].length; i++) {
+            let row = adjacency[i];
+            for(let j=0; j<i; j++) {
+                if(row[j]) {
+                    this.links.push(new LinkInstance(curr++, this.nodes[i], this.nodes[j]));
+                    this.nodes[i].addNeighbor(this.nodes[j]);
+                    this.nodes[j].addNeighbor(this.nodes[i]);
+                }
+            }
+        }
 
-        this.nodeRenderer = new NodeRenderer(nodeColorMap, this.nodes, this);
-        this.linkRenderer = new LinkRenderer(edgeColorMap, this.nodes, adjacency, this);
+        this.nodeRenderer = new NodeRenderer(nodeColorMap, data.length);
+        this.linkRenderer = new LinkRenderer(edgeColorMap, this.links.length);
 
-
-        this.links = this.linkRenderer.links;
+        this.add(this.linkRenderer);
+        this.add(this.selectionMesh);
+        this.add(this.nodeRenderer);
 
         //Initiallise event system
         this.eventSystem = new event();
@@ -79,12 +94,17 @@ class forceGraph extends THREE.Group {
 
         //Initiallise simulation
         this.simulation = d3.forceSimulation(this.nodes)
-            .force("link", d3.forceLink(this.linkRenderer.links).strength(20 * 1/this.links.length))
+            .force("link", d3.forceLink(this.links))
             .force('center', d3.forceCenter())
-            .force("charge", d3.forceManyBody().strength(-100).distanceMax(100).distanceMin(10))
+            .force("charge", d3.forceManyBody().strength(-10))
             .on("tick", function() {
                 this.eventSystem.invokeEvent("onTick");
                 this.updateNodeLabelPositions();
+                /*need some event other than drag to update visible rects and avoid selector hack
+                due to zoom, handles should really be in the HUD scene only!
+                for(let i=0; i<this.nodes.length; i++) {
+                    this.nodes[i].eventSystem.invokeEvent("OnDrag", this.nodes[i], this.nodes[i].getPosition());
+                }*/
             }.bind(this))
             .on("end", function() {
                 this.initiallizing = false;
@@ -181,6 +201,20 @@ class forceGraph extends THREE.Group {
         for(let i=0; i<this.nodes.length; i++) {
             this.nodes[i].updateLabelPosition();
         }
+    }
+
+    updateNodeLabelSizes() {
+        for(let i=0; i<this.nodes.length; i++) {
+            this.nodes[i].setLabelSize(this.fontZoom * this.fontSize);
+        }
+    }
+
+    setFontZoom(value) {
+        this.fontZoom = value;
+    }
+
+    setFontSize(value) {
+        this.fontSize = value;
     }
 
     setLinkWidth(value) {

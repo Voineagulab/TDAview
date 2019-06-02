@@ -1,10 +1,11 @@
 const MAX_NODE_SIZE = 8;
 const MIN_NODE_SIZE = 2;
 
-class NodeRenderer {
-    constructor(colormap, nodes, parent, maxAttributes = 16, maxVaryings = 8) {
+class NodeRenderer extends THREE.Group {
+    constructor(colormap, count, maxAttributes = 16, maxVaryings = 8) {
+        super();
         this.slices = Math.min(maxAttributes-4, 2*maxVaryings-1);
-        this.instance_count = nodes.length;
+        this.instance_count = count;
 
         this.material = new THREE.RawShaderMaterial({
             uniforms: {
@@ -76,11 +77,10 @@ class NodeRenderer {
                     gl_FragColor = vec4( texture2D( nodeTex, vec2 ( curr.y , 1.0) ).xyz, a);
                 #endif
                 }`,
-            side: THREE.BackSide,
+            side: THREE.FrontSide,
             transparent: true,
         });
 
-        //this.material.sizeAttenuation = true; this is for perspective cameras. Current x1.7 seems to depend on innerheight
         let geometry = new THREE.BufferGeometry();
 
         //Create paired attributes for pie slice run-length encoding
@@ -100,7 +100,9 @@ class NodeRenderer {
 
         this.mesh = new THREE.Points(geometry, this.material);
         this.mesh.frustumCulled = false;
-        parent.add(this.mesh);
+        this.add(this.mesh);
+
+        
     }
 
     setAlpha(value) {
@@ -162,6 +164,13 @@ class NodeRenderer {
     }
 }
 
+class NodeNeighbor {
+    constructor(node, angle) {
+        this.node = node;
+        this.angle = angle;
+    }
+}
+
 class NodeInstance extends Draggable2D {
     constructor(id, data, parent) {
         super();
@@ -169,13 +178,17 @@ class NodeInstance extends Draggable2D {
         this.userData = data;
         this.color = 0.0;
         this.r = 1.0;
-        this.x = this.y = 0.0;
+        this.x = this.y = 0;
         this.fx = this.fy = null;
-
         let div = document.createElement('div');
         div.className = "unselectable label";
         this.label = new THREE.CSS2DObject(div);
         parent.add(this.label);
+        this.neighbors = [];
+    }
+
+    addNeighbor(node) {
+        this.neighbors.push(node);
     }
 
     getPositionX() {
@@ -228,22 +241,62 @@ class NodeInstance extends Draggable2D {
         return this.getPosition().clone();
     }
 
+    boundsWidth() {
+        return this.r*2;
+    }
+
+    boundsHeight() {
+        return this.r*2;
+    }
+
     setLabelText(text) {
         this.label.element.textContent = text;
     }
 
+    setLabelSize(value) {
+        this.label.element.style.fontSize = value;
+    }
+
     removeLabelClassName(name) {
-        this.label.element.classList.remove(name);
+        if(this.label) {
+            this.label.element.classList.remove(name);
+        }
     }
 
     addLabelClassName(name) {
-        this.label.element.classList.add(name);
+        if(this.label) {
+            this.label.element.classList.add(name);
+        }
     }
 
-    updateLabelPosition() {
+    updateLabelPosition(simpleLayout = false) {
         if(this.label) {
-            this.label.position.x = this.x;
-            this.label.position.y = this.y + this.r * 2;
+            if(!this.neighbors.length || simpleLayout) {
+                this.label.position.x = this.x;
+                this.label.position.y = this.y + this.r * 2;
+            } else {
+                let n = new Array(this.neighbors.length);
+                for(let i=0; i<n.length; i++) {
+                    n[i] = new NodeNeighbor(this.neighbors[i], Math.PI + Math.atan2(this.neighbors[i].x - this.x, this.neighbors[i].y - this.y));
+                }
+                n.sort((a, b) => a.angle - b.angle);
+
+
+                let difference = 2 * Math.PI - n[n.length-1].angle + n[0].angle;
+                let midAngle = n[n.length-1].angle + difference/2 - 2 * Math.PI;
+                
+                
+                for(let i=0, d=0; i<(n.length-1); i++) {
+                    d = n[i+1].angle - n[i].angle;
+                    if(d > difference) {
+                        midAngle = n[i].angle + d/2;
+                        difference = d;
+                    }
+                }
+                midAngle -= Math.PI
+                this.label.position.x = this.x + Math.sin(midAngle) * 2 * this.r;
+                this.label.position.y = this.y + Math.cos(midAngle) * 2 * this.r;
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-#' <TDAView>
+#' <tdaview>
 #'
 #' <Displays topological data as graph from TDAMapper or pHom>
 #'
@@ -40,13 +40,13 @@ tdaview <- function(mapper, metadata, labels = NULL, width = NULL, height = NULL
 #' @name tdaview-shiny
 #'
 #' @export
-tdaviewOutput <- function(outputId, width = '100%', height = '400px'){
+tdaviewOutput <- function(outputId, width = '100%', height = '100%'){
   htmlwidgets::shinyWidgetOutput(outputId, 'tdaview', width, height, package = 'tdaview')
 }
 
 #' @rdname tdaview-shiny
 #' @export
-renderTdaview <- function(expr, env = parent.frame(), quoted = FALSE) {
+rendertdaview <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, tdaviewOutput, env, quoted = TRUE)
 }

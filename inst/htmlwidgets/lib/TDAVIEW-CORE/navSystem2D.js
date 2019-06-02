@@ -26,7 +26,6 @@ class NavSystem2D {
         this.selected = undefined;
 
         this.eventSystem = new event();
-
         
         //Zoom camera smoothly in response to wheel
         this.zoomStart = undefined;
@@ -81,7 +80,7 @@ class NavSystem2D {
                         
                         self.hovering.eventSystem.invokeEvent("OnDrag", self.hovering, self.mouseWorld.add(self.hoverOffset));
                         let center = self.hovering.boundsCenter();
-                        self.hoverRect.rectGraphic.position.set(center.x, center.y, 2);
+                        //self.hoverRect.setGraphicPosition(center.x, center.y);
                         self.eventSystem.invokeEvent("OnChange");
                     } else {
                         //Pan camera (need world drag start to avoid feedback)
@@ -108,29 +107,26 @@ class NavSystem2D {
 
                     for(let i=0; i<rect.draggable.length; i++) {
                         if(rect.draggable[i].boundsContains.call(rect.draggable[i], self.mouseWorld)) {
-                            self.hovering = rect.draggable[i];
-                            self.hoverRect = rect;
-                            let center = self.hovering.boundsCenter();
-
-                            //Resize and display rect graphic
-                            if(self.hovering.shouldScale) {
-                                if(self.hoverRect.rectGraphic.visible == false) {
-                                    self.hoverRect.rectGraphic.visible = true;
-                                }
-                                self.hoverRect.rectGraphic.scale.set(self.hovering.boundsWidth(), self.hovering.boundsHeight(), 1);
-                                self.hoverRect.rectGraphic.position.set(center.x, center.y, 2);
-                                self.eventSystem.invokeEvent("OnChange");
-                            }
-
+                            let center = rect.draggable[i].boundsCenter();
                             
+                            if(self.hovering !== rect.draggable[i]) {
+                                self.hovering = rect.draggable[i];
+                                self.hoverRect = rect;
+
+                                //Resize and display rect graphic
+                                //if(self.hovering.shouldScale) {
+                                    //rect.setGraphicPosition(center.x, center.y);
+                                    //rect.setGraphicScale(self.hovering.boundsWidth(), self.hovering.boundsHeight());
+                                    //rect.setGraphicVisibility(true);
+                                    //self.eventSystem.invokeEvent("OnChange");
+                                //}
+                            }
                             self.hoverOffset = center.sub(self.mouseWorld);
                             return;
                         }
                     }
                     self.hovering = undefined;
-                    if(rect.rectGraphic.visible == true) {
-                        rect.rectGraphic.visible = false;
-                    }
+                    //rect.setGraphicVisibility(false);
                     self.eventSystem.invokeEvent("OnChange");
                 }
             }
@@ -150,7 +146,6 @@ class NavSystem2D {
 
                 if(self.hovering) {
                     self.selected = self.hovering;
-                    console.log(self.selected);
                     self.selected.eventSystem.invokeEvent("OnSelect", self.selected);
                     self.eventSystem.invokeEvent("OnChange");
                 }
@@ -179,15 +174,9 @@ class NavSystem2D {
 }
 
 class DragRect2D {
-    constructor(camera, scene) {
+    constructor(camera) {
         this.camera = camera;
         this.draggable = [];
-
-        this.rectGraphic = new THREE.Mesh( new THREE.PlaneGeometry(), new THREE.MeshBasicMaterial( {color: 0xaaaaff, side: THREE.DoubleSide}));
-        this.rectGraphic.material.transparent = true;
-        this.rectGraphic.material.opacity = 0.25;
-        //scene.add(this.rectGraphic);
-
     }
 
     addDraggable(items) {
