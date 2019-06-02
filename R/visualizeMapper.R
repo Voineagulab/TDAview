@@ -4,30 +4,27 @@
 #'
 #' @export
 
-visualizeMapper <- function(mapper, metadata, labels = NULL) {
+visualizeMapper <- function(mapper, metadata, labels = NULL, keys = NULL) {
 
     ui <- fillPage(
         suppressDependencies("bootstrap"),
         tdaview::tdaviewOutput('mygraph'),
-        downloadButton('downloadData','Save my file!')
     )
 
     server <- function(input, output, session) {
         context <- rstudioapi::getActiveDocumentContext()
         original <- context$contents
 
-        output$mygraph <- tdaview::rendertdaview(expr=tdaview::tdaview(mapper=mapper, metadata=metadata, labels=labels))
+        if(keys) {
+            #TODO: Match is not very robust, must have ALL entries with no duplicates
+            #(Keyed metadata)       (keys)
+            #gene_id3   MILD        gene_id1
+            #gene_id1   SEVERE      gene_id3
+            #gene_id7   SEVERE      gene_id7
+            metadata[match(keys, metadata$keys),]
+        }
 
-        output$downloadData <- downloadHandler(
-            filename = function() {
-                paste("dataset-", Sys.Date(), ".pdf", sep="")
-            },
-            content = function(file) {
-                pdf(file)
-                #widgetframe::frameWidget(output$mygraph)
-                dev.off();
-            }
-        )
+        output$mygraph <- tdaview::rendertdaview(expr=tdaview::tdaview(mapper=mapper, metadata=metadata, labels=labels))
     }
     runGadget(ui, server, viewer = paneViewer(minHeight = 500))
 }
