@@ -1,5 +1,12 @@
-class menu {
-	constructor(graph, element, data) {
+/**
+ * Everything except node positions is UI-related 
+ * To back up, for example, node size, we save "continuous" and "name-of-variable"
+ * To restore, we'd then set continuous radio to be checked and trigger OnNodeSizeVariableChange "name-of-variable"
+ * It would be good to disable graph.update - perhaps don't initiallise it until some "graph.start" is called
+ */
+
+class Sidebar {
+	constructor(element, data) {
         var self = this;
 
 		this.domElement = document.createElement("div");
@@ -30,18 +37,7 @@ class menu {
             }, false);
         }
 
-        graph.eventSystem.addEventListener("OnNodeSelect", function() {
-			var acc = document.getElementById("node-data").parentNode;
-			acc.setAttribute("class", "accordion-item open_acc");
-        });
-
-		//Close node data accordion when no node is selected
-		graph.eventSystem.addEventListener("OnNodeDeselect", function() {
-			var acc = document.getElementById("node-data").parentNode;
-			acc.setAttribute("class", "accordion-item close_acc");
-            //TODO -- Close enlarged table - closes on selecting another node
-        });
-        
+        /*
         function ValidateSizeVariableChange() {
             //Enforce values are on list and trigger event
             sizedatainput.value;
@@ -56,13 +52,17 @@ class menu {
         var sizeradios = document.getElementsByName("nodesize");
         var sizedatainput = document.getElementById("continuoussizeinput");
         sizedatainput.onchange = ValidateSizeVariableChange;
+
+        //TODO better to use IDs
+        sizeradios[0].onclick = self.OnNodeSizeVariable;
+        sizeradios[1].onclick = self.OnNodeColorUniform;
         
         for(let i=0; i<sizeradios.length; i++) {
-            sizeradios[i].onclick = function() {
+            sizeradios[i].onclick() = function() {
+                self.OnNodeSizeUniform
                 self.eventSystem.invokeEvent("OnNodeSizeChange", this.value);
                 if(this.value !== "continuous") {
                     sizedatainput.disabled = true;
-                    //sizedatainput.value = "";
                 } else {
                     sizedatainput.disabled = false;
                     ValidateSizeVariableChange();
@@ -87,7 +87,7 @@ class menu {
         nodeColorDataInput.onchange = ValidateColorVariableChange;
 
         for(let i=0; i<nodeColorMetaRadios.length; i++) {
-            nodeColorMetaRadios[i].onclick = function() {
+            nodeColorMetaRadios[i].onclick() = function(){
                 self.eventSystem.invokeEvent("OnNodeColorChange", this.value);
                 if(this.value !== "variable") {
                     nodeColorDataInput.disabled = true;
@@ -103,7 +103,7 @@ class menu {
         var labelradios = document.forms["labels"].elements["labeltype"];
         var prevValue = "";
         for(let i=0; i<labelradios.length; i++) {
-            labelradios[i].onclick = function() {
+            labelradios[i].onclick() = function() {
                 if(prevValue !== this.value) {
                     for(let j=0; j<graph.nodes.length; j++) {
                         if(prevValue === "none") {
@@ -158,7 +158,7 @@ class menu {
         this.edgeGradPicker = new colorPicker(document.getElementById("edge-color-picker-insert")); //multiple gradient pickers causes error atm
         var edgeColorMetaRadios = document.getElementsByClassName("edge-color-meta-radio");
         for(let i=0; i<edgeColorMetaRadios.length; i++) {
-            edgeColorMetaRadios[i].onclick = function() {
+            edgeColorMetaRadios[i].onclick() = function(){
                 self.eventSystem.invokeEvent("OnEdgeColorChange", this.value);
             }
         }
@@ -167,31 +167,154 @@ class menu {
         this.labelGradPicker = new colorPicker(document.getElementById("label-color-picker-insert"));
         var labelColorMetaRadios = document.getElementsByClassName("label-color-meta-radio");
         for(let i=0; i<labelColorMetaRadios.length; i++) {
-            labelColorMetaRadios[i].onclick = function() {
+            labelColorMetaRadios[i].onclick() = function(){
                 self.eventSystem.invokeEvent("OnLabelColorChange", this.value);
             }
         }
 
         //Label size events
         var labelSizeInput = document.getElementById("labelSize");
-        labelSizeInput.onchange = function() {
+        labelSizeInput.onchange() {
             self.eventSystem.invokeEvent("OnLabelSizeChange", labelSizeInput.value);
         }
+
+        this.backColorPicker = new colorPicker(document.getElementById("back-color-picker-insert"));
+
+        
+        
+        
+        */
 
         //Export events
         var graphradios = document.forms["graphext"].elements["graphtype"];
         document.getElementById("graphexport").addEventListener("click", function() {
-            self.eventSystem.invokeEvent("OnExport", graphradios.value);
+            self.OnExport(graphradios.value);
         });
 
         //Zoom events
         this.sidezoom = document.getElementById("sidezoom");
         this.sidezoom.addEventListener("input", function() {
-            self.eventSystem.invokeEvent("OnZoomChange", self.sidezoom.value/100);
+            self.OnZoom(self.sidezoom.value/100);
         });
 
-        this.backColorPicker = new colorPicker(document.getElementById("back-color-picker-insert"));
+        
+        
     }
+
+    OpenSelectionMenu() {
+        var acc = document.getElementById("node-data").parentNode;
+		acc.setAttribute("class", "accordion-item open_acc");
+    }
+
+    CloseSelectionMenu() {
+        var acc = document.getElementById("node-data").parentNode;
+		acc.setAttribute("class", "accordion-item close_acc");
+    }
+
+    /**
+     * Invoked when all nodes are to be scaled by a single uniform.
+     * The actual uniform is currently constant and cannot be changed
+     */
+    OnNodeSizeUniform() {}
+
+    /**
+     * Invoked when nodes are to be scaled by the number of data points they contain.
+     */
+    OnNodeSizePoints() {}
+
+    /**
+     * Invoked when nodes are to be scaled by the mean of a contained continuous variable.
+     * @param {String} name the name of a continuous or categorical variable
+     */
+    OnNodeSizeVariable(name) {}
+
+    /**
+     * Invoked when all nodes are to be colored by a single uniform.
+     * The actual uniform will be supplied in the OnNodeColorChange event.
+     */
+    OnNodeColorUniform() {}
+
+    /**
+     * Invoked when nodes are to be colored by 
+     * @param {String} name the name of a continuous or categorical variable
+     */
+    OnNodeColorVariable(name) {}
+
+    /**
+     * Invoked when all nodes are to be colored by a newly selected uniform.
+     * @param {String} color a six character hex color
+     */
+    OnNodeColorChange(color) {}
+
+    /**
+     * Invoked when nodes are to be colored by a newly edited gradient.
+     * @param {Step[]} steps an array of steps
+     */
+    OnNodeGradientChange(steps) {}
+
+
+    /**
+     * Invoked when all edges are to be blended with the background by this amount.
+     * @param {Number} alpha a value in the range [0.0, 1.0]
+     */
+    OnEdgeAlphaChange(alpha) {}
+
+    /**
+     * Invoked when all edges are to be multiplied by this value, 
+     * where 1.0 stretches them to node radii.
+     * @param {Number} width a value in the range [0.0, 1.0]
+     */
+    OnEdgeWidthChange(width) {}
+
+    /**
+     * Invoked when all edges are to be colored by a single uniform.
+     * The actual uniform will be supplied in the OnEdgeColorChange event.
+     */
+    OnEdgeColorUniform() {}
+
+    /**
+     * Invoked when all edges are to be colored by the node map.
+     */
+    OnEdgeColorFromNodes() {}
+
+    /**
+     * Invoked when all edges are to be colored by a newly selected uniform.
+     * @param {String} color a six character hex color
+     */
+    OnEdgeColorChange(color) {}
+
+    /**
+     * Invoked when all labels are to read the given node name.
+     */
+    OnLabelTextName() {}
+    
+    /**
+     * Invoked when all labels are to read the node point count.
+     */
+    OnLabelTextPoints() {}
+
+    /**
+     * Invoked when all labels are to be hidden.
+     */
+    OnLabelTextNone() {}
+
+    /**
+     * Invoked when all labels are to be colored by a newly selected uniform.
+     * @param {String} color a six character hex color
+     */
+    OnLabelColorChange(color) {}
+
+    /**
+     * Invoked when the graph is to be exported.
+     * @param {String} format either "jpg" or "png"
+     */
+    OnExport(format) {}
+
+    /**
+     * Invoked when the graph is to be zoomed.
+     * @param {Number} zoom a value in the range [0.0, 1.0]
+     */
+    OnZoom(zoom) {}
 
     setZoomCustom(value) {
         this.sidezoom.value = value * 100;

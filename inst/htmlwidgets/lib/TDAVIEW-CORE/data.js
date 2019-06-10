@@ -62,13 +62,12 @@ class Data {
             mapper.points_in_vertex[Math.round(Math.random() * (mapper.num_vertices-1)) ].push(i+1);
         }
 
-
         let labels = Array.from({length: mapper.num_vertices}, (_, i) => "Node " + i);
 
         return new Data(mapper, metadata, labels);
     }
 
-    constructor(mapper, metadata, labels = undefined) {
+    constructor(mapper, metadata, labels) {
         this.metadata = metadata;
         this.adjacency = mapper.adjacency;
         this.maxBinPoints = Utility.Max(mapper.points_in_vertex.map(obj => Object.keys(obj).length));

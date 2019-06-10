@@ -4,13 +4,13 @@ const MIN_NODE_SIZE = 2;
 class NodeRenderer extends THREE.Group {
     constructor(colormap, count, maxAttributes = 16, maxVaryings = 8) {
         super();
+
         this.slices = Math.min(maxAttributes-4, 2*maxVaryings-1);
         this.instance_count = count;
 
         this.material = new THREE.RawShaderMaterial({
             uniforms: {
                 nodeZoom: {value: 1.0},
-                nodeAlpha: {value: 1.0},
                 nodeTex: {value: colormap.getTexture() },
             },
             vertexShader: /*glsl*/`
@@ -101,29 +101,23 @@ class NodeRenderer extends THREE.Group {
         this.mesh = new THREE.Points(geometry, this.material);
         this.mesh.frustumCulled = false;
         this.add(this.mesh);
-
-        
-    }
-
-    setAlpha(value) {
-        this.material.uniforms.nodeAlpha.value = value;
     }
 
     setOffsetBuffer(node) {
         let array = this.mesh.geometry.attributes.position.array;
-        array[2 * node.id + 0] = node.getPositionX();
-        array[2 * node.id + 1] = node.getPositionY();
+        array[2 * node.id + 0] = node.x;
+        array[2 * node.id + 1] = node.y;
     }
 
     setScaleBuffer(node) {
         let array = this.mesh.geometry.attributes.scale.array;
-        array[node.id] = node.getRadius();
+        array[node.id] = node.r;
     }
 
     setColorBuffer(node) {
         let array = this.mesh.geometry.attributes.run0.array;
         array[2 * node.id + 0] = 1.0;
-        array[2 * node.id + 1] = node.getColor();
+        array[2 * node.id + 1] = node.color;
     }
 
     setPieBuffer(node, percentages, colors) {
@@ -155,12 +149,8 @@ class NodeRenderer extends THREE.Group {
         return value * (max - min) + min;
     }
 
-    setLODZoom(zoom) {
-        return;
-    }
-
-    setPixelZoom(height) {
-        this.material.uniforms.nodeZoom.value = height;
+    setPixelZoom(value) {
+        this.material.uniforms.nodeZoom.value = value;
     }
 }
 
@@ -171,32 +161,19 @@ class NodeNeighbor {
     }
 }
 
-class NodeInstance extends Draggable2D {
-    constructor(id, data, parent) {
-        super();
+class NodeInstance {
+    constructor(id, data) {
         this.id = id;
         this.userData = data;
         this.color = 0.0;
         this.r = 1.0;
         this.x = this.y = 0;
         this.fx = this.fy = null;
-        let div = document.createElement('div');
-        div.className = "unselectable label";
-        this.label = new THREE.CSS2DObject(div);
-        parent.add(this.label);
         this.neighbors = [];
     }
 
     addNeighbor(node) {
         this.neighbors.push(node);
-    }
-
-    getPositionX() {
-        return this.x;
-    }
-
-    getPositionY() {
-        return this.y;
     }
 
     getPosition() {
@@ -219,84 +196,21 @@ class NodeInstance extends Draggable2D {
         return this.r;
     }
 
-    boundsContains(vector) {
+    containsPoint(position) {
         let targ = this.getPosition();
         let r = this.r;
 
         //Check if inside bounding box;
-        if(vector.x >= targ.x - r && 
-            vector.x <= targ.x + r && 
-            vector.y >= targ.y - r && 
-            vector.y <= targ.y + r) {
+        if(position.x >= targ.x - r && 
+            position.x <= targ.x + r && 
+            position.y >= targ.y - r && 
+            position.y <= targ.y + r) {
             //Check if inside circle
             
-            if(Math.pow(vector.x - targ.x, 2) + Math.pow(vector.y - targ.y, 2) <= r*r) {
+            if(Math.pow(position.x - targ.x, 2) + Math.pow(position.y - targ.y, 2) <= r*r) {
                 return true;
             }
         }
         return false;
-    }
-
-    boundsCenter() {
-        return this.getPosition().clone();
-    }
-
-    boundsWidth() {
-        return this.r*2;
-    }
-
-    boundsHeight() {
-        return this.r*2;
-    }
-
-    setLabelText(text) {
-        this.label.element.textContent = text;
-    }
-
-    setLabelSize(value) {
-        this.label.element.style.fontSize = value;
-    }
-
-    removeLabelClassName(name) {
-        if(this.label) {
-            this.label.element.classList.remove(name);
-        }
-    }
-
-    addLabelClassName(name) {
-        if(this.label) {
-            this.label.element.classList.add(name);
-        }
-    }
-
-    updateLabelPosition(simpleLayout = false) {
-        if(this.label) {
-            if(!this.neighbors.length || simpleLayout) {
-                this.label.position.x = this.x;
-                this.label.position.y = this.y + this.r * 2;
-            } else {
-                let n = new Array(this.neighbors.length);
-                for(let i=0; i<n.length; i++) {
-                    n[i] = new NodeNeighbor(this.neighbors[i], Math.PI + Math.atan2(this.neighbors[i].x - this.x, this.neighbors[i].y - this.y));
-                }
-                n.sort((a, b) => a.angle - b.angle);
-
-
-                let difference = 2 * Math.PI - n[n.length-1].angle + n[0].angle;
-                let midAngle = n[n.length-1].angle + difference/2 - 2 * Math.PI;
-                
-                
-                for(let i=0, d=0; i<(n.length-1); i++) {
-                    d = n[i+1].angle - n[i].angle;
-                    if(d > difference) {
-                        midAngle = n[i].angle + d/2;
-                        difference = d;
-                    }
-                }
-                midAngle -= Math.PI
-                this.label.position.x = this.x + Math.sin(midAngle) * 2 * this.r;
-                this.label.position.y = this.y + Math.cos(midAngle) * 2 * this.r;
-            }
-        }
     }
 }

@@ -37,17 +37,6 @@ class LinkRenderer extends THREE.Group {
                 }`,
             side: THREE.FrontSide,
             transparent: false,
-            //blending: THREE.AdditiveBlending, //this works but goes light instead of dark
-            //blending: THREE.MultiplyBlending //this works except requires 1.0 alpha
-            /*blending: THREE.CustomBlending,
-            blendEquation: THREE.AddEquation,
-            blendSrc: THREE.DstColorFactor,
-            blendDst: THREE.ZeroFactor,*/
-
-            /*blendEquationAlpha: THREE.NormalEquation,
-            blendSrcAlpha: THREE.OneMinusSrcAlphaFactor,
-            blendDstAlpha: THREE.ZeroFactor*/
-            
         });
 
         let geometry = new THREE.BufferGeometry();
@@ -129,6 +118,30 @@ class LinkRenderer extends THREE.Group {
         p[index + 2] = p1.x; p[index + 3] = p1.y;
         p[index + 4] = p2.x; p[index + 5] = p2.y;
         p[index + 6] = p3.x; p[index + 7] = p3.y;
+    }
+
+    containsPoint(link, position) {
+        //TODO: This approximates what is possibly a trapezium into a rectangle - triangle/trapezium methods exist but the thinkness of the lines raise bigger issues than accuracy
+        let p = this.mesh.geometry.attributes.position.array;
+        let minX = Infinity, minY = Infinity;
+        let maxX = -Infinity, maxY = -Infinity;
+        let index = 8*link.link_id;
+
+        for(let i=index; i<index + 8; i+=2) {
+            if(p[index+0] < minX) {
+                minX = p[index];
+            }
+            if(p[index+1] < minY) {
+                minY = p[index];
+            }
+            if(p[index+0] > maxX) {
+                maxX = p[index];
+            }
+            if(p[index+1] < minY) {
+                minY = p[index];
+            }
+        }
+        return position.x >= minX && position.x <= maxX && position.y >= minY && position.y <= maxY;
     }
 
     updatePositions() {

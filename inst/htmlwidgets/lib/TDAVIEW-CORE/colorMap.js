@@ -1,112 +1,68 @@
 class ColorMap {
-    constructor(mapName = 'rainbow', n = 256) {
+    constructor(n = 256) {
         this.n = n;
-        this.material = new THREE.MeshBasicMaterial(); 
-		this.table = new Array(this.n).fill(null);
-
-		this.material.map = new THREE.DataTexture(new Uint8Array(3 * this.n).fill(0), this.n, 1, THREE.RGBFormat);
-		
-		//Event system for updating materials
-		this.eventSystem = new event();
-
-        //Set map and material texture
-        this.changeColorMapByName(mapName);
-	}
-
-	changeColor(color) {
-		var data = this.material.map.image.data;
-		var colorHex = new THREE.Color().setHex("0x" + color);
-		for(let i=0; i<data.length;) {
-			data[i++] = Math.round(colorHex.r * 255.0);
-			data[i++] = Math.round(colorHex.g * 255.0);
-			data[i++] = Math.round(colorHex.b * 255.0);
-		}
-		this.material.map.needsUpdate = true;
-		this.material.needsUpdate = true;
-		this.eventSystem.invokeEvent("onUpdate");
-	}
-
-	changeColorMap(steps) {
-		/*
-		var step = 1.0 / this.n;
-		var index = 0;
-		var stride = 0;
-		var data = this.material.map.image.data;
-
-		var currPer = steps[0].percentage/100.0;
-		var nextPer = steps[0].percentage/100.0;
-		var currStep = steps[0];
-		var nextStep = steps[1];
-		var currColor = new THREE.Color().setHex("0x" + currStep.color);
-		var nextColor = new THREE.Color().setHex("0x" + nextStep.color);
-		for(let i=1; i<=1; i+=step) {
-			if(i <= next) {
-				var color = currColor.lerp(nextColor, (i - currPer)/(nextPer - currPer));
-			}
-		}
-
-
-
-
-
-
-
-
-
-		return;*/
-		//Parse into array - should change to natively use steps
-		var map = new Array(steps.length+2);
-		map[0] = [0.0, "0x" + steps[0].color];
-		map[map.length-1] = [1.0, "0x" + steps[steps.length-1].color];
-		for(let i=0; i<steps.length; i++) {
-			map[i+1] = [steps[i].percentage/100, "0x" + steps[i].color];
-		}
-
-		var step = 1.0 / this.n;
-        var index = 0;
-        var stride = 0;
-		var data = this.material.map.image.data;
-		for(var i = 0; i <= 1; i += step) {
-			for(var j = 0; j < map.length-1; ++j) {
-				if(i >= map[j][0] && i < map[j+1][0]) {
-					var min = map[j][0];
-					var max = map[j+1][0];
-					var minColor = new THREE.Color().setHex(map[j][1]);
-					var maxColor = new THREE.Color().setHex(map[j+1][1]);
-					var color = minColor.lerp(maxColor, (i-min)/(max-min));
-					data[stride++] = Math.round(color.r * 255.0);
-					data[stride++] = Math.round(color.g * 255.0);
-					data[stride++] = Math.round(color.b * 255.0);
-                    this.table[index++] = color; 
-				}
-			}
-		}
-		this.material.map.needsUpdate = true;
-		this.material.needsUpdate = true;
-		this.eventSystem.invokeEvent("onUpdate");
-	}
-
-	changeColorMapByName(mapName) {
-		this.changeColorMap(ColorMapKeywords[mapName]);
-	}
-
-	getColorByValue(value, min, max) {
-		return this.table[this.getUByValue(value, min, max) * (this.n - 1)];
-    }
-    
-    //Gets U component of UV coordinates
-    getUByValue(value, min, max) {
-        return Math.round((value - min)/(max - min));
+        this.map = new THREE.DataTexture(new Uint8Array(3 * this.n).fill(0), this.n, 1, THREE.RGBFormat);
+        this.eventSystem = new event();
     }
 
-	getTexture() {
-		return this.material.map;
-	}
-};
+    getTexture() {
+        return this.map;
+    }
 
-ColorMapKeywords = {
-	"rainbow": [[ 0.0, '0x0000FF' ], [ 0.2, '0x00FFFF' ], [ 0.5, '0x00FF00' ], [ 0.8, '0xFFFF00' ], [ 1.0, '0xFF0000' ]],
-	"cooltowarm": [[ 0.0, '0x3C4EC2' ], [ 0.2, '0x9BBCFF' ], [ 0.5, '0xDCDCDC' ], [ 0.8, '0xF6A385' ], [ 1.0, '0xB40426' ]],
-	"blackbody": [[ 0.0, '0x000000' ], [ 0.2, '0x780000' ], [ 0.5, '0xE63200' ], [ 0.8, '0xFFFF00' ], [ 1.0, '0xFFFFFF' ]],
-	"grayscale": [[ 0.0, '0x000000' ], [ 0.2, '0x404040' ], [ 0.5, '0x7F7F80' ], [ 0.8, '0xBFBFBF' ], [ 1.0, '0xFFFFFF' ]]
-};
+    GetImageBase64() { //this is inefficient
+        return this.map.image;
+    }
+
+    SetColor(color) {
+        for(let j=0; i<this.map.image.data.length; j+=3) {
+            this._SetColorSingle(color, j);
+        }
+        this._UpdateMap();
+    }
+
+
+    SetGradient(steps) {
+        let j=0;
+        let i=0;
+
+        //Fill start if steps are uncapped
+        if(steps[0].percent > 0) {  
+            for(; j<(steps[0].percent * this.n); j+=3) {
+                this._SetColorSingle(steps[0].color, j);
+            }
+            i++;
+        }
+
+        //Fill step-step gaps with gradients
+        for(; i<steps.length-1; i++) {
+            for(; j<this.steps[i].percent * this.n; j+=3) {
+                this._SetColorSingle(steps[i].color.lerp(steps[i+1].color, (j/this.n - steps[i].percent)/(steps[i+1].percent - steps[i].percent)), j);
+            }
+        }
+
+        //Fill end if steps are uncapped
+        if(steps[steps.length-1].percent < 1.0) {  
+            for(; j<this.n; j++) {
+                this._SetColorSingle(steps[steps.length-1].color, j);
+            }
+            i++;
+        }
+        this._UpdateMap();
+    }
+
+    _SetColorSingle(color, index) {
+        this.map.image.data[index+0] = Math.round(color.r * 255.0);
+        this.map.image.data[index+1] = Math.round(color.g * 255.0);
+        this.map.image.data[index+3] = Math.round(color.b * 255.0);
+    }
+
+    _UpdateMap() {
+        this.map.needsUpdate = true;
+        this.eventSystem.invokeEvent("OnUpdate");
+    }
+}
+
+var ColorMapPresets = {
+    "cooltowarm": [new Step(0.0, new THREE.Color("0x0000FF")), new Step(0.2, new THREE.Color("0x00FFFF")), new Step(0.5, new THREE.Color("0x00FF00")), new Step(0.8, new THREE.Color("0XFFFF00")), new Step(1.0, new THREE.Color("0xFF0000"))],
+    "blackbody": [new Step(0.0, new THREE.Color("0x000000")), new Step(0.2, new THREE.Color("0x780000")), new Step(0.5, new THREE.Color("0xE63200")), new Step(0.8, new THREE.Color("0xFFFF00")), new Step(1.0, new THREE.Color("0xFFFFFF"))],
+}
