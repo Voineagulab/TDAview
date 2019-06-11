@@ -40,20 +40,20 @@ HTMLWidgets.widget({
 				}
 				
 				var nodeMap = new ColorMap();
-				var edgeMap = new ColorMap();
+				var edgeMap = new ColorMap(1);
 
 				graph = new Graph(element, nodes, links, nodeMap, nodeMap);
 				graph.forEachNode(n => graph.setNodeScale(n, 0.5));
 				graph.updateNodeScales();
 
-				var sidebar = new Sidebar(element, data);
+				var sidebar = new Sidebar(element, data.getContinuousNames(), data.getCategoricalNames(), data.getHasLabels());
 				sidebar.OnNodeSizeUniform = function() {
 					graph.forEachNode(n => graph.setNodeScale(n, 0.5));
 					graph.updateNodeScales();
 					graph.applyLinkPositions();
 					graph.forEachNode(n => graph.setLabelPosition(n));
 					graph.update();
-				}
+				};
 
 				sidebar.OnNodeSizePoints = function() {
 					graph.forEachNode(n => graph.setNodeScale(n, data.getPointsNormalised(n.userData)));
@@ -61,7 +61,7 @@ HTMLWidgets.widget({
 					graph.applyLinkPositions();
 					graph.forEachNode(n => graph.setLabelPosition(n));
 					graph.update();
-				}
+				};
 
 				sidebar.OnNodeSizeContinuous = function(value) {
 					data.loadVariable(value);
@@ -69,11 +69,11 @@ HTMLWidgets.widget({
 					graph.updateNodeScales();
 					graph.applyLinkPositions();
 					graph.update();
-				}
+				};
 
 				sidebar.OnNodeColorUniform = function() {
 					//TODO legend switching
-				}
+				};
 
 
 				sidebar.OnNodeColorContinuous = function(value) {
@@ -85,7 +85,7 @@ HTMLWidgets.widget({
 					}
 					graph.updateNodeColors();
 					graph.update();
-				}
+				};
 
 				sidebar.OnNodeColorCategorical = function(value) {
 					data.loadVariable(value);
@@ -100,38 +100,39 @@ HTMLWidgets.widget({
 					}
 					graph.updateNodeColors();
 					graph.update();
-					return cachedVariable.getCategorical().getCategories().length;
-				}
+					return data.getVariable().getCategorical().getCategories().length;
+				};
 
 				sidebar.OnNodeColorChange = function(value) {
 					var color = new THREE.Color("#" + value);
-
 					nodeMap.setColor(color);
 					graph.updateNodeColors();
 					if(shouldShareMap) graph.updateLinkColors();
 					graph.update();
-				}
+				};
 
 				sidebar.OnNodeGradientChange = function(steps) {
 					nodeMap.setGradient(steps);
 					graph.updateNodeColors();
 					graph.update();
-				}
+				};
 
 				sidebar.OnEdgeAlphaChange = function(alpha) {
 					graph.setLinkAlpha(alpha);
 					graph.update();
-				}
+				};
 
 				sidebar.OnEdgeWidthChange = function(width) {
-					graph.setLinkWidth(width);
+					graph.setLinkScale(width);
 					graph.applyLinkPositions();
 					graph.update();
-				}
+				};
 
 				sidebar.OnEdgeColorUniform = function() {
 					graph.setLinkColorMap(edgeMap);
-				}
+					graph.updateLinkColors();
+					graph.update();
+				};
 
 				sidebar.OnEdgeColorFromNodes = function() {
 					graph.setLinkColorMap(nodeMap);
@@ -140,48 +141,62 @@ HTMLWidgets.widget({
 					graph.updateLinkColors();
 					graph.update();
 					shouldShareMap = true;
-				}
+				};
 
-				sidebar.OnEdgeColorChange = function(color) {
-					edgeMap.changeColor(color);
+				sidebar.OnEdgeColorChange = function(value) {
+					var color = new THREE.Color("#" + value);
+					edgeMap.setColor(color);
+					graph.updateLinkColors();
 					graph.update();
-				}
+				};
 
 				sidebar.OnLabelSizeChange = function(value) {
-					graph.setFontSize(value);
+					graph.setFontScale(value);
 					graph.updateLabelSizes();
-				}
+				};
+
+				sidebar.OnLabelColorFromBackground = function() {
+
+				};
+
+				sidebar.OnLabelColorUniform = function() {
+
+				};
 
 				sidebar.OnLabelColorChange = function(value) {
-					customLabelColor = color;
-					if(!shouldSetLabelColorAutomatically) {
-						setLabelColors(color);
-					}
+
 				};
 
 				sidebar.OnLabelTextName = function() {
+					graph.forEachNode(n => graph.setLabelText(n, n.userData.getName()));
 					graph.setLabelVisibilities(true);
 
-				}
+				};
 
 				sidebar.OnLabelTextPoints = function() {
 					graph.setLabelVisibilities(true);
 
-				}
+				};
 
 				sidebar.OnLabelTextNone = function() {
 					graph.setLabelVisibilities(false);
-				}
+				};
 
 				sidebar.OnLabelColorUniform = function(color) {
 					shouldSetLabelColorAutomatically = false;
 					setLabelColors(customLabelColor);
-				}
+				};
 
 				//TODO: Copy old background variables/predicates from github
 				sidebar.OnLabelColorFromBackground = function() {
 					shouldSetLabelColorAutomatically = true;
 					setLabelColorsAutomatic(customBackgroundColor);
+				};
+
+				sidebar.OnBackgroundColorChange = function(value) {
+					var color = new THREE.Color("#" + value);
+					graph.setBackgroundColor(color);
+					graph.update();
 				}
 
 				sidebar.OnExport = function(value) {
@@ -201,20 +216,20 @@ HTMLWidgets.widget({
 							document.body.removeChild(link);
 						}
 					);
-				}
+				};
 
 				sidebar.OnZoom = function(value) {
 					graph.setZoom(value);
 					graph.update();
-				}
+				};
 
 				graph.OnNodeSelect = function(node) {
 					sidebar.OpenSelectionMenu();
-				}
+				};
 
 				graph.OnNodeDeselect = function(node) {
 					sidebar.CloseSelectionMenu();
-				}
+				};
 
 				element.addEventListener("wheel", function(e) {
 					if(!e.ctrlKey) {

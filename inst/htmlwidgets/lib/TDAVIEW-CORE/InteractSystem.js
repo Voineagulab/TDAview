@@ -31,6 +31,7 @@ class InteractSystem {
             self.isMouseDown = true;
             self.mouseScreenDown.copy(self.mouseScreen);
             self._updateMouseWorld();
+            //console.log(self.mouseWorld);
             self._updateObjectSetAtMouseWorld();
 
             if(self.currentSet) {

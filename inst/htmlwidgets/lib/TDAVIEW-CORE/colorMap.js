@@ -14,51 +14,47 @@ class ColorMap {
     }
 
     setColor(color) {
-        for(let j=0; j<this.map.image.data.length; j+=3) {
+        for(let j=0; j<this.n; j++) {
             this._SetColorSingle(color, j);
         }
         this._UpdateMap();
     }
 
     setGradient(steps) {
-
-        //this.setColor(new THREE.Color("#123456"));
-        //console.log(this);
-        //return;
-
         let j=0;
         let i=0;
-        
 
         //Fill start if steps are uncapped
-        if(steps[0].percent > 0) {  
-            for(; j<(steps[0].percent * this.n); j+=3) {
+        if(steps[0].percentage > 0) {  
+            for(; j<(steps[0].percentage * this.n); j++) {
                 this._SetColorSingle(steps[0].color, j);
             }
-            i++;
         }
-
+        
         //Fill step-step gaps with gradients
+        let temp = new THREE.Color();
         for(; i<steps.length-1; i++) {
-            for(; j<steps[i].percent * this.n; j+=3) {
-                this._SetColorSingle(steps[i].color.lerp(steps[i+1].color, (j/this.n - steps[i].percent)/(steps[i+1].percent - steps[i].percent)), j);
+            for(; j<steps[i+1].percentage * this.n; j++) {
+                temp.copy(steps[i].color);
+                temp.lerp(steps[i+1].color, (j/this.n - steps[i].percentage)/(steps[i+1].percentage - steps[i].percentage))
+
+                this._SetColorSingle(temp, j);
             }
         }
 
         //Fill end if steps are uncapped
-        if(steps[steps.length-1].percent < 1.0) {  
-            for(; j<this.n; j++) {
-                this._SetColorSingle(steps[steps.length-1].color, j);
-            }
-            i++;
+        for(; j<this.n; j++) {
+            this._SetColorSingle(steps[steps.length-1].color, j);
         }
         this._UpdateMap();
+
     }
 
     _SetColorSingle(color, index) {
+        index *= 3;
         this.map.image.data[index+0] = Math.round(color.r * 255.0);
         this.map.image.data[index+1] = Math.round(color.g * 255.0);
-        this.map.image.data[index+3] = Math.round(color.b * 255.0);
+        this.map.image.data[index+2] = Math.round(color.b * 255.0);
     }
 
     _UpdateMap() {
@@ -68,6 +64,6 @@ class ColorMap {
 }
 
 var ColorMapPresets = {
-    "cooltowarm": [new Step(0.0, new THREE.Color("0x0000FF")), new Step(0.2, new THREE.Color("0x00FFFF")), new Step(0.5, new THREE.Color("0x00FF00")), new Step(0.8, new THREE.Color("0XFFFF00")), new Step(1.0, new THREE.Color("0xFF0000"))],
-    "blackbody": [new Step(0.0, new THREE.Color("0x000000")), new Step(0.2, new THREE.Color("0x780000")), new Step(0.5, new THREE.Color("0xE63200")), new Step(0.8, new THREE.Color("0xFFFF00")), new Step(1.0, new THREE.Color("0xFFFFFF"))],
+    "cooltowarm": [new Step(0.0, new THREE.Color("#0000FF")), new Step(0.2, new THREE.Color("#00FFFF")), new Step(0.5, new THREE.Color("#00FF00")), new Step(0.8, new THREE.Color("#FFFF00")), new Step(1.0, new THREE.Color("#FF0000"))],
+    "blackbody": [new Step(0.0, new THREE.Color("#000000")), new Step(0.2, new THREE.Color("#780000")), new Step(0.5, new THREE.Color("#E63200")), new Step(0.8, new THREE.Color("#FFFF00")), new Step(1.0, new THREE.Color("#FFFFFF"))],
 }

@@ -46,7 +46,7 @@ class GradientPicker {
         this.picker = new CP(this.input, false, this.domElement);
         this.picker.on("change", function(color) {
             if(self.state != STATE_SINGLE) {
-                self.selected.color.set("#" +  color);
+                self.selected.color.set("#" + color);
             } else {
                 self.colorString = color;
             }
@@ -188,7 +188,7 @@ class GradientPicker {
         left -= this.barRectLeft;
         if(left >= 0 && left <= BAR_WIDTH - STEP_WIDTH) {
             s.element.style.left = left + "px";
-            s.percentage = left/BAR_WIDTH * 100;
+            s.percentage = left/BAR_WIDTH;
         }
     }
 
@@ -230,7 +230,7 @@ class GradientPicker {
                 //Create two css steps between each internal step
                 var last = this.fixedSteps.length-1;
                 for(var i=0; i<last; i++) {
-                    var p = " " + (this.fixedSteps[i].percentage + this.fixedSteps[i+1].percentage)/2 + "%";
+                    var p = " " + 100 * (this.fixedSteps[i].percentage + this.fixedSteps[i+1].percentage)/2 + "%";
                     var c1 = ", #" + this.fixedSteps[i].color.getHexString();
                     var c2 = ", #" + this.fixedSteps[i+1].color.getHexString();
                     gradientCSS += c1 + p + c2 + p;
@@ -243,7 +243,7 @@ class GradientPicker {
                 //Create css step at each step
                 for(let i=0; i<this.steps.length; i++) {
                     gradientCSS += ", #" + this.steps[i].color.getHexString();
-                    gradientCSS += " " + this.steps[i].percentage + "%";
+                    gradientCSS += " " + 100*this.steps[i].percentage + "%";
                 }
             }
 

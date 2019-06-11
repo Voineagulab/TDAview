@@ -76,6 +76,7 @@ class Data {
         this.variable = new CachedVariable();
         this.mins = new ContinuousVariable();
         this.maxs = new ContinuousVariable();
+        this.hasLabels = (labels != undefined);
 
         //Create bins for each node
         this.bins = new Array(mapper.num_vertices);
@@ -94,6 +95,10 @@ class Data {
                 }
             }
         }
+    }
+
+    getHasLabels() {
+        return this.hasLabels;
     }
 
     getAdjacency() {

@@ -103,7 +103,7 @@ class Graph {
             node.fx = node.fy = null;
         };
 
-        nodeSet.OnObjectSelect = function(node){
+        nodeSet.OnObjectSelect = function(node) {
             self.selectedNode = node;
             self.selectionMesh.visible = true;
             self._updateSelectionScale();
@@ -124,14 +124,14 @@ class Graph {
         }
 
         linkSet.OnObjectSelect = function(link) {
-            //print values in common
+            //TODO: print values in common
         }
 
         this.interactSystem.addInteractSet(nodeSet);
         this.interactSystem.addInteractSet(linkSet);
 
         //Initiallise nodes in a circle for consistent layouts
-        for(let i=0; i<nodes.length; i++) {
+        for(let i=0; i<nodes.Wlength; i++) {
             let rad = i/nodes.length * 2 * Math.PI;
             nodes[i].x = Math.sin(rad);
             nodes[i].y = Math.cos(rad);
@@ -149,12 +149,13 @@ class Graph {
                 self._applySelectionPosition();
                 
                 if(this.initiallizing && this.shouldAutoZoom) {
-                    this.setZoom(0.0);
+                    this._setZoom(0.0);
                 }
                 this.update();
             }.bind(this))
             .on("end", function() {
                 this.initiallizing = false;
+                this.shouldAutoZoom = false;
             }.bind(this));
 
 
@@ -220,9 +221,7 @@ class Graph {
     }
 
     /**
-     * Sets dimensions of the renderer and related DOM elements
-     * @param  {Number} width New width of the renderer
-     * @param  {Number} height New height of the renderer
+     * Sets dimensions of the renderer and related DOM elements using client width/height
      */
     resize() {
         this.width = this.domElement.clientWidth; 
@@ -242,14 +241,12 @@ class Graph {
     }
 
     /**
-     * Sets the camera zoom amount 
+     * Sets the camera zoom amount and interrupts automatic zooming.
      * @param  {Number} value Zoom value in the range [0.0, 1.0]
      */
     setZoom(value) {
-        this.camera.zoom = THREE.Math.lerp(this._getZoomMin(window.devicePixelRatio), this._getZoomMax(), value);
-        this.camera.updateProjectionMatrix();
-        this._updatePixelZoom();
-        this._updateFontZoom();
+        this.shouldAutoZoom = false;
+        this._setZoom(Math.pow(value, 2));
     }
 
      /**
@@ -323,13 +320,17 @@ class Graph {
         this.linkRenderer.setAlpha(value);
     }
 
+    setLinkScale(value) {
+        this.linkRenderer.setWidth(value);
+    }
+
     /**
      * Sets background color of the graph
-     * @param {Number} value The new alpha
+     * @param {THREE.Color} color The new color
      */
-    setBackgroundColor(value) {
-        this.renderer.setClearColor(col);
-        this.linkRenderer.setBackgroundColor(value);
+    setBackgroundColor(color) {
+        this.renderer.setClearColor(color);
+        this.linkRenderer.setBackgroundColor(color);
     }
 
     /**
@@ -408,18 +409,10 @@ class Graph {
     setLabelVisibilities(visible) {
         if(visible != this.labelsVisible) {
             this.labelsVisible = visible;
-            if(visible) {
-                for(let i=0; i<this.labels.length; i++) {
-                    this.labels[i].classList.add("hidden");
-                }
-            } else {
-                for(let i=0; i<this.labels.length; i++) {
-                    this.labels[i].classList.remove("hidden");
-                }
+            for(let i=0; i<this.labels.length; i++) {
+                this.labels[i].element.classList.toggle("hidden");
             }
         }
-
-        
     }
 
     setLabelColors() {
@@ -429,7 +422,7 @@ class Graph {
     }
 
     setLabelText(node, text) {
-        this.labels[node.id].textContent = text;
+        this.labels[node.id].element.textContent = text;
     }
     
     /**
@@ -513,6 +506,17 @@ class Graph {
      */    
     _updatePixelZoom() {
         this.nodeRenderer.setPixelZoom(this.camera.zoom * window.innerHeight * window.devicePixelRatio / this.frustumSize * 2);
+    }
+
+    /**
+     * Sets the camera zoom amount
+     * @param  {Number} value Zoom value in the range [0.0, 1.0]
+     */
+    _setZoom(value) {
+        this.camera.zoom = THREE.Math.lerp(this._getZoomMin(window.devicePixelRatio), this._getZoomMax(), value);
+        this.camera.updateProjectionMatrix();
+        this._updatePixelZoom();
+        this._updateFontZoom();
     }
 
     /**

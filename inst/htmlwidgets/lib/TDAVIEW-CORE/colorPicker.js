@@ -2,8 +2,8 @@
 Public Events: OnColorChange
 */
 
-class colorPicker {
-    constructor(parent) {
+class ColorPicker {
+    constructor(parent, color="ff0000") {
         var self = this;
 
         this.eventSystem = new event();
@@ -22,6 +22,8 @@ class colorPicker {
         this.picker.on("change", function(color) {
             self.eventSystem.invokeEvent("OnColorChange", color);
         });
+
+        this.picker.set("#" + color);
         this.picker.enter();
     }
 

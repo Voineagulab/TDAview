@@ -121,27 +121,24 @@ class LinkRenderer extends THREE.Group {
     }
 
     containsPoint(link, position) {
-        //TODO: This approximates what is possibly a trapezium into a rectangle - triangle/trapezium methods exist but the thinkness of the lines raise bigger issues than accuracy
         let p = this.mesh.geometry.attributes.position.array;
-        let minX = Infinity, minY = Infinity;
-        let maxX = -Infinity, maxY = -Infinity;
-        let index = 8*link.link_id;
+        let index = 8 * link.link_id;
+        let curr = index + 6;
+        let next = index;
 
-        for(let i=index; i<index + 8; i+=2) {
-            if(p[index+0] < minX) {
-                minX = p[index];
-            }
-            if(p[index+1] < minY) {
-                minY = p[index];
-            }
-            if(p[index+0] > maxX) {
-                maxX = p[index];
-            }
-            if(p[index+1] < minY) {
-                minY = p[index];
+        for(; next < index + 8; curr = next, next += 2) {
+            let x1 = p[curr];
+            let y1 = p[curr + 1];
+            let x2 = p[next];
+            let y2 = p[next + 1];
+
+            let isLeft = ((x2 - x1) * (position.y - y1) - (position.x - x1) * (y2 - y1)) > 0;
+
+            if(!isLeft) {
+                return false;
             }
         }
-        return position.x >= minX && position.x <= maxX && position.y >= minY && position.y <= maxY;
+        return true;
     }
 
     updatePositions() {
