@@ -51,7 +51,7 @@ HTMLWidgets.widget({
 					graph.forEachNode(n => graph.setNodeScale(n, 0.5));
 					graph.updateNodeScales();
 					graph.applyLinkPositions();
-					graph.applyLabelPositions();
+					graph.forEachNode(n => graph.setLabelPosition(n));
 					graph.update();
 				}
 
@@ -59,11 +59,11 @@ HTMLWidgets.widget({
 					graph.forEachNode(n => graph.setNodeScale(n, data.getPointsNormalised(n.userData)));
 					graph.updateNodeScales();
 					graph.applyLinkPositions();
-					graph.applyLabelPositions();
+					graph.forEachNode(n => graph.setLabelPosition(n));
 					graph.update();
 				}
 
-				sidebar.OnNodeSizeVariable = function(value) {
+				sidebar.OnNodeSizeContinuous = function(value) {
 					data.loadVariable(value);
 					graph.forEachNode(n => graph.setNodeScale(n, data.getContinuousNormalised(n.userData, "mean")));
 					graph.updateNodeScales();
@@ -75,38 +75,46 @@ HTMLWidgets.widget({
 					//TODO legend switching
 				}
 
-				sidebar.OnNodeColorVariable = function(value) {
-					data.loadVariable(value);
-					let cachedVariable = data.getVariable();
-					if(!cachedVariable.getIsCategorical()) {
-						graph.forEachNode(n => graph.setNodeColor(n, data.getContinuousNormalised(n.userData, "mean")));
-						if(shouldShareMap) {
-							graph.setLinkGradientsFromNodes();
-						}
-					} else {
-						for(let i=0; i<graph.nodes.length; i++) {
-							let percentages = graph.nodes[i].userData.getCategorical().getValuesNormalised();
-							let colors = Array.from({length: percentages.length}, (_, i) => i/(percentages.length-1));
-							graph.setNodePie(graph.nodes[i], percentages, colors);
-						}
 
-						if(shouldShareMap) {
-							graph.links.setLinkGradientsFromNodes();
-						}
-						//let categories = cachedVariable.getCategorical().getCategories(); //TODO: set legend categories here
+				sidebar.OnNodeColorContinuous = function(value) {
+					data.loadVariable(value);
+					graph.forEachNode(n => graph.setNodeColor(n, data.getContinuousNormalised(n.userData, "mean")));
+					if(shouldShareMap) {
+						graph.setLinkGradientsFromNodes();
+						graph.updateLinkColors()
 					}
-					if(shouldShareMap) graph.updateLinkColors();
 					graph.updateNodeColors();
 					graph.update();
 				}
 
-				sidebar.OnNodeColorChange = function(color) {
-					nodeMap.changeColor(color);
+				sidebar.OnNodeColorCategorical = function(value) {
+					data.loadVariable(value);
+					for(let i=0; i<graph.nodes.length; i++) {
+						let percentages = graph.nodes[i].userData.getCategorical().getValuesNormalised();
+						let colors = Array.from({length: percentages.length}, (_, i) => i/(percentages.length-1));
+						graph.setNodePie(graph.nodes[i], percentages, colors);
+					}
+					if(shouldShareMap) {
+						graph.setLinkGradientsFromNodes();
+						graph.updateLinkColors()
+					}
+					graph.updateNodeColors();
+					graph.update();
+					return cachedVariable.getCategorical().getCategories().length;
+				}
+
+				sidebar.OnNodeColorChange = function(value) {
+					var color = new THREE.Color("#" + value);
+
+					nodeMap.setColor(color);
+					graph.updateNodeColors();
+					if(shouldShareMap) graph.updateLinkColors();
 					graph.update();
 				}
 
 				sidebar.OnNodeGradientChange = function(steps) {
-					nodeMap.changeColorMap(steps);
+					nodeMap.setGradient(steps);
+					graph.updateNodeColors();
 					graph.update();
 				}
 

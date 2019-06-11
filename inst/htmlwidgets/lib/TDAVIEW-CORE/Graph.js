@@ -149,10 +149,7 @@ class Graph {
                 self._applySelectionPosition();
                 
                 if(this.initiallizing && this.shouldAutoZoom) {
-                    this.camera.zoom = this._getZoomMin(window.devicePixelRatio);
-                    this.camera.updateProjectionMatrix();
-                    this._updateFontZoom();
-                    this._updatePixelZoom();
+                    this.setZoom(0.0);
                 }
                 this.update();
             }.bind(this))
@@ -351,6 +348,10 @@ class Graph {
         this.forEachNode(n => this.setLabelPosition(n));
     }
 
+    updateLinkColors() {
+        this.linkRenderer.updateColors();
+    }
+
     /**
      * Sets font size of all labels
      * @param {Number} value The new font size
@@ -440,7 +441,7 @@ class Graph {
     }
 
     setLinkGradientsFromNodes() {
-        this.links.forEach(l => graph.setLinkGradientFromNodes(l));
+        this.links.forEach(l => this.linkRenderer.setGradientFromNodes(l));
     }
 
     _render() {

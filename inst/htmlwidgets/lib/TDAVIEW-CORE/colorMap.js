@@ -13,17 +13,22 @@ class ColorMap {
         return this.map.image;
     }
 
-    SetColor(color) {
-        for(let j=0; i<this.map.image.data.length; j+=3) {
+    setColor(color) {
+        for(let j=0; j<this.map.image.data.length; j+=3) {
             this._SetColorSingle(color, j);
         }
         this._UpdateMap();
     }
 
+    setGradient(steps) {
 
-    SetGradient(steps) {
+        //this.setColor(new THREE.Color("#123456"));
+        //console.log(this);
+        //return;
+
         let j=0;
         let i=0;
+        
 
         //Fill start if steps are uncapped
         if(steps[0].percent > 0) {  
@@ -35,7 +40,7 @@ class ColorMap {
 
         //Fill step-step gaps with gradients
         for(; i<steps.length-1; i++) {
-            for(; j<this.steps[i].percent * this.n; j+=3) {
+            for(; j<steps[i].percent * this.n; j+=3) {
                 this._SetColorSingle(steps[i].color.lerp(steps[i+1].color, (j/this.n - steps[i].percent)/(steps[i+1].percent - steps[i].percent)), j);
             }
         }

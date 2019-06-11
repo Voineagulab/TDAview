@@ -14,6 +14,10 @@
     overflow-x: visible;
     transition: 0.5s;
     scrollbar-width: none;
+
+    -webkit-box-shadow: 5px 0px 12px 0px rgba(0,0,0,0.25);
+-moz-box-shadow: 5px 0px 12px 0px rgba(0,0,0,0.25);
+box-shadow: 5px 0px 12px 0px rgba(0,0,0,0.25);
 }
 
 ::-webkit-scrollbar {
@@ -93,7 +97,6 @@ select {
 
 .accordion-wrapper {
     padding: 0px;
-    background: gray;
     float: left;
     width: 100%;
     box-sizing: border-box;
@@ -131,34 +134,26 @@ select {
     writing-mode: lr-tb;
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0);
     margin-bottom: 0px;
+
+    margin: 0px;
+    color: #101314;
+
 }
 
 .accordion-item-heading:hover {
     background-color: #ddd;
 }
 
-.open_acc .accordion-item-heading::after {
-    margin: 0px;
-    background-color: #bdc3c7;
-    color: #101314;
-
-    content: '\2013';
-    background-color: rgba(0, 0, 0, 0);
+.accordion-item-heading::after {
+    content: '+';
     font-size: 14px;
     float: right;
     margin-left: 5px;
 }
 
-.close_acc .accordion-item-heading::after {
-    margin: 0px;
-    background-color: #bdc3c7;
-    color: #101314;
-
-    content: '+';
-    background-color: rgba(0, 0, 0, 0);
-    font-size: 14px;
+.open_acc .accordion-item-heading::after {
+    content: '\2013';
     float: right;
-    margin-left: 5px;
 }
 
 .accordion-item-content {
@@ -171,6 +166,17 @@ select {
     -o-transition: all .175s ease-in-out .175s;
     -ms-transition: all .175s ease-in-out .175s;
     transition: all .175s ease-in-out .175s;
+
+    padding-left: 10px;
+
+    width: 100%;
+    max-height: 0px;
+    margin: 0px;
+    display: block;
+    box-sizing: border-box;
+    float: left;
+
+    transition: all .175s ease-in-out;
 }
 
 .open_acc .accordion-item-content {
@@ -182,19 +188,6 @@ select {
     display: block;
     box-sizing: border-box;
     z-index: 5;
-}
-
-.close_acc .accordion-item-content {
-    padding-left: 10px;
-
-    width: 100%;
-    max-height: 0px;
-    margin: 0px;
-    display: block;
-    box-sizing: border-box;
-    float: left;
-
-    transition: all .175s ease-in-out;
 }
 
 

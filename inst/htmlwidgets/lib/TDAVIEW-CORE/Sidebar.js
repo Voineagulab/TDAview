@@ -6,12 +6,11 @@
  */
 
 class Sidebar {
-	constructor(element, data) {
+	constructor(element, data, continuousNames, categoricalNames) {
         var self = this;
 
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML(data);
-        this.eventSystem = new event();
         element.appendChild(this.domElement);
 
         //Accordion events
@@ -19,66 +18,68 @@ class Sidebar {
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
         for(let i=0; i<accHD.length; i++) {
             accHD[i].addEventListener('click', function() {
-                for(let i=0; i<accItem.length; i++) {
-                    if (accItem[i].classList.contains("open_acc") && accItem[i] != this.parentNode) {
-                        accItem[i].classList.remove("open_acc");
-                        accItem[i].classList.add("close_acc");
-                    }
+                for(let j=0; j<accItem.length; j++) {
+                    if(i!=j) accItem[j].classList.remove("open_acc")
                 }
-
-                if(this.parentNode.classList.contains("open_acc")) {
-                    this.parentNode.classList.remove("open_acc");
-                    this.parentNode.classList.add("close_acc");
-                } else {
-                    this.parentNode.classList.remove("close_acc");
-                    this.parentNode.classList.add("open_acc");
-                }
-                
+                this.parentNode.classList.toggle("open_acc");
             }, false);
         }
 
-        /*
-        function ValidateSizeVariableChange() {
-            //Enforce values are on list and trigger event
-            sizedatainput.value;
-            if(data.getContinuousNames().indexOf(sizedatainput.value) < 0) {
-                sizedatainput.value = "";
-            } else {
-                self.eventSystem.invokeEvent("OnNodeSizeVariableChange", sizedatainput.value);
-            }
+        this.nodeGradPicker = new GradientPicker(document.getElementById("node-color-picker-insert"));
+        this.nodeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
+            self.OnNodeColorChange(color);
+        });
+
+        this.nodeGradPicker.eventSystem.addEventListener("OnGradientChange", function(steps) {
+            self.OnNodeGradientChange(steps);
+        });
+
+        var colordatainput = document.getElementById("variablecolorinput");
+        document.getElementById("nodecoloruniform").onclick = function() {
+            colordatainput.disabled = true;
+            self.OnNodeColorUniform();
+        }
+        document.getElementById("nodecolorvariable").onclick = function() {
+            colordatainput.disabled = false;
         }
 
-        //Node size events
-        var sizeradios = document.getElementsByName("nodesize");
+        colordatainput.onchange = function() {
+            if(data.getContinuousNames().indexOf(colordatainput.value) >= 0) {
+                self.nodeGradPicker.setState(STATE_GRADIENT);
+                self.OnNodeColorContinuous(colordatainput.value);
+                colordatainput.placeholder = colordatainput.value; 
+            } else if(data.getContinuousNames().indexOf(colordatainput.value) >= 0) {
+                let count = self.OnNodeColorCategorical(colordatainput.value);
+                self.nodeGradPicker.setState(STATE_FIXED, count);
+                colordatainput.placeholder = colordatainput.value; 
+            }
+            colordatainput.value = "";
+        }
+
         var sizedatainput = document.getElementById("continuoussizeinput");
-        sizedatainput.onchange = ValidateSizeVariableChange;
-
-        //TODO better to use IDs
-        sizeradios[0].onclick = self.OnNodeSizeVariable;
-        sizeradios[1].onclick = self.OnNodeColorUniform;
-        
-        for(let i=0; i<sizeradios.length; i++) {
-            sizeradios[i].onclick() = function() {
-                self.OnNodeSizeUniform
-                self.eventSystem.invokeEvent("OnNodeSizeChange", this.value);
-                if(this.value !== "continuous") {
-                    sizedatainput.disabled = true;
-                } else {
-                    sizedatainput.disabled = false;
-                    ValidateSizeVariableChange();
-                }
+        document.getElementById("nonesize").onclick = function() {
+            sizedatainput.disabled = true;
+            self.OnNodeSizeUniform();
+        }
+        document.getElementById("contentsize").onclick = function() {
+            sizedatainput.disabled = true;
+            self.OnNodeSizePoints();
+        }
+        document.getElementById("continuoussize").onclick = function() {
+            sizedatainput.disabled = false;
+        }
+        sizedatainput.onchange = function() {
+            if(self.OnNodeSizeVariable(sizedatainput.value)) {
+                sizedatainput.placeholder = sizedatainput.value; 
             }
+            sizedatainput.value = "";
         }
 
-        function ValidateColorVariableChange() {
-            //Enforce values are on list and trigger event
-            nodeColorDataInput.value;
-            if(data.getVariableNames().indexOf(nodeColorDataInput.value) < 0) {
-                nodeColorDataInput.value = "";
-            } else {
-                self.eventSystem.invokeEvent("OnNodeColorVariableChange", nodeColorDataInput.value);
-            }
-        }
+
+
+
+
+        /*
 
         //Node color events
         this.nodeGradPicker = new gradientPicker(document.getElementById("node-color-picker-insert"));
@@ -208,8 +209,9 @@ class Sidebar {
 
     CloseSelectionMenu() {
         var acc = document.getElementById("node-data").parentNode;
-		acc.setAttribute("class", "accordion-item close_acc");
+		acc.setAttribute("class", "accordion-item");
     }
+
 
     /**
      * Invoked when all nodes are to be scaled by a single uniform.
@@ -225,8 +227,9 @@ class Sidebar {
     /**
      * Invoked when nodes are to be scaled by the mean of a contained continuous variable.
      * @param {String} name the name of a continuous or categorical variable
+     * @returns {Boolean} whether name was valid
      */
-    OnNodeSizeVariable(name) {}
+    OnNodeSizeContinuous(name) {return false}
 
     /**
      * Invoked when all nodes are to be colored by a single uniform.
@@ -236,9 +239,16 @@ class Sidebar {
 
     /**
      * Invoked when nodes are to be colored by 
-     * @param {String} name the name of a continuous or categorical variable
+     * @param {String} name the name of a categorical variable
+     * @returns {Number} the number of categories
      */
-    OnNodeColorVariable(name) {}
+    OnNodeColorCategorical(name) {}
+
+    /**
+     * Invoked when nodes are to be colored by 
+     * @param {String} name the name of a continuous variable
+     */
+    OnNodeColorContinuous(name) {}
 
     /**
      * Invoked when all nodes are to be colored by a newly selected uniform.
@@ -320,13 +330,17 @@ class Sidebar {
         this.sidezoom.value = value * 100;
     }
 
+    SetNodePickerCategoryCount(count) {
+        this.nodeGradPicker.setState(STATE_FIXED, count);
+    }
+
     generateHTML(data) {
         return /*html*/`
         <div class="unselectable sidenav">
             <br>
             <h1 class="heading"></h1><br>
             <div class="accordion-wrapper">
-                <div class="accordion-item close_acc">
+                <div class="accordion-item">
                     <h4 class="accordion-item-heading">Selected</h4>
                     <div id="node-data" class="accordion-item-content">
                         <input placeholder="Select:" list="variableselectdatalist" name="variableselectinput" id="variableselectinput" autocomplete="off">
@@ -349,7 +363,7 @@ class Sidebar {
                 </div>
             </div>
             <div class="accordion-wrapper">
-                <div class="accordion-item close_acc">
+                <div class="accordion-item">
                     <h4 class="accordion-item-heading">Nodes</h4>
                     <div id="node-size" class="accordion-item-content">
                         <fieldset>
@@ -381,7 +395,7 @@ class Sidebar {
                         </fieldset>
                     </div>
                 </div>
-                <div class="accordion-item close_acc">
+                <div class="accordion-item">
                     <h4 class="accordion-item-heading">Edges</h4>
                     <div class="accordion-item-content">
                         <fieldset>
@@ -403,7 +417,7 @@ class Sidebar {
                         </fieldset>
                     </div>
                 </div>
-                <div class="accordion-item close_acc">
+                <div class="accordion-item">
                     <h4 class="accordion-item-heading">Labels</h4>
                     <div class="accordion-item-content">
                         <fieldset>
@@ -436,7 +450,7 @@ class Sidebar {
                 
             </div>
             <div class="accordion-wrapper">
-                <div class="accordion-item close_acc">
+                <div class="accordion-item">
                     <h4 class="accordion-item-heading">Save</h4>
                     <div class="accordion-item-content">
 
