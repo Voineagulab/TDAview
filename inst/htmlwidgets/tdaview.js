@@ -20,6 +20,10 @@ HTMLWidgets.widget({
 					return;
 				}
 
+				//Shiny.addCustomMessageHandler(element.id + "NameHandler", doAwesomeThing1);
+
+				var selectedName = undefined;
+
 				var shouldShareMap = true;
 
 				var isLabelFromBackground = false;
@@ -213,21 +217,35 @@ HTMLWidgets.widget({
 					graph.update();
 				}
 
-				sidebar.OnExport = function(value) {
+				function saveAs(uri, filename) {
+
+					var link = document.createElement('a');
+				
+					if (typeof link.download === 'string') {
+				
+						link.href = uri;
+						link.download = filename;
+				
+						//Firefox requires the link to be in the body
+						document.body.appendChild(link);
+				
+						//simulate click
+						link.click();
+				
+						//remove the link when done
+						document.body.removeChild(link);
+				
+					} else {
+				
+						window.open(uri);
+				
+					}
+				}
+
+				sidebar.OnExportGraph = function(value) {
 					html2canvas(graph.domElement).then(function(canvas) {
-							//Generate image from canvas
 							var imgtype = value.toLowerCase();
-							var imgdata = canvas.toDataURL("image/" + imgtype.toLowerCase());
-							imgdata = imgdata.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
-							imgdata = imgdata.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
-						
-							//Create element to automatically download image
-							var link = document.createElement("a");
-							link.setAttribute("href", imgdata);
-							link.setAttribute("download", "graph." + imgtype);
-							document.body.appendChild(link);
-							link.click();
-							document.body.removeChild(link);
+							saveAs(canvas.toDataURL("image/" + imgtype.toLowerCase()), "graph." + imgtype);
 						}
 					);
 				};
@@ -237,28 +255,44 @@ HTMLWidgets.widget({
 					graph.update();
 				};
 
-				graph.OnNodeSelect = function(node) {
-					sidebar.OpenSelectionMenu("Node " + node.id, node.userData.getPoints());
-				};
+				if(typeof Shiny !== "undefined") {
+					var datauri = undefined;
+					Shiny.addCustomMessageHandler("NamesToJs", function(names) {
+						datauri = "data:text/csv;charset=utf-8," + names.map(n => "\"" + n + "\",");
+						sidebar.SetSelectionList(names);
+					});
 
-				graph.OnLinkSelect = function(link) {
-					let points1 = link.source.userData.getPoints();
-					let points2 = link.target.userData.getPoints();
-					sidebar.OpenSelectionMenu("Link " + link.link_id, points1.filter(p => points2.includes(p)));
-				}
+					graph.OnNodeSelect = function(node) {
+						sidebar.OpenSelectionMenu();
+					
+						var indices = node.userData.getPoints().map(i => i+1);
+						Shiny.onInputChange("NamesFromJs", indices);
 
-				graph.OnNodeDeselect = graph.OnLinkDeselect = function() {
-					sidebar.CloseSelectionMenu();
-				};
+						sidebar.SetSelectionName("Node " + node.id + " (" + indices.length + " rows)");
+					};
+	
+					graph.OnLinkSelect = function(link) {
+						sidebar.OpenSelectionMenu();
+	
+						let i1 = link.source.userData.getPoints();
+						let i2 = link.target.userData.getPoints();
+						let indices = i1.filter(i => i2.includes(i)).map(i => i+1);
 
-				element.addEventListener("wheel", function(e) {
-					if(!e.ctrlKey) {
-						let curr = graph.getZoom();
-						curr += (e.deltaY > 0) ? 0.01 : -0.01;
-						//graph.setZoom(Math.max(1.0, Math.min(0.0, curr)));
-						graph.update();
+						Shiny.onInputChange("NamesFromJs", indices);
+
+						sidebar.SetSelectionName("Link " + link.link_id + " (" + indices.length + " rows)");
 					}
-				});
+
+					graph.OnNodeDeselect = graph.OnLinkDeselect = function() {
+						sidebar.CloseSelectionMenu();
+						currentName = undefined;
+						currentRows = undefined;
+					};
+
+					sidebar.OnExportData = function() {
+						saveAs(datauri, "data.csv" )
+					}
+				}
 
 				sidebar.RestoreSettings();
 			},

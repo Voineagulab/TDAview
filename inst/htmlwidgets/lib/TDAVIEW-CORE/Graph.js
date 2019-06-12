@@ -135,7 +135,7 @@ class Graph {
         this.interactSystem.addInteractSet(linkSet);
 
         //Initiallise nodes in a circle for consistent layouts
-        for(let i=0; i<nodes.Wlength; i++) {
+        for(let i=0; i<nodes.length; i++) {
             let rad = i/nodes.length * 2 * Math.PI;
             nodes[i].x = Math.sin(rad);
             nodes[i].y = Math.cos(rad);

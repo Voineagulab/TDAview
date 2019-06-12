@@ -29,7 +29,7 @@ class Sidebar {
         this.selectAccItem = document.getElementById("selected-item");
         this.selectAccItem.classList.add("disable_acc");
         this.selectLegend = document.getElementById("selected-legend");
-        this.selectField = document.getElementById("selected-fieldset");
+        this.selectField = document.getElementById("selected-list");
 
         this.nodeGradPicker = new GradientPicker(document.getElementById("node-color-picker-insert"));
         this.nodeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
@@ -169,7 +169,11 @@ class Sidebar {
 
         var graphradios = document.forms["graphext"].elements["graphtype"];
         document.getElementById("graphexport").addEventListener("click", function() {
-            self.OnExport(graphradios.value);
+            self.OnExportGraph(graphradios.value);
+        });
+
+        document.getElementById("selectexport").addEventListener("click", function() {
+            self.OnExportData();
         });
 
         this.sidezoom = document.getElementById("sidezoom");
@@ -185,20 +189,21 @@ class Sidebar {
         }
     }
 
-    OpenSelectionMenu(name, list) {
+    SetSelectionName(name) {
+        this.selectLegend.innerHTML = name;
+    }
+
+    SetSelectionList(list) {
+        let listHTML = "";
+        for(let i=0; i<list.length && i<10; i++) {
+            listHTML +=  list[i] + "<br>";
+        }
+        this.selectField.innerHTML = listHTML;
+    }
+
+    OpenSelectionMenu() {
         this.selectAccItem.classList.remove("disable_acc");
         this.selectAccItem.classList.add("open_acc")
-        
-        
-        
-        let listHTML = "<ul>";
-        for(let i=0; i<list.length; i++) {
-            listHTML += "<li>" + list[i] + "</li>";
-        }
-        listHTML += "<ul>";
-
-        this.selectField.innerHTML = listHTML;
-        this.selectLegend.innerHTML = name;
     }
 
     CloseSelectionMenu() {
@@ -334,7 +339,13 @@ class Sidebar {
      * Invoked when the graph is to be exported.
      * @param {String} format either "jpg" or "png"
      */
-    OnExport(format) {}
+    OnExportGraph(format) {}
+
+    /**
+     * Invoked when the current selection is to be exported to csv.
+     * @param {String} format either "jpg" or "png"
+     */
+    OnExportData() {}
 
     /**
      * Invoked when the graph is to be zoomed.
@@ -368,7 +379,9 @@ class Sidebar {
                             <input placeholder="Select:" list="variablecolordatalist" name="variablecolorinput" id="variablecolorinput" autocomplete="off" disabled>
                             <br>
                             <datalist id="variablecolordatalist">
+                            <select>
                             ${allNames.map(v => `<option value="${v}">`).join('')}
+                            </select>
                             </datalist>
                             <br>
                             <div id="node-color-picker-insert"></div>
@@ -383,7 +396,9 @@ class Sidebar {
                             <label for="continuoussize">Variable</label><br>
                             <input placeholder="Select:" list="continuoussizedatalist" name="continuoussizeinput" id="continuoussizeinput" autocomplete="off" disabled>
                             <datalist id="continuoussizedatalist">
+                            <select>
                             ${continuousNames.map(v => `<option value="${v}">`).join('')}
+                            </select>
                             </datalist>
                         </fieldset>
                     </div>
@@ -457,7 +472,7 @@ class Sidebar {
                             <label for="png">PNG</label><br>
                             <input type="radio" name="graphtype" value="jpeg" id="jpeg">
                             <label for="jpeg">JPEG</label><br><br>
-                            <a href="#" class="myButton" id="graphexport">Export</a>
+                            <a href="#" class="myButton" id="graphexport">Export Graph</a>
                         </form>
                     </fieldset>
                     </div>
@@ -469,7 +484,10 @@ class Sidebar {
                     <div id="node-data" class="accordion-item-content">
                     <fieldset>
                     <legend id="selected-legend">Node 12</legend>
-                        <div id="selected-fieldset"></div>
+                        <div id="selected-list">
+                        </div>
+                        <br>
+                        <a href="#" class="myButton" id="selectexport">Export Data</a>
                     </fieldset>
                     </div>
                 </div>

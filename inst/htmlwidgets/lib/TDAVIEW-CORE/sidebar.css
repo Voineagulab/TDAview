@@ -31,52 +31,6 @@ input[type="range"].vranger {
     width: 20%;
 }
 
-/* Table styling */
-
-table {
-    width: 100%;
-    margin-left: 0;
-    transition: all 1s ease-in-out;
-}
-
-th {
-    text-align: center;
-    color: gray;
-}
-
-td {
-    text-align: center;
-    color: #aaaaaa;
-}
-
-#tableContainer {
-    position: absolute;
-    top: 20px;
-    left: -50px;
-    width: 15%;
-    height: 25%;
-    padding-bottom: 20px;
-    background-color: #ddd;
-    opacity: 0;
-    border: 1px solid gray;
-    border-radius: 5px;
-    z-index: 55;
-    overflow-y: scroll;
-
-    -webkit-animation: slide 0.5s forwards;
-    -webkit-animation-delay: 0.2s;
-    animation: slide 0.5s forwards;
-    animation-delay: 0.2s;
-    /*transition: all 1s ease-in-out;*/
-}
-
-#bigTable {
-    width: 100%;
-    height: 100%;
-    padding: 4px;
-    color: rgb(51, 51, 51);
-}
-
 @-webkit-keyframes slide {
     100% { left: 270px; opacity: 0.75; }
 }
@@ -85,6 +39,13 @@ td {
     100% { left: 270px; opacity: 0.75; }
 }
 
+
+#selected-list {
+    line-height: 2.5ex;
+    height: 25ex; /* 2.5ex for each visible line */
+    overflow: hidden;
+    -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
+}
 
 /*select styling */
 
@@ -139,7 +100,6 @@ select {
     color: #101314;
 
     pointer-events: auto;
-
 }
 
 .accordion-item-heading:hover {
@@ -175,7 +135,9 @@ select {
     -ms-transition: all .175s ease-in-out .175s;
     transition: all .175s ease-in-out .175s;
 
-    padding-left: 10px;
+    padding-bottom: 0px;
+    padding-top: 0px;
+    margin-right: 0px;
 
     width: 100%;
     max-height: 0px;
@@ -188,14 +150,9 @@ select {
 }
 
 .open_acc .accordion-item-content {
-    padding: 10px;
-    
-    width: 100%;
-    max-height: 800px; /*TODO: was "max-height: 150px" but cut off elements - currently makes animation strange*/
-    margin: 0px;
-    display: block;
-    box-sizing: border-box;
-    z-index: 5;
+    max-height: 800px;
+    padding-bottom: 10px;
+    padding-top: 10px;
 }
 
 
@@ -260,7 +217,6 @@ select {
 }
 
 fieldset {
-    width: 188;
     border-color: rgba(75, 81, 95, 0.082);
     border-style: solid;
 }
@@ -306,9 +262,6 @@ fieldset {
 	position: relative;
 	top: 1px;
 }
-
-
-/* Canvas modification to avoid overlap -- TENTATIVE */
 
 #export {
     margin-left: 250px;

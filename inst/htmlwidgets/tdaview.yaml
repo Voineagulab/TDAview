@@ -9,7 +9,6 @@ dependencies:
     script: 
       - three.min.js
       - css2drenderer.js
-      - compatibility.js
   - name: jquery
     version: 3.3.1
     src: "htmlwidgets/lib/JQUERY"
@@ -32,19 +31,22 @@ dependencies:
     src: "htmlwidgets/lib/TDAVIEW-CORE"
     stylesheet:
       - style.css
-      - menu.css
-      - forceGraph.css
+      - sidebar.css
+      - graph.css
       - gradientPicker.css
     script:
-      - draggable2D.js
-      - navSystem2D.js
-      - forceGraph.js
-      - nodeRenderer.js
-      - linkRenderer.js
-      - colorMap.js
-      - event.js
-      - menu.js
-      - colorPicker.js
-      - gradientPicker.js
-      - multiLegend.js
-      - data.js
+      - Step.js
+      - ColorMap.js
+      - ColorPicker.js
+      - Compatibility.js
+      - Data.js
+      - Event.js
+      - GradientPicker.js
+      - Graph.js
+      - InteractSet.js
+      - InteractSystem.js
+      - LegendBar.js
+      - LegendPie.js
+      - LinkRenderer.js
+      - NodeRenderer.js
+      - Sidebar.js
