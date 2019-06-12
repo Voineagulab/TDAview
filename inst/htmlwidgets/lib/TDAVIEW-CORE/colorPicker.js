@@ -8,6 +8,8 @@ class ColorPicker {
 
         this.eventSystem = new event();
 
+        this.colorString = color;
+
         //Create container
         this.domElement = document.createElement("div");
         this.domElement.className = "gradient-container";
@@ -20,6 +22,7 @@ class ColorPicker {
         this.domElement.appendChild(this.input);
         this.picker = new CP(this.input, false, this.domElement);
         this.picker.on("change", function(color) {
+            this.colorString = color;
             self.eventSystem.invokeEvent("OnColorChange", color);
         });
 
@@ -29,5 +32,9 @@ class ColorPicker {
 
     setEnabled(value) {
         this.enabled = value;
+    }
+
+    getColor() {
+        return this.colorString;
     }
 }

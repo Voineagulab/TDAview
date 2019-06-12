@@ -251,6 +251,10 @@ class GradientPicker {
             this.bar.style.backgroundImage = gradientCSS;
         }
     }
+
+    getColor() {
+        return this.colorString;
+    }
 }
 
 class step {

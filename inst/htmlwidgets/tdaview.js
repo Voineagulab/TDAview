@@ -7,7 +7,7 @@ HTMLWidgets.widget({
 	
 	factory: function(element, width, height) {
 		var graph;
-		var shouldShareMap = true;
+		
 
 		return {
 			renderValue: function(x) {
@@ -18,6 +18,22 @@ HTMLWidgets.widget({
 				} else if(!Compatibility.isES6Available()) {
 					console.warn("ES6 not available - please use a newer browser.");
 					return;
+				}
+
+				var shouldShareMap = true;
+
+				var isLabelFromBackground = false;
+				var backgroundColor = new THREE.Color();
+				var tempColor = new THREE.Color();
+				function getHighContrastColor(inColor, outColor) {
+					var targetObject = {};
+					let lightness = inColor.getHSL(targetObject).l;
+					if(lightness < 0.1833) {
+						outColor.set("white");
+					} else if(lightness > 0.175) {
+						outColor.set("black");
+					}
+					return outColor;
 				}
 
 				var data = x.random ? Data.generateRandom() : new Data(x.mapper, x.metadata);
@@ -89,6 +105,8 @@ HTMLWidgets.widget({
 
 				sidebar.OnNodeColorCategorical = function(value) {
 					data.loadVariable(value);
+					//TODO: This is wrong for nodes that don't contain all segments
+					//better to use a category id / category count to get an accurate percentage
 					for(let i=0; i<graph.nodes.length; i++) {
 						let percentages = graph.nodes[i].userData.getCategorical().getValuesNormalised();
 						let colors = Array.from({length: percentages.length}, (_, i) => i/(percentages.length-1));
@@ -152,28 +170,30 @@ HTMLWidgets.widget({
 
 				sidebar.OnLabelSizeChange = function(value) {
 					graph.setFontScale(value);
-					graph.updateLabelSizes();
 				};
-
+				
 				sidebar.OnLabelColorFromBackground = function() {
-
+					isLabelFromBackground = true;
+					let colString = getHighContrastColor(backgroundColor, tempColor).getHexString();
+					graph.setLabelColors(colString);
+					graph.setSelectColor(colString);
 				};
 
 				sidebar.OnLabelColorUniform = function() {
-
+					isLabelFromBackground = false;
 				};
 
 				sidebar.OnLabelColorChange = function(value) {
-
+					graph.setLabelColors(value);
 				};
 
 				sidebar.OnLabelTextName = function() {
 					graph.forEachNode(n => graph.setLabelText(n, n.userData.getName()));
 					graph.setLabelVisibilities(true);
-
 				};
 
 				sidebar.OnLabelTextPoints = function() {
+					graph.forEachNode(n => graph.setLabelText(n, n.userData.getPointCount()));
 					graph.setLabelVisibilities(true);
 
 				};
@@ -182,20 +202,14 @@ HTMLWidgets.widget({
 					graph.setLabelVisibilities(false);
 				};
 
-				sidebar.OnLabelColorUniform = function(color) {
-					shouldSetLabelColorAutomatically = false;
-					setLabelColors(customLabelColor);
-				};
-
-				//TODO: Copy old background variables/predicates from github
-				sidebar.OnLabelColorFromBackground = function() {
-					shouldSetLabelColorAutomatically = true;
-					setLabelColorsAutomatic(customBackgroundColor);
-				};
-
 				sidebar.OnBackgroundColorChange = function(value) {
-					var color = new THREE.Color("#" + value);
-					graph.setBackgroundColor(color);
+					backgroundColor.set("#" + value);
+					graph.setBackgroundColor(backgroundColor);
+					let colString = getHighContrastColor(backgroundColor, tempColor).getHexString();
+					graph.setSelectColor(colString);
+					if(isLabelFromBackground) {
+						graph.setLabelColors(colString);
+					}
 					graph.update();
 				}
 
@@ -224,10 +238,16 @@ HTMLWidgets.widget({
 				};
 
 				graph.OnNodeSelect = function(node) {
-					sidebar.OpenSelectionMenu();
+					sidebar.OpenSelectionMenu("Node " + node.id, node.userData.getPoints());
 				};
 
-				graph.OnNodeDeselect = function(node) {
+				graph.OnLinkSelect = function(link) {
+					let points1 = link.source.userData.getPoints();
+					let points2 = link.target.userData.getPoints();
+					sidebar.OpenSelectionMenu("Link " + link.link_id, points1.filter(p => points2.includes(p)));
+				}
+
+				graph.OnNodeDeselect = graph.OnLinkDeselect = function() {
 					sidebar.CloseSelectionMenu();
 				};
 
@@ -239,6 +259,8 @@ HTMLWidgets.widget({
 						graph.update();
 					}
 				});
+
+				sidebar.RestoreSettings();
 			},
 			
 			resize: function(width, height) {

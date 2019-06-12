@@ -138,6 +138,8 @@ select {
     margin: 0px;
     color: #101314;
 
+    pointer-events: auto;
+
 }
 
 .accordion-item-heading:hover {
@@ -154,6 +156,12 @@ select {
 .open_acc .accordion-item-heading::after {
     content: '\2013';
     float: right;
+}
+
+
+.disable_acc .accordion-item-heading {
+    color: #d0d0d0;
+    pointer-events: none;
 }
 
 .accordion-item-content {

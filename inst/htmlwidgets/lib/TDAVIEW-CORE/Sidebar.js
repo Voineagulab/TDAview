@@ -9,21 +9,27 @@ class Sidebar {
 	constructor(element, continuousNames, categoricalNames, hasLabels) {
         var self = this;
 
+        this.hasLabels = true;
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML(continuousNames, categoricalNames, hasLabels);
         element.appendChild(this.domElement);
 
-        //Accordion events
-        var accItem = this.domElement.getElementsByClassName("accordion-item");
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
-        for(let i=0; i<accHD.length; i++) {
+        var accItem = this.domElement.getElementsByClassName("accordion-item");
+        for(let i=0; i<accItem.length; i++) {
             accHD[i].addEventListener('click', function() {
                 for(let j=0; j<accItem.length; j++) {
-                    if(i!=j) accItem[j].classList.remove("open_acc")
+                    if(i!=j) {
+                        accItem[j].classList.remove("open_acc");
+                    }
                 }
-                this.parentNode.classList.toggle("open_acc");
+                accItem[i].classList.toggle("open_acc");
             }, false);
         }
+        this.selectAccItem = document.getElementById("selected-item");
+        this.selectAccItem.classList.add("disable_acc");
+        this.selectLegend = document.getElementById("selected-legend");
+        this.selectField = document.getElementById("selected-fieldset");
 
         this.nodeGradPicker = new GradientPicker(document.getElementById("node-color-picker-insert"));
         this.nodeGradPicker.eventSystem.addEventListener("OnColorChange", function(color) {
@@ -91,17 +97,22 @@ class Sidebar {
             sizedatainput.value = "";
         };
 
-        new ColorPicker(document.getElementById("edge-color-picker-insert")).eventSystem.addEventListener("OnColorChange", function(color) {
-            self.OnEdgeColorChange(color);
-        });
+        var edgecolor = document.getElementById("edgecolor");
+        edgecolor.onclick = function() {
+            self.OnEdgeColorUniform();
+        }
 
         document.getElementById("edgecolornode").onclick = function() {
             self.OnEdgeColorFromNodes();
         };
 
-        document.getElementById("edgecolor").onclick = function() {
-            self.OnEdgeColorUniform();
-        }
+        new ColorPicker(document.getElementById("edge-color-picker-insert")).eventSystem.addEventListener("OnColorChange", function(color) {
+            if(!edgecolor.checked) {
+                edgecolor.checked = true;
+                edgecolor.onclick();
+            }
+            self.OnEdgeColorChange(color);
+        });
 
         var edgeAlphaSlider = document.getElementById("edge-alpha-slider");
         edgeAlphaSlider.addEventListener("input", function() {
@@ -113,7 +124,8 @@ class Sidebar {
             self.OnEdgeWidthChange(edgeWidthSlider.value/100);
         });
 
-        document.getElementById("name").onclick = function() {
+        this.labelTextName = document.getElementById("name")
+        this.labelTextName.onclick = function() {
             self.OnLabelTextName();
         }
 
@@ -125,16 +137,24 @@ class Sidebar {
             self.OnLabelTextNone();
         }
 
-        new ColorPicker(document.getElementById("label-color-picker-insert")).eventSystem.addEventListener("OnColorChange", function(color) {
+        var labelColPicker = new ColorPicker(document.getElementById("label-color-picker-insert"))
+        var labelcolor = document.getElementById("labelcolor");
+
+        labelColPicker.eventSystem.addEventListener("OnColorChange", function(color) {
+            if(!labelcolor.checked) {
+                labelcolor.checked = true;
+                labelcolor.onclick();
+            }
             self.OnLabelColorChange(color);
         });
 
-        document.getElementById("labelcolorbackground").onclick = function() {
-            self.OnLabelColorFromBackground();
+        labelcolor.onclick = function() {
+            self.OnLabelColorUniform();
+            self.OnLabelColorChange(labelColPicker.getColor());
         }
 
-        document.getElementById("labelcolor").onclick = function() {
-            self.OnLabelTextNone();
+        document.getElementById("labelcolorbackground").onclick = function() {
+            self.OnLabelColorFromBackground();
         }
 
         var labelSizeInput = document.getElementById("labelSize") ;
@@ -158,16 +178,33 @@ class Sidebar {
         });
     }
 
-    OpenSelectionMenu() {
-        var acc = document.getElementById("node-data").parentNode;
-		acc.setAttribute("class", "accordion-item open_acc");
+    RestoreSettings() {
+        if(this.hasLabels) {
+            this.labelTextName.checked = true;
+            this.labelTextName.onclick();
+        }
+    }
+
+    OpenSelectionMenu(name, list) {
+        this.selectAccItem.classList.remove("disable_acc");
+        this.selectAccItem.classList.add("open_acc")
+        
+        
+        
+        let listHTML = "<ul>";
+        for(let i=0; i<list.length; i++) {
+            listHTML += "<li>" + list[i] + "</li>";
+        }
+        listHTML += "<ul>";
+
+        this.selectField.innerHTML = listHTML;
+        this.selectLegend.innerHTML = name;
     }
 
     CloseSelectionMenu() {
-        var acc = document.getElementById("node-data").parentNode;
-		acc.setAttribute("class", "accordion-item");
+        this.selectAccItem.classList.add("disable_acc");
+        this.selectAccItem.classList.remove("open_acc")
     }
-
 
     /**
      * Invoked when all nodes are to be scaled by a single uniform.
@@ -317,31 +354,7 @@ class Sidebar {
         let allNames = continuousNames.concat(categoricalNames);
         return /*html*/`
         <div class="unselectable sidenav">
-            <br>
             <h1 class="heading"></h1><br>
-            <div class="accordion-wrapper">
-                <div class="accordion-item">
-                    <h4 class="accordion-item-heading">Selected</h4>
-                    <div id="node-data" class="accordion-item-content">
-                        <input placeholder="Select:" list="variableselectdatalist" name="variableselectinput" id="variableselectinput" autocomplete="off">
-                        <br>
-                        <datalist id="variableselectdatalist">
-                        ${allNames.map(v => `<option value="${v}">`).join('')}
-                        </datalist>
-                        <table>
-                        <tbody id="tbody">
-                            <tr>
-                                <th></th>
-                                <th>Mean</th>
-                                <th>Points</th>
-                                <th>TTest</th>
-                            </tr>
-                        </tbody>
-                        </table><br>
-                        <!-- a href="#" class="myButton" id="expand-table">Expand table</a -->
-                    </div>
-                </div>
-            </div>
             <div class="accordion-wrapper">
                 <div class="accordion-item">
                     <h4 class="accordion-item-heading">Nodes</h4>
@@ -446,6 +459,17 @@ class Sidebar {
                             <label for="jpeg">JPEG</label><br><br>
                             <a href="#" class="myButton" id="graphexport">Export</a>
                         </form>
+                    </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-wrapper">
+                <div class="accordion-item" id="selected-item">
+                    <h4 class="accordion-item-heading" id="selected-item-heading">Selected</h4>
+                    <div id="node-data" class="accordion-item-content">
+                    <fieldset>
+                    <legend id="selected-legend">Node 12</legend>
+                        <div id="selected-fieldset"></div>
                     </fieldset>
                     </div>
                 </div>

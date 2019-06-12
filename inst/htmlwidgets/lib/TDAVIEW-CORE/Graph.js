@@ -124,7 +124,11 @@ class Graph {
         }
 
         linkSet.OnObjectSelect = function(link) {
-            //TODO: print values in common
+            self.OnLinkSelect(link);
+        }
+
+        linkSet.OnObjectDeselect = function(link) {
+            self.OnLinkDeselect(link);
         }
 
         this.interactSystem.addInteractSet(nodeSet);
@@ -188,13 +192,13 @@ class Graph {
         this.nodes.forEach(func);
     }
 
-    OnNodeSelect() {
-        return;
-    }
+    OnNodeSelect(node) {}
 
-    OnNodeDeselect() {
-        return;
-    }
+    OnNodeDeselect(node) {}
+
+    OnLinkSelect(link) {}
+
+    OnLinkDeselect(link) {};
 
     /**
      * Obtains the node positions for backup purposes
@@ -410,14 +414,14 @@ class Graph {
         if(visible != this.labelsVisible) {
             this.labelsVisible = visible;
             for(let i=0; i<this.labels.length; i++) {
-                this.labels[i].element.classList.toggle("hidden");
+                this.labels[i].element.classList.toggle("hiddenlabel");
             }
         }
     }
 
-    setLabelColors() {
-        for(let i=0; i<colorableLabels.length; i++) {
-            colorableLabels[i].style.color = "#" + color;
+    setLabelColors(color) {
+        for(let i=0; i<this.labels.length; i++) {
+            this.labels[i].element.style.color = "#" + color;
         }
     }
 
@@ -497,7 +501,7 @@ class Graph {
 
     _updateFontSize() {
         for(let i=0; i<this.labels.length; i++) {
-            this.labels[i].element.style.fontScale = this.fontScale * this.fontZoom;
+            this.labels[i].element.style.fontSize = this.fontScale * this.fontZoom;
         }
     }
 

@@ -270,4 +270,8 @@ class Bin extends CachedVariable {
     getPointCount() {
         return this.points.length;
     }
+
+    getPoints() {
+        return this.points;
+    }
 }
