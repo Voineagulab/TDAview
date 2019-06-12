@@ -252,6 +252,10 @@ class GradientPicker {
         }
     }
 
+    getGradientCSS() {
+        return this.bar.style.backgroundImage;
+    }
+
     getColor() {
         return this.colorString;
     }
