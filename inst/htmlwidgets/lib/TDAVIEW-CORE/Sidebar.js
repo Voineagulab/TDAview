@@ -9,7 +9,7 @@ class Sidebar {
 	constructor(element, continuousNames, categoricalNames, hasLabels) {
         var self = this;
 
-        this.hasLabels = true;
+        this.hasLabels = hasLabels;
 		this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML(continuousNames, categoricalNames, hasLabels);
         element.appendChild(this.domElement);
