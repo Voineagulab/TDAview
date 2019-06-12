@@ -501,7 +501,7 @@ class Graph {
 
     _updateFontSize() {
         for(let i=0; i<this.labels.length; i++) {
-            this.labels[i].element.style.fontSize = this.fontScale * this.fontZoom;
+            this.labels[i].element.style.fontSize = this.fontScale * this.fontZoom + "px";
         }
     }
 
