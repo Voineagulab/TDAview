@@ -31,9 +31,8 @@ class InteractSystem {
             self.isMouseDown = true;
             self.mouseScreenDown.copy(self.mouseScreen);
             self._updateMouseWorld();
-            //console.log(self.mouseWorld);
             self._updateObjectSetAtMouseWorld();
-
+            
             if(self.currentSet) {
                 if(self.currentSet.isDraggable) {
                     self.mouseWorldOffset = self.currentSet.ObjectDragCenter(self.currentObject, self.mouseWorldOffset).sub(self.mouseWorld);
