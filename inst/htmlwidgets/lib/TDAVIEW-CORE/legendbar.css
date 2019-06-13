@@ -1,0 +1,23 @@
+#legendbar {
+    position: absolute;
+    /*width: 25%;
+    height: 2%;*/
+    width: 200px;
+    height: 10px;
+    background-color: red;
+    right: 10%;
+    bottom: 10%;
+}
+
+.legendbarlabel {
+    top: -20px;
+    position: absolute;
+}
+
+#legendbarmin {
+    left: 0px;
+}
+
+#legendbarmax {
+    right: 0px;
+}

@@ -6,7 +6,7 @@
  */
 
 class Sidebar {
-	constructor(element, continuousNames, categoricalNames, hasLabels) {
+	constructor(element, continuousNames, categoricalNames, hasLabels) { //, settingsObject
         var self = this;
 
         this.hasLabels = hasLabels;
@@ -43,9 +43,10 @@ class Sidebar {
         var colordatainput = document.getElementById("variablecolorinput");
         var colordatainputold = undefined;
         document.getElementById("nodecoloruniform").onclick = function() {
+            self.OnNodeColorUniform();
             self.nodeGradPicker.setState(STATE_SINGLE);
             colordatainput.disabled = true;
-            self.OnNodeColorUniform();
+            
         };
 
         document.getElementById("nodecolorvariable").onclick = function() {
@@ -58,8 +59,8 @@ class Sidebar {
 
         colordatainput.onchange = function() {
             if(continuousNames.indexOf(colordatainput.value) >= 0) {
-                self.nodeGradPicker.setState(STATE_GRADIENT);
                 self.OnNodeColorContinuous(colordatainput.value);
+                self.nodeGradPicker.setState(STATE_GRADIENT);
                 colordatainput.placeholder = colordatainputold = colordatainput.value; 
             } else if(categoricalNames.indexOf(colordatainput.value) >= 0) {
                 let count = self.OnNodeColorCategorical(colordatainput.value);
@@ -379,9 +380,7 @@ class Sidebar {
                             <input placeholder="Select:" list="variablecolordatalist" name="variablecolorinput" id="variablecolorinput" autocomplete="off" disabled>
                             <br>
                             <datalist id="variablecolordatalist">
-                            <select>
                             ${allNames.map(v => `<option value="${v}">`).join('')}
-                            </select>
                             </datalist>
                             <br>
                             <div id="node-color-picker-insert"></div>
@@ -396,9 +395,7 @@ class Sidebar {
                             <label for="continuoussize">Variable</label><br>
                             <input placeholder="Select:" list="continuoussizedatalist" name="continuoussizeinput" id="continuoussizeinput" autocomplete="off" disabled>
                             <datalist id="continuoussizedatalist">
-                            <select>
                             ${continuousNames.map(v => `<option value="${v}">`).join('')}
-                            </select>
                             </datalist>
                         </fieldset>
                     </div>

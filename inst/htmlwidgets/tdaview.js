@@ -20,9 +20,6 @@ HTMLWidgets.widget({
 					return;
 				}
 
-				//Shiny.addCustomMessageHandler(element.id + "NameHandler", doAwesomeThing1);
-
-				var selectedName = undefined;
 
 				var shouldShareMap = true;
 
@@ -66,6 +63,11 @@ HTMLWidgets.widget({
 				graph.forEachNode(n => graph.setNodeScale(n, 0.5));
 				graph.updateNodeScales();
 
+				var legendBar = new LegendBar(graph.domElement);
+				var legendPie = new LegendPie(graph.domElement);
+				legendBar.setVisibility(false);
+				legendPie.setVisibility(false);
+
 				var sidebar = new Sidebar(element, data.getContinuousNames(), data.getCategoricalNames(), data.getHasLabels());
 				sidebar.OnNodeSizeUniform = function() {
 					graph.forEachNode(n => graph.setNodeScale(n, 0.5));
@@ -93,6 +95,8 @@ HTMLWidgets.widget({
 
 				sidebar.OnNodeColorUniform = function() {
 					//TODO legend switching
+					legendBar.setVisibility(false);
+					legendPie.setVisibility(false);
 				};
 
 
@@ -105,6 +109,12 @@ HTMLWidgets.widget({
 					}
 					graph.updateNodeColors();
 					graph.update();
+
+					legendBar.setVisibility(true);
+					legendBar.setGradientCSS(sidebar.nodeGradPicker.getGradientCSS());
+					legendBar.setLabels(data.getContinuousMin("mean"), data.getContinuousMax("mean"));
+					legendBar.setGradientCSS(sidebar.nodeGradPicker.getGradientCSS());
+					legendPie.setVisibility(false);
 				};
 
 				sidebar.OnNodeColorCategorical = function(value) {
@@ -120,9 +130,14 @@ HTMLWidgets.widget({
 						graph.setLinkGradientsFromNodes();
 						graph.updateLinkColors()
 					}
+
+					let categories = data.getVariable().getCategorical().getCategories();
 					graph.updateNodeColors();
 					graph.update();
-					return data.getVariable().getCategorical().getCategories().length;
+					legendBar.setVisibility(false);
+					legendPie.createEntries(categories);
+					legendPie.setVisibility(true);
+					return categories.length;
 				};
 
 				sidebar.OnNodeColorChange = function(value) {
@@ -137,7 +152,17 @@ HTMLWidgets.widget({
 					nodeMap.setGradient(steps);
 					graph.updateNodeColors();
 					graph.update();
+
+					if(legendBar.getVisibility()) {
+						legendBar.setGradientCSS(sidebar.nodeGradPicker.getGradientCSS());
+					} else {
+						legendPie.setColors(steps.map(s => s.color.getHexString()));
+					}
 				};
+
+				sidebar.OnNodeFixedChange = function(colors) {
+
+				}
 
 				sidebar.OnEdgeAlphaChange = function(alpha) {
 					graph.setLinkAlpha(alpha);
@@ -211,6 +236,8 @@ HTMLWidgets.widget({
 					graph.setBackgroundColor(backgroundColor);
 					let colString = getHighContrastColor(backgroundColor, tempColor).getHexString();
 					graph.setSelectColor(colString);
+					legendBar.setLabelColor(colString);
+					legendPie.setLabelColor(colString);
 					if(isLabelFromBackground) {
 						graph.setLabelColors(colString);
 					}
@@ -293,6 +320,7 @@ HTMLWidgets.widget({
 						saveAs(datauri, "data.csv" )
 					}
 				}
+
 
 				sidebar.RestoreSettings();
 			},

@@ -1,0 +1,11 @@
+#legendpie {
+    position: absolute;
+    right: 10%;
+    bottom: 10%;
+}
+
+.legendpieentry {
+    width: 20px;
+    height: 20px;
+    background-color: red;
+}
