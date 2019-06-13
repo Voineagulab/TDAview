@@ -34,6 +34,8 @@ dependencies:
       - sidebar.css
       - graph.css
       - gradientPicker.css
+      - legendbar.css
+      - legendpie.css
     script:
       - Step.js
       - ColorMap.js

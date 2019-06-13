@@ -4,6 +4,7 @@ export(rendertdaview)
 export(tdaview)
 export(tdaviewOutput)
 export(visualizeMapper)
+import(shiny)
 import(htmltools)
 import(htmlwidgets)
-import(shiny)
+

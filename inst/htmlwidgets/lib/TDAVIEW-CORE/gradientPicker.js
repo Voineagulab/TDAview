@@ -114,7 +114,7 @@ class GradientPicker {
             }
 
             for(let i=0; i<this.fixedSteps.length; i++) {
-                this.setStepTranslation(this.fixedSteps[i], CONTAINER_WIDTH/(count+1) * (i+1));
+                this.setStepTranslation(this.fixedSteps[i], CONTAINER_WIDTH * (i+1)/(count+1));
             }
             this.setSelected(this.fixedSteps[0])
             this.showSteps(this.fixedSteps);
@@ -186,7 +186,7 @@ class GradientPicker {
         left -= this.barRectLeft;
         if(left >= 0 && left <= BAR_WIDTH - STEP_WIDTH) {
             s.element.style.left = left + "px";
-            s.percentage = left/BAR_WIDTH;
+            s.percentage = left/(BAR_WIDTH-STEP_WIDTH);
         }
     }
 

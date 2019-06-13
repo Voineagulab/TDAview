@@ -20,7 +20,6 @@ HTMLWidgets.widget({
 					return;
 				}
 
-
 				var shouldShareMap = true;
 
 				var isLabelFromBackground = false;
@@ -112,14 +111,25 @@ HTMLWidgets.widget({
 					legendBar.setVisibility(true);
 					legendBar.setLabels(data.getContinuousMin("mean"), data.getContinuousMax("mean"));
 				};
-
+				
+				//TODO this is now correct (colors=[0.2, 0.4, 0.6, 0.8] for 4 categories - steps[x].percentage and hence the underlyig texture is slightly wrong
 				sidebar.OnNodeColorCategorical = function(value) {
 					data.loadVariable(value);
-					//TODO: This is wrong for nodes that don't contain all segments
-					//better to use a category id / category count to get an accurate percentage
+					let categories = data.getVariable().getCategorical().getCategories();
 					for(let i=0; i<graph.nodes.length; i++) {
-						let percentages = graph.nodes[i].userData.getCategorical().getValuesNormalised();
-						let colors = Array.from({length: percentages.length}, (_, i) => i/(percentages.length-1));
+						let percentages = [];
+						let colors = [];
+						for(let j=0; j<categories.length; j++) {
+							let categorical = graph.nodes[i].userData.getCategorical();
+							let sum = categorical.getSum();
+							let count = categorical.getCount(categories[j]);
+
+							if(count > 0) {
+								percentages.push(count / sum);
+								colors.push((j+1) / (categories.length+1));
+							}
+						}
+
 						graph.setNodePie(graph.nodes[i], percentages, colors);
 					}
 					if(shouldShareMap) {
@@ -127,7 +137,6 @@ HTMLWidgets.widget({
 						graph.updateLinkColors()
 					}
 
-					let categories = data.getVariable().getCategorical().getCategories();
 					graph.updateNodeColors();
 					graph.update();
 					legendBar.setVisibility(false);
@@ -155,7 +164,7 @@ HTMLWidgets.widget({
 						legendPie.setColors(steps.map(s => s.color.getHexString()));
 					}
 				};
-				
+
 				sidebar.OnEdgeAlphaChange = function(alpha) {
 					graph.setLinkAlpha(alpha);
 					graph.update();
@@ -277,7 +286,7 @@ HTMLWidgets.widget({
 				if(typeof Shiny !== "undefined") {
 					var datauri = undefined;
 					Shiny.addCustomMessageHandler("NamesToJs", function(names) {
-						datauri = "data:text/csv;charset=utf-8," + names.map(n => "\"" + n + "\",");
+						datauri = "data:text/csv;charset=utf-8," + names.join(',');
 						sidebar.SetSelectionList(names);
 					});
 

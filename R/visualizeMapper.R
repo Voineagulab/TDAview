@@ -4,6 +4,8 @@
 #'
 #' @export
 
+library(shiny)
+
 visualizeMapper <- function(mapper, metadata, labels = NULL, keys = NULL) {
 
     ui <- fillPage(

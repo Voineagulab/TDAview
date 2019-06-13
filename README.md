@@ -30,8 +30,9 @@ Trigonometric data is passed into TDAmapper and the result is displayed in TDAVi
 devtools::install_github("paultpearson/TDAmapper")
 library(TDAmapper)
 
+First.Example.names = sprintf("Gene %s", seq(1:100))
 First.Example.data = data.frame(x = 2*cos(0.5*(1:100)), y=sin(1:100))
-First.Example.meta = c(c("Treatment", sprintf("Positive", 1:50), sprintf("Negative", 1:50)))
+First.Example.meta = data.frame(Treatment = c(sprintf("Positive", 1:50), sprintf("Negative", 1:50)), Intake = 3*cos(0.5*(1:100)))
 First.Example.filter = First.Example.data$x
 First.Example.dist = dist(First.Example.data)
 
@@ -43,7 +44,7 @@ First.Example.mapper <- mapper(dist_object = First.Example.dist,
 
 First.Example.labels = sprintf("Node %s", seq(1:First.Example.mapper$num_vertices))
 
-tdaview(First.Example.mapper, First.Example.meta, First.Example.labels)
+tdaview::visualizeMapper(First.Example.mapper, First.Example.meta, First.Example.labels, First.Example.names)
 ```
 ### The Menu
 The sidebar enables real-time customisation of graphs and is divided into a series of sub-menus.
