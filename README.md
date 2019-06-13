@@ -18,9 +18,11 @@ devtools::install_github("ktaouk1/TDAView", ref = "dev")
 ```
 2. Initialise a graph:
 ```{r}
-tdaview( mapper, metadata, labels)
+tdaview( mapper, metadata, names, labels)
 ```
-where *mapper* is the return value of TDAMapper and *metadata* is a 2D array of string or numeric values, with the first entry being variable name and each subsequent entry pertaining to a row in the original data. Finally, *labels* is an array of strings whose length coincides with TDAMapper's calculated vertex count. 
+where *mapper* is the return value of TDAMapper and *metadata* is a 2D array of string or numeric values, with the first entry being variable name and each subsequent entry pertaining to a row in the original data. *Names* are the row names of the data used for TDAMapper.
+
+Finally, *labels* is an array of strings whose length coincides with TDAMapper's calculated vertex count. This is an optional parameter.
 
 Use `options(viewer = NULL)` to open subsequent calls in default browser.
 
