@@ -46,7 +46,7 @@ First.Example.mapper <- mapper(dist_object = First.Example.dist,
 
 First.Example.labels = sprintf("Node %s", seq(1:First.Example.mapper$num_vertices))
 
-tdaview::visualizeMapper(First.Example.mapper, First.Example.meta, First.Example.labels, First.Example.names)
+tdaview::visualizeMapper(First.Example.mapper, First.Example.meta, First.Example.names, First.Example.labels)
 ```
 ### The Menu
 The sidebar enables real-time customisation of graphs and is divided into a series of sub-menus.
