@@ -1,12 +1,14 @@
 #' Launch graph tool with Mapper input
 #'
 #' Call this as an addin with required parameters to 
-#'
+#' @import shiny
+#' @param mapper data frame containing adjacency matrix and vertices, formatted to match TDAMapper output
+#' @param metadata single list of ordered categorical variables as strings
+#' @param names single list of ordered row names as strings from original data
+#' @param labels single list of ordered node labels as strings
 #' @export
 
-library(shiny)
-
-visualizeMapper <- function(mapper, metadata, labels = NULL, keys = NULL) {
+visualizeMapper <- function(mapper, metadata, names, labels = NULL) {
 
     ui <- fillPage(
         suppressDependencies("bootstrap"),

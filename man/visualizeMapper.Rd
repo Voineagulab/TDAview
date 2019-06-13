@@ -4,7 +4,16 @@
 \alias{visualizeMapper}
 \title{Launch graph tool with Mapper input}
 \usage{
-visualizeMapper(mapper, metadata, labels = NULL)
+visualizeMapper(mapper, metadata, names, labels = NULL)
+}
+\arguments{
+\item{mapper}{data frame containing adjacency matrix and vertices, formatted to match TDAMapper output}
+
+\item{metadata}{single list of ordered categorical variables as strings}
+
+\item{names}{single list of ordered row names as strings from original data}
+
+\item{labels}{single list of ordered node labels as strings}
 }
 \description{
 Call this as an addin with required parameters to

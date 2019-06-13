@@ -14,7 +14,7 @@ A graph visualisation tool targeted at persistent homology applications, focusin
 ### Installation
 1. Download and build the library
 ```{r}
-devtools::install_github("ktaouk1/TDAView")
+devtools::install_github("ktaouk1/TDAView", ref = "dev")
 ```
 2. Initialise a graph:
 ```{r}
