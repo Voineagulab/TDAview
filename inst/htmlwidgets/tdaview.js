@@ -94,11 +94,9 @@ HTMLWidgets.widget({
 				};
 
 				sidebar.OnNodeColorUniform = function() {
-					//TODO legend switching
 					legendBar.setVisibility(false);
 					legendPie.setVisibility(false);
 				};
-
 
 				sidebar.OnNodeColorContinuous = function(value) {
 					data.loadVariable(value);
@@ -110,11 +108,9 @@ HTMLWidgets.widget({
 					graph.updateNodeColors();
 					graph.update();
 
-					legendBar.setVisibility(true);
-					legendBar.setGradientCSS(sidebar.nodeGradPicker.getGradientCSS());
-					legendBar.setLabels(data.getContinuousMin("mean"), data.getContinuousMax("mean"));
-					legendBar.setGradientCSS(sidebar.nodeGradPicker.getGradientCSS());
 					legendPie.setVisibility(false);
+					legendBar.setVisibility(true);
+					legendBar.setLabels(data.getContinuousMin("mean"), data.getContinuousMax("mean"));
 				};
 
 				sidebar.OnNodeColorCategorical = function(value) {
@@ -159,11 +155,7 @@ HTMLWidgets.widget({
 						legendPie.setColors(steps.map(s => s.color.getHexString()));
 					}
 				};
-
-				sidebar.OnNodeFixedChange = function(colors) {
-
-				}
-
+				
 				sidebar.OnEdgeAlphaChange = function(alpha) {
 					graph.setLinkAlpha(alpha);
 					graph.update();

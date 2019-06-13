@@ -122,8 +122,6 @@ class GradientPicker {
             this.instruction.innerText = "Select Colors:";
         }
         this.state = state;
-        this.updateBarGradient();
-        
     }
 
     createStep(array) {
@@ -222,10 +220,10 @@ class GradientPicker {
         } else {
             //Generate ordered gradient using hex and percentage steps
             var gradientCSS = "linear-gradient(to right";
+            var steps = undefined;
 
             if(this.state == STATE_FIXED) {
                 this.sortSteps(this.fixedSteps);
-                this.eventSystem.invokeEvent("OnGradientChange", this.fixedSteps);
 
                 //Create two css steps between each internal step
                 var last = this.fixedSteps.length-1;
@@ -235,25 +233,33 @@ class GradientPicker {
                     var c2 = ", #" + this.fixedSteps[i+1].color.getHexString();
                     gradientCSS += c1 + p + c2 + p;
                 }
-                
+
+                steps = this.fixedSteps;
             } else {
                 this.sortSteps(this.steps);
-                this.eventSystem.invokeEvent("OnGradientChange", this.steps);
 
                 //Create css step at each step
                 for(let i=0; i<this.steps.length; i++) {
                     gradientCSS += ", #" + this.steps[i].color.getHexString();
                     gradientCSS += " " + 100*this.steps[i].percentage + "%";
                 }
+
+                steps = this.steps;
             }
 
             gradientCSS += ")";
             this.bar.style.backgroundImage = gradientCSS;
+
+            this.eventSystem.invokeEvent("OnGradientChange", steps);
         }
     }
 
     getGradientCSS() {
         return this.bar.style.backgroundImage;
+    }
+
+    getSteps() {
+        
     }
 
     getColor() {

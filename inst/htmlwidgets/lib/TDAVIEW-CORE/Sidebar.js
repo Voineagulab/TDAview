@@ -45,6 +45,7 @@ class Sidebar {
         document.getElementById("nodecoloruniform").onclick = function() {
             self.OnNodeColorUniform();
             self.nodeGradPicker.setState(STATE_SINGLE);
+            self.nodeGradPicker.updateBarGradient();
             colordatainput.disabled = true;
             
         };
@@ -59,14 +60,15 @@ class Sidebar {
 
         colordatainput.onchange = function() {
             if(continuousNames.indexOf(colordatainput.value) >= 0) {
-                self.OnNodeColorContinuous(colordatainput.value);
                 self.nodeGradPicker.setState(STATE_GRADIENT);
+                self.OnNodeColorContinuous(colordatainput.value);
                 colordatainput.placeholder = colordatainputold = colordatainput.value; 
             } else if(categoricalNames.indexOf(colordatainput.value) >= 0) {
                 let count = self.OnNodeColorCategorical(colordatainput.value);
                 self.nodeGradPicker.setState(STATE_FIXED, count);
                 colordatainput.placeholder = colordatainputold = colordatainput.value; 
             }
+            self.nodeGradPicker.updateBarGradient();
             colordatainput.value = "";
         };
 
@@ -356,10 +358,6 @@ class Sidebar {
 
     setZoomCustom(value) {
         this.sidezoom.value = value * 100;
-    }
-
-    SetNodePickerCategoryCount(count) {
-        this.nodeGradPicker.setState(STATE_FIXED, count);
     }
 
     generateHTML(continuousNames, categoricalNames, hasLabels) {
