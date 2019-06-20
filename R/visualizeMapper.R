@@ -4,11 +4,11 @@
 #' @import shiny
 #' @param mapper data frame containing adjacency matrix and vertices, formatted to match TDAMapper output
 #' @param metadata single list of ordered categorical variables as strings
-#' @param names single list of ordered row names as strings from original data
+#' @param keys single list of ordered row names as strings from original data
 #' @param labels single list of ordered node labels as strings
 #' @export
 
-visualizeMapper <- function(mapper, metadata, names, labels = NULL) {
+visualizeMapper <- function(mapper, metadata, keys, labels = NULL) {
 
     ui <- fillPage(
         suppressDependencies("bootstrap"),
