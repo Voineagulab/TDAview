@@ -1,5 +1,7 @@
 # TDAView
 
+NOTICE: Please see dev branch for most up to date code.
+
 A graph visualisation tool targeted at persistent homology applications, focusing on:
 
   - Compatibility with R viewer
@@ -26,11 +28,13 @@ Finally, *labels* is an array of strings whose length coincides with TDAMapper's
 
 Use `options(viewer = NULL)` to open subsequent calls in default browser.
 
-### Example
-Trigonometric data is passed into TDAmapper and the result is displayed in TDAView
+### Example 1
+Trigonometric data is passed into Mapper and the result is displayed in TDAView
 ```{r}
 devtools::install_github("paultpearson/TDAmapper")
-library(TDAmapper)
+library(TDAMapper)
+devtools::install_github("ktaouk1/TDAView")
+library(tdaview)
 
 First.Example.names = sprintf("Gene %s", seq(1:100))
 First.Example.data = data.frame(x = 2*cos(0.5*(1:100)), y=sin(1:100))
@@ -48,6 +52,13 @@ First.Example.labels = sprintf("Node %s", seq(1:First.Example.mapper$num_vertice
 
 tdaview::visualizeMapper(First.Example.mapper, First.Example.meta, First.Example.names, First.Example.labels)
 ```
+### Demo 1
+Real sample data is pre-loaded to demonstrate features in browser
+https://ktaouk1.github.io/TDAView/
+### Demo 2
+Random data is generated to demonstrate performance for larger datasets
+https://ktaouk1.github.io/TDAView/random.html
+
 ### The Menu
 The sidebar enables real-time customisation of graphs and is divided into a series of sub-menus.
 `Selected` displays all the relevant data for the selected node. This includes the mean value of each of the metadata variables in the selected node, as well as the amount of data present.
@@ -58,5 +69,3 @@ The sidebar enables real-time customisation of graphs and is divided into a seri
 `Edge Colour` sets the colour of edges based on constant or single variable shading. For variable shading, the colour picker determines the value of the selected step. Drag steps to reposition them, double click to add or remove them.
 `Legend` hides or displays legends relating to node size and colour. The legends contain information about the distribution and importance of each metadata variable.
 `Export` captures the present state of the graph and allows download in either PNG or JPEG format.
-# License
-MIT
