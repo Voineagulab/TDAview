@@ -88,6 +88,7 @@ class Graph {
         nodeSet.OnObjectDragStart = function(node) {
             self.simulation.alphaTarget(0.7).restart();
             self.initiallizing = false;
+            self.update();
         };
     
         nodeSet.OnObjectDrag = function(node, vector) {
