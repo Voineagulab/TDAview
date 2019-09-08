@@ -15,15 +15,15 @@ class Sidebar {
         element.appendChild(this.domElement);
 
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
-        var accItem = this.domElement.getElementsByClassName("accordion-item");
-        for(let i=0; i<accItem.length; i++) {
+        this.accItem = this.domElement.getElementsByClassName("accordion-item");
+        for(let i=0; i<this.accItem.length; i++) {
             accHD[i].addEventListener('click', function() {
-                for(let j=0; j<accItem.length; j++) {
+                for(let j=0; j<self.accItem.length; j++) {
                     if(i!=j) {
-                        accItem[j].classList.remove("open_acc");
+                        self.accItem[j].classList.remove("open_acc");
                     }
                 }
-                accItem[i].classList.toggle("open_acc");
+                self.accItem[i].classList.toggle("open_acc");
             }, false);
         }
         this.selectAccItem = document.getElementById("selected-item");
@@ -192,21 +192,21 @@ class Sidebar {
         }
     }
 
-    SetSelectionName(name) {
+    OpenSelectionMenu(name, list) {
         this.selectLegend.innerHTML = name;
-    }
-
-    SetSelectionList(list) {
+        
         let listHTML = "";
         for(let i=0; i<list.length && i<10; i++) {
             listHTML +=  list[i] + "<br>";
         }
         this.selectField.innerHTML = listHTML;
-    }
 
-    OpenSelectionMenu() {
         this.selectAccItem.classList.remove("disable_acc");
+        for(let item of this.accItem) {
+            item.classList.remove("open_acc");
+        }
         this.selectAccItem.classList.add("open_acc")
+
     }
 
     CloseSelectionMenu() {

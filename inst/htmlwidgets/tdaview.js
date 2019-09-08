@@ -67,7 +67,7 @@ HTMLWidgets.widget({
 				legendBar.setVisibility(false);
 				legendPie.setVisibility(false);
 
-				var sidebar = new Sidebar(element, data.getContinuousNames(), data.getCategoricalNames(), data.getHasLabels());
+				var sidebar = new Sidebar(element, data.getContinuousNames(), data.getCategoricalNames(), data.getHasNodeLabels());
 				sidebar.OnNodeSizeUniform = function() {
 					graph.forEachNode(n => graph.setNodeScale(n, 0.5));
 					graph.updateNodeScales();
@@ -225,7 +225,6 @@ HTMLWidgets.widget({
 				sidebar.OnLabelTextPoints = function() {
 					graph.forEachNode(n => graph.setLabelText(n, n.userData.getPointCount()));
 					graph.setLabelVisibilities(true);
-
 				};
 
 				sidebar.OnLabelTextNone = function() {
@@ -246,27 +245,15 @@ HTMLWidgets.widget({
 				}
 
 				function saveAs(uri, filename) {
-
 					var link = document.createElement('a');
-				
 					if (typeof link.download === 'string') {
-				
 						link.href = uri;
 						link.download = filename;
-				
-						//Firefox requires the link to be in the body
-						document.body.appendChild(link);
-				
-						//simulate click
+						document.body.appendChild(link); //Firefox requires the link to be in the body
 						link.click();
-				
-						//remove the link when done
-						document.body.removeChild(link);
-				
+						document.body.removeChild(link); //remove the link when done
 					} else {
-				
 						window.open(uri);
-				
 					}
 				}
 
@@ -283,45 +270,33 @@ HTMLWidgets.widget({
 					graph.update();
 				};
 
-				if(typeof Shiny !== "undefined") {
-					var datauri = undefined;
-					Shiny.addCustomMessageHandler("NamesToJs", function(names) {
-						datauri = "data:text/csv;charset=utf-8," + names.join(',');
-						sidebar.SetSelectionList(names);
-					});
-
-					graph.OnNodeSelect = function(node) {
-						sidebar.OpenSelectionMenu();
+				graph.OnNodeSelect = function(node) {
+					var names = node.userData.getPointNames();
+					datauri = "data:text/csv;charset=utf-8," + encodeURI("Node " + node.id + "\r\n" + names.join('\r\n'));
+					dataname = "Node " + node.id;
+					sidebar.OpenSelectionMenu(dataname + " (" + names.length + " rows)", names);
 					
-						var indices = node.userData.getPoints().map(i => i+1);
-						Shiny.onInputChange("NamesFromJs", indices);
+				};
 
-						sidebar.SetSelectionName("Node " + node.id + " (" + indices.length + " rows)");
-					};
-	
-					graph.OnLinkSelect = function(link) {
-						sidebar.OpenSelectionMenu();
-	
-						let i1 = link.source.userData.getPoints();
-						let i2 = link.target.userData.getPoints();
-						let indices = i1.filter(i => i2.includes(i)).map(i => i+1);
-
-						Shiny.onInputChange("NamesFromJs", indices);
-
-						sidebar.SetSelectionName("Link " + link.link_id + " (" + indices.length + " rows)");
-					}
-
-					graph.OnNodeDeselect = graph.OnLinkDeselect = function() {
-						sidebar.CloseSelectionMenu();
-						currentName = undefined;
-						currentRows = undefined;
-					};
-
-					sidebar.OnExportData = function() {
-						saveAs(datauri, "data.csv" )
-					}
+				graph.OnLinkSelect = function(link) {
+					let i1 = link.source.userData.getPointNames();
+					let i2 = link.target.userData.getPointNames();
+					let names = i1.filter(i => i2.includes(i));
+					datauri = "data:text/csv;charset=utf-8," + names.join(',');
+					dataname = "Link " + link.link_id;
+					sidebar.OpenSelectionMenu(dataname + " (" + names.length + " rows)", names);
+					
 				}
 
+				graph.OnNodeDeselect = graph.OnLinkDeselect = function() {
+					sidebar.CloseSelectionMenu();
+					currentName = undefined;
+					currentRows = undefined;
+				};
+
+				sidebar.OnExportData = function() {
+					saveAs(datauri, dataname + ".csv" )
+				}
 
 				sidebar.RestoreSettings();
 			},

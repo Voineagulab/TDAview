@@ -53,21 +53,22 @@ class Data {
             }
             metadata.Intake[i] = Math.random();
             metadata.Condition[i] = condition_categories[Math.floor(Math.random() * (condition_categories.length-1))];
-            mapper.points_in_vertex[i] = [i+1];
+            mapper.points_in_vertex[i] = {[("Sample_" + (i+1))]: (i+1)};
         }
 
+        
         for(let i=mapper.num_vertices; i<num_points; i++) {
             metadata.Intake[i] = Math.random();
             metadata.Condition[i] = condition_categories[Math.round(Math.random() * (condition_categories.length-1))];
-            mapper.points_in_vertex[Math.round(Math.random() * (mapper.num_vertices-1)) ].push(i+1);
+            mapper.points_in_vertex[Math.round(Math.random() * (mapper.num_vertices-1)) ][("Sample_" + (i+1))] = (i+1);
         }
 
-        let labels = Array.from({length: mapper.num_vertices}, (_, i) => "Node " + i);
+        let nodeNames = Array.from({length: mapper.num_vertices}, (_, i) => "Node " + i);
 
-        return new Data(mapper, metadata, labels);
+        return new Data(mapper, metadata, nodeNames);
     }
 
-    constructor(mapper, metadata, labels) {
+    constructor(mapper, metadata, nodeNames) {
         this.metadata = metadata;
         this.adjacency = mapper.adjacency;
         this.maxBinPoints = Utility.Max(mapper.points_in_vertex.map(obj => Object.keys(obj).length));
@@ -76,12 +77,19 @@ class Data {
         this.variable = new CachedVariable();
         this.mins = new ContinuousVariable();
         this.maxs = new ContinuousVariable();
-        this.hasLabels = (labels != undefined);
+        this.hasNodeNames = (nodeNames != undefined);
+        
+        //Convert indices to zero based
+        for(let i=0; i<mapper.num_vertices; i++) {
+            Object.keys(mapper.points_in_vertex[i]).forEach(function(key) {
+                mapper.points_in_vertex[i][key] -= 1;
+            });
+        }
 
         //Create bins for each node
         this.bins = new Array(mapper.num_vertices);
         for(let i=0; i<mapper.num_vertices; i++) {
-            this.bins[i] = new Bin(Object.values(mapper.points_in_vertex[i]).map(index => index - 1), labels ? labels[i] : undefined);
+            this.bins[i] = new Bin(mapper.points_in_vertex[i], nodeNames ? nodeNames[i] : undefined);
         }
 
         //Determine defined types of variables
@@ -97,8 +105,8 @@ class Data {
         }
     }
 
-    getHasLabels() {
-        return this.hasLabels;
+    getHasNodeLabels() {
+        return this.hasNodeNames;
     }
 
     getAdjacency() {
@@ -109,6 +117,10 @@ class Data {
         return this.bins;
     }
 
+    getRowName(index) {
+        return this.rowNames[index];
+    }
+
     loadVariable(name) {
         if(this.metadata.hasOwnProperty(name) && name !== this.name) {
             this.name = name;
@@ -116,7 +128,7 @@ class Data {
             if(this.variable.getIsCategorical()) {
                 this.variable.getCategorical().setFromEntries(this.metadata[name]);
                 for(let i=0; i<this.bins.length; i++) {
-                    let entries = this.bins[i].points.map(value => this.metadata[name][value]);
+                    let entries = this.bins[i].getPoints().map(value => this.metadata[name][value]);
                     this.bins[i].getCategorical().setFromEntries(entries);
                 }
             } else {
@@ -125,7 +137,7 @@ class Data {
                 this.maxs.setProperties(-Infinity, -Infinity, -Infinity, -Infinity);
                 for(let i=0; i<this.bins.length; i++) {
                     let localVariable = this.bins[i].getContinuous();
-                    localVariable.setFromEntries(this.bins[i].points.map(value => this.metadata[name][value]));
+                    localVariable.setFromEntries(this.bins[i].getPoints().map(value => this.metadata[name][value]));
                     this.mins.transformProperties(localVariable, Math.min);
                     this.maxs.transformProperties(localVariable, Math.max);
                 }
@@ -268,10 +280,14 @@ class Bin extends CachedVariable {
     }
 
     getPointCount() {
-        return this.points.length;
+        return this.getPoints().length;
     }
 
     getPoints() {
-        return this.points;
+        return Object.values(this.points);
+    }
+
+    getPointNames() {
+        return Object.keys(this.points);
     }
 }
