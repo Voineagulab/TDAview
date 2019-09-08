@@ -196,7 +196,7 @@ class Sidebar {
         this.selectLegend.innerHTML = name;
         
         let listHTML = "";
-        for(let i=0; i<list.length && i<10; i++) {
+        for(let i=0; i<list.length && i<5; i++) {
             listHTML +=  list[i] + "<br>";
         }
         this.selectField.innerHTML = listHTML;
