@@ -365,6 +365,8 @@ class Graph {
     setFontScale(value) {
         this.fontScale = value;
         this._updateFontSize();
+        this.forEachNode(n => this.setLabelPosition(n));
+        this.update();
     }
 
     /**
@@ -384,9 +386,9 @@ class Graph {
     setLabelPosition(node) {
         var label = this.labels[node.id];
         if(label) {
-            if(!node.neighbors.length) {
+            if(node.neighbors.length == 0) {
                 label.position.x = node.x;
-                label.position.y = node.y + node.r * 2;
+                label.position.y = node.y + (2 * node.getRadius() + this.fontScale/2);
             } else {
                 let n = new Array(node.neighbors.length);
                 for(let i=0; i<n.length; i++) {
@@ -405,8 +407,10 @@ class Graph {
                     }
                 }
                 midAngle -= Math.PI
-                label.position.x = node.x + Math.sin(midAngle) * 2 * node.r;
-                label.position.y = node.y + Math.cos(midAngle) * 2 * node.r;
+
+                //Interplates text alignment based on length and angle - letters should be approximately square//Assumes letters are approximately square
+                label.position.x = node.x + Math.sin(midAngle) * (2 * node.getRadius() + this.fontScale/4 * (this.labels[node.id].element.textContent.length + 2));
+                label.position.y = node.y + Math.cos(midAngle) * (2 * node.getRadius() + this.fontScale/2);
             }
         }
     }
