@@ -106,10 +106,10 @@ class LinkRenderer extends THREE.Group {
         var sourcePos = new THREE.Vector3(link.source.x, link.source.y, 0);
         var targetPos = new THREE.Vector3(link.target.x, link.target.y, 0);
         var cross = new THREE.Vector2(-(targetPos.y - sourcePos.y), targetPos.x - sourcePos.x).normalize();
-        var p0 = cross.clone().multiplyScalar(link.source.r * this.width).add(sourcePos);
-        var p1 = cross.clone().multiplyScalar(link.source.r * -this.width).add(sourcePos);
-        var p2 = cross.clone().multiplyScalar(link.target.r * -this.width).add(targetPos);
-        var p3 = cross.clone().multiplyScalar(link.target.r * this.width).add(targetPos);
+        var p0 = cross.clone().multiplyScalar(link.source.getRadius() * this.width).add(sourcePos);
+        var p1 = cross.clone().multiplyScalar(link.source.getRadius() * -this.width).add(sourcePos);
+        var p2 = cross.clone().multiplyScalar(link.target.getRadius() * -this.width).add(targetPos);
+        var p3 = cross.clone().multiplyScalar(link.target.getRadius() * this.width).add(targetPos);
         
         //Assign all vector components to buffer
         var p = this.mesh.geometry.attributes.position.array;

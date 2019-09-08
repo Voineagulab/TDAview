@@ -111,7 +111,7 @@ class NodeRenderer extends THREE.Group {
 
     setScaleBuffer(node) {
         let array = this.mesh.geometry.attributes.scale.array;
-        array[node.id] = node.r;
+        array[node.id] = node.getRadius();
     }
 
     setColorBuffer(node) {
@@ -166,9 +166,9 @@ class NodeInstance {
         this.id = id;
         this.userData = data;
         this.color = 0.0;
-        this.r = 1.0;
+        this.width = this.height = 1.0;
         this.x = this.y = 0;
-        this.fx = this.fy = null;
+        this.fixed = false;
         this.neighbors = [];
     }
 
@@ -189,16 +189,16 @@ class NodeInstance {
     }
 
     setRadius(value) {
-        this.r = value;
+        this.width = this.height = value;
     }
 
     getRadius() {
-        return this.r;
+        return this.width;
     }
 
     containsPoint(position) {
         let targ = this.getPosition();
-        let r = this.r;
+        let r = this.width;
 
         //Check if inside bounding box;
         if(position.x >= targ.x - r && 
