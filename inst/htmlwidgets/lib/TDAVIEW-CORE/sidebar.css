@@ -39,17 +39,25 @@ input[type="range"].vranger {
     100% { left: 270px; opacity: 0.75; }
 }
 
+.disable_acc #selected-item-heading::after {
+    content: "";
+}
+
+#selected-item {
+    z-index: 999999;
+    position: fixed;
+    bottom: 0;
+    width:250px;
+}
 
 #selected-list {
+    height: auto;
     white-space: nowrap;
     text-overflow: ellipsis;
     width: 200px;
     display: block;
     overflow: hidden;
-
-    line-height: 2.5ex;
-    height: 25ex; /* 2.5ex for each visible line */
-    overflow: hidden;
+    
     -webkit-mask-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
     mask-image: linear-gradient(bottom, rgba(0, 0, 0, 1.0), rgba(0, 0, 0, 0));
 }
