@@ -272,20 +272,18 @@ HTMLWidgets.widget({
 
 				graph.OnNodeSelect = function(node) {
 					var names = node.userData.getPointNames();
-					datauri = "data:text/csv;charset=utf-8," + encodeURI("Node " + node.id + "\r\n" + names.join('\r\n'));
 					dataname = "Node " + node.id;
+					datauri = "data:text/csv;charset=utf-8," + encodeURI(dataname + "\r\n" + names.join('\r\n'));
 					sidebar.OpenSelectionMenu(dataname + " (" + names.length + " rows)", names);
-					
 				};
 
 				graph.OnLinkSelect = function(link) {
 					let i1 = link.source.userData.getPointNames();
 					let i2 = link.target.userData.getPointNames();
 					let names = i1.filter(i => i2.includes(i));
-					datauri = "data:text/csv;charset=utf-8," + names.join(',');
 					dataname = "Link " + link.link_id;
+					datauri = "data:text/csv;charset=utf-8," + encodeURI(dataname + "\r\n" + names.join('\r\n'));
 					sidebar.OpenSelectionMenu(dataname + " (" + names.length + " rows)", names);
-					
 				}
 
 				graph.OnNodeDeselect = graph.OnLinkDeselect = function() {
