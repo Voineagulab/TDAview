@@ -34,10 +34,6 @@ class LegendBar {
         this.bar.style.backgroundImage = style;
     }
 
-    getGradientCSS() {
-        return this.bar.style.backgroundImage;
-    }
-
     setVisibility(visible) {
         this.domElement.style.display = visible ? "" : "none";
         this.visible = visible;

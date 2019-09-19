@@ -13,7 +13,7 @@ class Utility {
     }
 
     static Mean(array) {
-        let mean = 0;
+        let mean = 0.0;
         for(let i=0; i<array.length; i++) {
             mean += array[i];
         }
@@ -102,6 +102,12 @@ class Data {
                     break;
                 }
             }
+
+            if(this.types[key] == DATA_TYPE_NUMBER) {
+                for(let i=0; i<data.length; ++i) {
+                    data[i] = parseFloat(data[i]);
+                }
+            }
         }
     }
 
@@ -142,8 +148,7 @@ class Data {
                     this.maxs.transformProperties(localVariable, Math.max);
                 }
             }
-        }
-        
+        } 
     }
 
     getContinuousNormalised(bin, property) {

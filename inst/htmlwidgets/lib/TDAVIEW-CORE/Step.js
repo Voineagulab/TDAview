@@ -1,6 +1,6 @@
 class Step {
-    constructor(color, percent) {
+    constructor(percentage, color) {
         this.color = color;
-        this.percent = percent
+        this.percentage = percentage;
     }
 }

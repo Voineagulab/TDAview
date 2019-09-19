@@ -16,13 +16,12 @@ class GradientPicker {
     constructor(parent) {
         var self = this;
 
+        this.silent = true;
+
         this.gradMouseDown = false;
 
-        this.colorString;
+        this.colorString = "ff0000";
         this.state = STATE_UNDEFINED;
-        this.nextUniqueID = 0;
-
-        this.eventSystem = new event();
 
         //Create container
         this.domElement = document.createElement("div");
@@ -44,22 +43,26 @@ class GradientPicker {
         this.input.type = "text";
         this.domElement.appendChild(this.input);
         this.picker = new CP(this.input, false, this.domElement);
+        this.picker.enter();
         this.picker.on("change", function(color) {
             if(self.state != STATE_SINGLE) {
                 self.selected.color.set("#" + color);
             } else {
                 self.colorString = color;
             }
-            self.updateBarGradient();
+            if(!self.silent) {
+                self.updateBarGradient();
+            }
+            self.silent = false;
         });
-        this.picker.enter();
 
         this.fixedSteps = [];
         this.steps = [];
 
         this.bar.addEventListener("dblclick", function(event) {
             if(self.state == STATE_GRADIENT) {
-                var s = self.createStep(self.steps);
+                var s = self.createGradientStep();
+                self.steps.push(s);
                 self.setStepTranslation(s, event.clientX);
                 self.setSelected(s);
                 self.updateBarGradient();
@@ -81,12 +84,8 @@ class GradientPicker {
         this.setState(STATE_SINGLE);
     }
 
-    getNextStepID() {
-        return this.nextUniqueID++;
-    }
-
-    setEnabled(value) {
-        this.enabled = value;
+    getState() {
+        return this.state;
     }
 
     setState(state, count=0) {
@@ -97,7 +96,8 @@ class GradientPicker {
         } else if(state == STATE_GRADIENT) {
             let i=1;
             while(this.steps.length < 2) {
-                let s = this.createStep(this.steps);
+                let s = this.createStep();
+                this.steps.push(s);
                 this.setStepTranslation(s, CONTAINER_WIDTH/3 * i++);
             }
             this.setSelected(this.steps[0]);
@@ -106,16 +106,18 @@ class GradientPicker {
             this.instruction.innerText = "Adjust Gradient:";
         } else {
             while(this.fixedSteps.length < count) {
-                this.createStep(this.fixedSteps);
+                let s = this.createStep();
+                this.fixedSteps.push(s);
             }
-            
+
             while(this.fixedSteps.length > count) {
                 this.destroyStepAt(this.fixedSteps, this.fixedSteps.length - 1);
             }
 
-            for(let i=0; i<this.fixedSteps.length; i++) {
+            for(let i=0; i<this.fixedSteps.length; ++i) {
                 this.setStepTranslation(this.fixedSteps[i], CONTAINER_WIDTH * (i+1)/(count+1));
             }
+            
             this.setSelected(this.fixedSteps[0])
             this.showSteps(this.fixedSteps);
             if(this.state == STATE_GRADIENT) this.hideSteps(this.steps);
@@ -124,33 +126,35 @@ class GradientPicker {
         this.state = state;
     }
 
-    createStep(array) {
+    createStep() {
         var self = this;
-
-        //Add step to DOM
-        var element = document.createElement("div");
-        element.className = "gradient-step";
-
-        var s = new step(this.getNextStepID(), element, this.colorString, 0);
-
-        element.addEventListener("mousedown", function(event) {
+        var newStep = new StepElement(this.bar, 0,  new THREE.Color("#" + this.colorString));
+        newStep.element.addEventListener("mousedown", function(event) {
             if(self.selected) {
-                self.setSelected(s);
+                self.setSelected(newStep);
                 self.gradMouseDown = true;
                 event.preventDefault();
             }
         });
+        return newStep;
+    }
+
+    createGradientStep() {
+        var newStep = this.createStep();
+
+        var self = this;
 
         //Double click on step to remove
-        element.addEventListener("dblclick", function(event) {
-            if(self.selected && self.state == STATE_GRADIENT && array.length > 2) {
-                for(let i=0; i<array.length; i++) {
-                    if(array[i].id == s.id) {
+        newStep.element.addEventListener("dblclick", function(event) {
+            console.log(self.steps);
+            if(self.selected && self.steps.length > 2) {
+                for(let i=0; i<self.steps.length; i++) {
+                    if(self.steps[i].percentage == newStep.percentage && self.steps[i].color == newStep.color) {
                         //Remove step
-                        self.destroyStepAt(array, i);
+                        self.destroyStepAt(self.steps, i);
 
                         //Set selected to first
-                        self.setSelected(array[Math.max(0, i-1)]);
+                        self.setSelected(self.steps[Math.max(0, i-1)]);
 
                         //Recalculate gradient
                         self.updateBarGradient();
@@ -162,10 +166,7 @@ class GradientPicker {
             //Prevent bar underneath from creating step
             event.stopPropagation();
         });
-
-        this.bar.appendChild(s.element);
-        array.push(s);
-        return s;
+        return newStep;
     }
 
     destroyStepAt(array, index) {
@@ -190,6 +191,10 @@ class GradientPicker {
         }
     }
 
+    setStepPercentage(s, percentage) {
+        this.setStepTranslation(s, percentage*(BAR_WIDTH-STEP_WIDTH) + this.barRectLeft);
+    }
+
     setSelected(s) {
         if(s) {
             if(this.selected) {
@@ -207,16 +212,12 @@ class GradientPicker {
         array.sort(function(a, b){return a.percentage - b.percentage;});
     }
 
-    getStepByID() {
-
-    }
-
     updateBarGradient() {
         if(this.state == STATE_SINGLE) {
             //Set overall bar color since gradient requires more than one step
             this.bar.style.backgroundColor = "#" + this.colorString;
             this.bar.style.backgroundImage = "";
-            this.eventSystem.invokeEvent("OnColorChange", this.colorString);
+            this.OnColorChange(this.colorString);
         } else {
             //Generate ordered gradient using hex and percentage steps
             var gradientCSS = "linear-gradient(to right";
@@ -250,7 +251,7 @@ class GradientPicker {
             gradientCSS += ")";
             this.bar.style.backgroundImage = gradientCSS;
 
-            this.eventSystem.invokeEvent("OnGradientChange", steps);
+            this.OnGradientChange(steps);
         }
     }
 
@@ -258,20 +259,45 @@ class GradientPicker {
         return this.bar.style.backgroundImage;
     }
 
-    getSteps() {
-        
+    getSettings() {
+        return {
+            state: this.state,
+            color: this.colorString,
+            gradient: this.steps.map(s => new Step(s.percentage, s.color)),
+            fixed: this.fixedSteps.map(s => new Step(s.percentage, s.color)),
+        }
     }
 
-    getColor() {
-        return this.colorString;
+    setSettings(obj) {
+        while(this.steps.length) {
+            this.destroyStepAt(this.steps, 0);
+        }
+
+        while(this.fixedSteps.length) {
+            this.destroyStepAt(this.fixedSteps, 0);
+        }
+
+        this.colorString = obj.color;
+        this.steps = obj.gradient.map(s => {let newS = this.createGradientStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS});;
+        this.fixedSteps = obj.fixed.map(s => {let newS = this.createStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS});
+        
+        this.hideSteps(this.steps);
+        this.hideSteps(this.fixedSteps);
+        this.state = STATE_SINGLE;
+        this.setState(obj.state); 
     }
+
+    OnColorChange(value) {};
+
+    OnGradientChange(steps) {};
 }
 
-class step {
-    constructor(id, element, color, percentage) {
-        this.id = id;
-        this.color = new THREE.Color("#" + color);
-        this.element = element;
-        this.percentage = percentage;
+class StepElement extends Step {
+    constructor(element, percentage, color) {
+        super(percentage, color);
+
+        this.element = document.createElement("div");
+        this.element.className = "gradient-step";
+        element.appendChild(this.element);
     }
 }

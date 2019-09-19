@@ -10,8 +10,10 @@ class Graph {
      * @param  {Number} frustumSize Size of the camera's view frustum
      * @return {ForceGraph} A graph object
      */
-    constructor(element, nodes, links, nodeColorMap, edgeColorMap, frustumSize=1000) {
+    constructor(element, nodeColorMap, edgeColorMap, frustumSize=1000) {
         var self = this;
+
+        this.isEmpty = true;
 
         this.domElement = document.createElement('div');
         this.domElement.setAttribute("id", "export");
@@ -20,12 +22,8 @@ class Graph {
         this.width = this.domElement.clientWidth;
         this.height = this.domElement.clientHeight;
 
-        this.nodes = nodes;
-        this.links = links;
-        this.frustumSize = frustumSize;
-
-        this.shouldRender = false;
-        this.shouldAutoZoom = true;
+        this.nodeColorMap = nodeColorMap;
+        this.edgeColorMap = edgeColorMap;
 
         this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true });
         this.renderer.context.disable(this.renderer.context.DEPTH_TEST);
@@ -45,17 +43,43 @@ class Graph {
         let aspect = this.width / this.height;
         this.camera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
         this.camera.position.z = 400;
-        this.scene = new THREE.Scene();
-        
-        this.selectionMesh = new THREE.Mesh(new THREE.CircleBufferGeometry(10, 64), new THREE.MeshBasicMaterial());
-        this.selectionMesh.visible = false;
-        this.selectionMesh.position.z = -1;
-        this.selectedNode = undefined;
-        
-        this.initiallizing = true;
+
         this.fontScale = 1;
         this.fontZoom = 0;
 
+        this.frustumSize = frustumSize;
+
+        this.selectionMesh = new THREE.Mesh(new THREE.CircleBufferGeometry(10, 64), new THREE.MeshBasicMaterial());
+        this.selectionMesh.visible = false;
+        this.selectionMesh.position.z = -1;
+
+        this.scene = new THREE.Scene();
+
+        this.interactSystem = new InteractSystem(this.domElement, this.camera, this.width, this.height);
+        this.interactSystem.OnCameraPan = function() {
+            self.update();
+        };
+    }
+
+    set(nodes, links) {
+        var self = this;
+
+        //Remove existing nodes and links - temporarily remove selection mesh to preserve order
+        if(!this.isEmpty) {
+            this.scene.remove(this.nodeRenderer);
+            this.scene.remove(this.linkRenderer);
+            this.scene.remove(this.selectionMesh);
+            for(let i=0; i<this.labels.length; ++i) this.scene.remove(this.labels[i]);
+            this.interactSystem.clearInteractSets();
+        }
+
+        this.nodes = nodes;
+        this.links = links;
+        this.shouldRender = false;
+        this.shouldAutoZoom = true;
+        this.selectedNode = undefined;
+        this.initiallizing = true;
+        
         this.labels = new Array(nodes.length);
         this.labelsVisible = true;
         for(let i=0; i<this.labels.length; i++) {
@@ -65,12 +89,8 @@ class Graph {
             this.scene.add(this.labels[i]);
         }
 
-        this.nodeRenderer = new NodeRenderer(nodeColorMap, nodes.length);
-        this.linkRenderer = new LinkRenderer(edgeColorMap, links.length);
-        this.interactSystem = new InteractSystem(this.domElement, this.camera, this.width, this.height);
-        this.interactSystem.OnCameraPan = function() {
-            self.update();
-        };
+        this.nodeRenderer = new NodeRenderer(this.nodeColorMap, nodes.length);
+        this.linkRenderer = new LinkRenderer(this.edgeColorMap, links.length);
 
         var nodeSet = new InteractSet(nodes, true, true);
         var linkSet = new InteractSet(links, false, true);
@@ -163,6 +183,9 @@ class Graph {
                 this.shouldAutoZoom = false;
             }.bind(this));
 
+        this.scene.add(this.linkRenderer);
+        this.scene.add(this.selectionMesh);
+        this.scene.add(this.nodeRenderer);
 
         var animate = function() {
             window.requestAnimationFrame(animate);
@@ -171,11 +194,8 @@ class Graph {
             }
         }
 
-        this.scene.add(this.linkRenderer);
-        this.scene.add(this.selectionMesh);
-        this.scene.add(this.nodeRenderer);
-
         window.requestAnimationFrame(animate);
+        this.isEmpty = false;
     }
 
     /**
@@ -240,9 +260,9 @@ class Graph {
         this.renderer.setSize(this.width, this.height);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.labelRenderer.setSize(this.width, this.height);
-        this._updatePixelZoom();
+        if(!this.isEmpty) this._updatePixelZoom();
         this.interactSystem.resize(this.width, this.height);
-        this.update();
+        this._render();
     }
 
     /**
@@ -268,6 +288,7 @@ class Graph {
      * @return {ColorMap} A color map
      */
     setNodeColorMap(colormap) {
+        this.nodeColorMap = colormap;
         this.nodeRenderer.setColorMap(colormap);
     }
 
@@ -276,6 +297,7 @@ class Graph {
      * @return {ColorMap} A color map
      */
     setLinkColorMap(colormap) {
+        this.edgeColorMap = colormap;
         this.linkRenderer.setColorMap(colormap);
     }
 

@@ -134,6 +134,10 @@ class InteractSystem {
         this.interactSets.push(set);
     }
 
+    clearInteractSets() {
+        this.interactSets = [];
+    }
+
     OnCameraPan() {
         return
     }
