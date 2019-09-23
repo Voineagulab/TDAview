@@ -302,76 +302,10 @@ class tdaview {
         }
 
         this.sidebar = sidebar;
-        sidebar.menuLoad.OnMapperFileChange = function(distFunc, filtFunc, dataArray, metaArray) {
-            console.log("starting")
-            var startDate = new Date();
+
+        sidebar.menuLoad.OnMapperFileChange = function(mapperObj, metaObj) {
             //Save settings
             var settingsObj = self.getSettings();
-            self.data = undefined;
-
-
-            let rows = metaArray.length;
-            let cols = metaArray[0].length;
-            let metaObj = {};
-
-            for(let i=1; i<cols; ++i) {
-                let colData = new Array(rows-1);
-                for(let j=1; j<rows; ++j) {
-                    colData[j-1] = metaArray[j][i];
-                }
-                metaObj[metaArray[0][i-1]] = colData;
-            }
-
-            dataArray.shift(); //remove headings
-            for(let i=0; i<dataArray.length; ++i) {
-                dataArray[i].shift();
-            }
-            
-            let matrix = new ML.Matrix(dataArray);
-            let dist = new ML.Matrix(dataArray.length, dataArray.length);
-
-            console.log("Calculating distance matrix");
-            if(distFunc == "euclidean") {
-                //let dist = new ML.Matrix(ML.distanceMatrix(dataArray, ML.Distance.manhattan));
-                /*
-                The problem with using ML.Distance.manhattan is it is not vectorised.
-                By rearranging the euclidean (or L2 norm) distance 
-                We get   dist(x, y) = sqrt(dot(x, x) - 2 * dot(x, y) + dot(y, y))
-                See https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/metrics/pairwise.py
-                */
-                //Precompute squares
-                let squares = new Array(dataArray.length);
-                for(let i=0; i<squares.length; ++i) {
-                    let col = new ML.MatrixLib.MatrixRowView(matrix, i);
-                    squares[i] = col.dot(col);
-                }
-
-                //Calculate L2 distance
-                for(let i=0; i<dataArray.length; ++i) {
-                    if(i % 100 == 0) console.log(i + "/" + dataArray.length);
-                    for(let j=0; j<dataArray.length && j<=i; ++j) {
-                        let col1 = new ML.MatrixLib.MatrixRowView(matrix, i);
-                        let col2 = new ML.MatrixLib.MatrixRowView(matrix, j);
-                        let value = Math.sqrt(squares[i] - 2 * col1.dot(col2) + squares[j]);
-                        dist.set(i, j, value);
-                        dist.set(j, i, value);
-                    }
-                }
-            } else {
-                //This is faster but data must be normallized
-                dist = ML.MatrixLib.correlation(matrix).abs().negate().add(1);
-            }
-
-            let pca = new ML.PCA(new ML.MatrixLib.MatrixTransposeView(matrix), {method: "SVD"}); //data contains non numerics
-            let filter = pca.getEigenvectors().getRow(0);
-
-            //let filter = new ML.Matrix(new ML.Matrix(dataArray)).getColumn(0);
-
-            let mapperObj = mapper1D(dist, filter, 50, 50, 20);
-
-            var endDate   = new Date();
-            var seconds = (endDate.getTime() - startDate.getTime()) / 1000;
-            console.log("All calculations took " + seconds + " seconds");
 
             self.data = new Data(mapperObj, metaObj);
 

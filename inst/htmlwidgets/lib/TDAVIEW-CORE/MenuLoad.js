@@ -1,7 +1,8 @@
 class MenuLoad {
-    constructor(element) {
+    constructor(element, loadingBar) {
         this.domElement = document.createElement("span");
         this.domElement.innerHTML = this.generateHTML();
+        this.loadingBar = loadingBar;
         element.appendChild(this.domElement);
 
         this._init();
@@ -20,7 +21,6 @@ class MenuLoad {
                     <br><br>
                     <font size="2">Distance Function</font><br>
                     <select>
-                        <option value="euclidean">Correlation</option>
                         <option value="manhatten">Euclidean</option>
                     </select>
                     <br><br>
@@ -51,68 +51,68 @@ class MenuLoad {
                 console.log(settingsObj);
                 self.OnSettingsFileChange(settingsObj);
             }
-            reader.readAsText(this.files[0]);
-
-            
+            reader.readAsText(this.files[0]);    
         }
 
-        
         document.getElementById("mapperForm").addEventListener('submit', function(event) {
             event.preventDefault();
+            if(window.Worker){
+                if(this.myWorker) {
+                    this.myWorker.terminate();
+                    this.myWorker = undefined;
+                }
 
-            //Function for importing CSV with constraints
-            function loadCSVRectangle(inputElement, callback) {
-                let file = inputElement.files[0];
-                reader.onerror = function(){ 
-                    inputElement.setCustomValidity("Invalid URI");
-                };
-                reader.onload = function(e) {
-                    var csv = e.target.result.trim();
-                    var result = Papa.parse(csv);
-                    if(result.meta.aborted) {
-                        inputElement.setCustomValidity("Invalid CSV");
-                        callback(null);
-                        return;
-                    }
-                    let data = result.data;
-                    if(data[0].length == data[1].length) {
-                        data[0].shift();
-                    }
+                this.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
+                this.myWorker.postMessage({dataFile: event.target[0].files[0]});
+                this.myWorker.onmessage = function(e){
+                    //Update loading bar
+                    self.loadingBar.style.width = 100 * e.data.progress + "%";
+                    if(e.data.mapper) {
+                        self.loadingBar.style.width = 0;
 
-                    for(let i=1; i<data.length; ++i) {
-                        if(data[i].length != data[0].length+1) {
-                            inputElement.setCustomValidity("Invalid headers or column lengths"); //TODO fix this bug - it keeps showing after one bad file
-                            callback(null);
-                            return;
+                        if(!event.target[1].files[0]) {
+                            self.OnMapperFileChange(e.data.mapper, {});
+                        } else {
+                            var reader = new FileReader();
+                            reader.onload = function(m) {
+                                let dataCSV = m.target.result.trim();
+                                let dataParsed = Papa.parse(dataCSV);
+                                if(dataParsed.meta.aborted) {
+                                    throw "Invalid CSV";
+                                }
+                                let metaArray = dataParsed.data;
+                                for(let i=1; i<metaArray.length; ++i) {
+                                    if(metaArray[i].length != metaArray[0].length) {
+                                        throw "Invalid headers or column lengths";
+                                    }
+                                }
+                                
+                                //Get meta object
+                                let rows = metaArray.length;
+                                let cols = metaArray[0].length;
+                                let metaObj = {};
+                                for(let i=1; i<cols; ++i) {
+                                    let colData = new Array(rows-1);
+                                    for(let j=1; j<rows; ++j) {
+                                        colData[j-1] = metaArray[j][i];
+                                    }
+                                    metaObj[metaArray[0][i-1]] = colData;
+                                }
+                                self.OnMapperFileChange(e.data.mapper, metaObj);
+                            }
+                            reader.readAsText(event.target[1].files[0]);
                         }
                     }
-                    inputElement.setCustomValidity("");
-                    callback(result.data);
-                }
-                reader.readAsText(file);
+                };
+                this.myWorker.onerror = function (e) {
+                    console.error(e.message);
+                };
+                
             }
-
-            //Determine distance and filtration functions
-            let distance = event.target[2].options[event.target[2].selectedIndex].value;
-            let filtration = event.target[3].options[event.target[3].selectedIndex].value;
-
-            //Load data
-            var dataElement = event.target[0];
-            loadCSVRectangle(dataElement, function(data) {
-                if(!data) return;
-
-                //Optionally load metadata
-                var metaElement = event.target[1];
-                if(metaElement.files.length) {
-                    loadCSVRectangle(metaElement, function(meta) {
-                        if(!meta) return;
-                        self.OnMapperFileChange(distance, filtration, data, meta);
-                    });
-                } else {
-                    self.OnMapperFileChange(distance, filtration, data);
-                }
-            });
-        }, false);
+            else {
+                console.error("your browser do not support WebWorkers");
+            }
+        });
     }
 
     OnMapperFileChange(distance, filtration, data, meta=undefined) {}

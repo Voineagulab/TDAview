@@ -24,6 +24,16 @@
     width: 0px;
 }
 
+#progress {
+    height: 2.5px;
+    left: 0px;
+    margin-left: 250px;
+    width: 0px;
+    background-color: red;
+    top: 0px;
+    position: fixed;
+}
+
 input[type="range"].vranger {
     position: absolute;
     left: 260px;

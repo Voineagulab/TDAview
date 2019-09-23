@@ -11,7 +11,7 @@ class Menu {
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
 
-        this.menuLoad = new MenuLoad(document.getElementById("menu-load"));
+        this.menuLoad = new MenuLoad(document.getElementById("menu-load"), document.getElementById("progress"));
         this.menuNodes = new MenuNodes(document.getElementById("menu-nodes"));
         this.menuEdges = new MenuEdge(document.getElementById("menu-edges"));
         this.menuLabels = new MenuLabels(document.getElementById("menu-labels"));
@@ -41,6 +41,7 @@ class Menu {
 
     generateHTML() {
         return /*html*/`
+        <div id="progress"></div>
         <div class="unselectable sidenav">
             <h1 class="heading"></h1><br>
             <div class="accordion-wrapper">
