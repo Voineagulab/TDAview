@@ -54,7 +54,7 @@ this.onmessage = function(e) {
         }
     }
 
-    let pca = new ML.PCA(matrix, {method: "SVD"});
+    let pca = new ML.PCA(new ML.MatrixLib.MatrixTransposeView(matrix), {method: "SVD"});
     let filter = pca.getEigenvectors().getRow(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
     let mapperObj = mapper1D(dist, filter, 50, 50, 20);
 
