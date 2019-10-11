@@ -88,15 +88,14 @@ class MenuLoad {
                                 }
                                 
                                 //Get meta object
-                                let rows = metaArray.length;
-                                let cols = metaArray[0].length;
                                 let metaObj = {};
-                                for(let i=1; i<cols; ++i) {
-                                    let colData = new Array(rows-1);
-                                    for(let j=1; j<rows; ++j) {
-                                        colData[j-1] = metaArray[j][i];
+                                for(let i=1; i<metaArray.length; ++i) {
+                                    //Match indices
+                                    let matched = new Array(metaArray[i].length-1);
+                                    for(let j=1; j<=matched.length; ++j) {
+                                        matched[e.data.headingsKey[metaArray[0][j-1]]] = metaArray[i][j];
                                     }
-                                    metaObj[metaArray[0][i-1]] = colData;
+                                    metaObj[metaArray[i][0]] = matched;
                                 }
                                 self.OnMapperFileChange(e.data.mapper, metaObj);
                             }
