@@ -13,6 +13,7 @@ this.onmessage = function(e) {
         throw "Invalid CSV";
     }
 
+    //Note: every array entry is a line therefore dataArray.length == row count
     let dataArray = dataParsed.data;
     
     for(let i=1; i<dataArray.length; ++i) {
@@ -22,37 +23,41 @@ this.onmessage = function(e) {
     }
 
     //Remove headings
+    let headingsKey = {};
     dataArray.shift(); 
     for(let i=0; i<dataArray.length; ++i) {
+        headingsKey[dataArray[i][0]] = i;
         dataArray[i].shift();
     }
 
-    let matrix = new ML.Matrix(dataArray);
-    let dist = new ML.Matrix(dataArray.length, dataArray.length);
+    let colCount = dataArray[0].length;
 
-    let squares = new Array(dataArray.length);
+    let matrix = new ML.Matrix(dataArray);
+    let dist = new ML.Matrix(colCount, colCount); //let dist = new ML.distanceMatrix(dataArray, ML.Distance.euclidean);
+
+    let squares = new Array(colCount);
     for(let i=0; i<squares.length; ++i) {
-        let col = new ML.MatrixLib.MatrixRowView(matrix, i);
+        let col = new ML.MatrixLib.MatrixColumnView(matrix, i);
         squares[i] = col.dot(col);
     }
 
     //Calculate L2 distance
-    let cells = (dataArray.length * (dataArray.length + 1)) / 2;
-    for(let i=0, k=0; i<dataArray.length; ++i) {
-        for(let j=0; j<dataArray.length && j<=i; ++j, ++k) {
-            let col1 = new ML.MatrixLib.MatrixRowView(matrix, i);
-            let col2 = new ML.MatrixLib.MatrixRowView(matrix, j);
+    let cells = (colCount * (colCount + 1)) / 2;
+    for(let i=0, k=0; i<colCount; ++i) {
+        for(let j=0; j<colCount && j<=i; ++j, ++k) {
+            let col1 = new ML.MatrixLib.MatrixColumnView(matrix, i);
+            let col2 = new ML.MatrixLib.MatrixColumnView(matrix, j);
             let value = Math.sqrt(squares[i] - 2 * col1.dot(col2) + squares[j]);
             dist.set(i, j, value);
             dist.set(j, i, value);
-            if(k%dataArray.length == 0) this.postMessage({progress: k/cells});
+            if(k%colCount == 0) this.postMessage({progress: k/cells});
         }
     }
 
-    let pca = new ML.PCA(new ML.MatrixLib.MatrixTransposeView(matrix), {method: "SVD"});
-    let filter = pca.getEigenvectors().getRow(0);
+    let pca = new ML.PCA(matrix, {method: "SVD"});
+    let filter = pca.getEigenvectors().getRow(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
     let mapperObj = mapper1D(dist, filter, 50, 50, 20);
 
-    self.postMessage({progress: 1.0, mapper: mapperObj});   
+    self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey});   
 }
 }
