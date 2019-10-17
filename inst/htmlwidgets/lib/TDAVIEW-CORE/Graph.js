@@ -64,6 +64,8 @@ class Graph {
     set(nodes, links) {
         var self = this;
 
+        this.selectionMesh.visible = false;
+
         //Remove existing nodes and links - temporarily remove selection mesh to preserve order
         if(!this.isEmpty) {
             this.scene.remove(this.nodeRenderer);
