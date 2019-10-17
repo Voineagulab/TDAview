@@ -19,13 +19,19 @@ class MenuLoad {
                     <font size="2">Metadata</font><br>
                     <input type="file" id="inputMeta" accept=".csv">
                     <br><br>
+                    <font size="2">Filter Dimensions</font><br>
+                    <select id="filterdim">
+                        <option value="1">Mapper1D</option>
+                        <option value="2">Mapper2D</option>
+                    </select>
+                    <br><br>
                     <font size="2">Distance Function</font><br>
-                    <select>
+                    <select id="distfunc">
                         <option value="manhatten">Euclidean</option>
                     </select>
                     <br><br>
-                    <font size="2">Filtration Function</font><br>
-                    <select>
+                    <font size="2">Filter Function</font><br>
+                    <select id="filterfunc">
                         <option value="PCA">PCA</option>
                     </select>
                     <br><br>
@@ -54,6 +60,8 @@ class MenuLoad {
             reader.readAsText(this.files[0]);    
         }
 
+        var filterdim = document.getElementById("filterdim");
+
         document.getElementById("mapperForm").addEventListener('submit', function(event) {
             event.preventDefault();
             if(window.Worker){
@@ -63,7 +71,7 @@ class MenuLoad {
                 }
 
                 this.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
-                this.myWorker.postMessage({dataFile: event.target[0].files[0]});
+                this.myWorker.postMessage({dataFile: event.target[0].files[0], filterDim: filterdim.options[filterdim.selectedIndex].value});
                 this.myWorker.onmessage = function(e){
                     //Update loading bar
                     self.loadingBar.style.width = 100 * e.data.progress + "%";
@@ -93,7 +101,7 @@ class MenuLoad {
                                     //Match indices
                                     let matched = new Array(metaArray[i].length-1);
                                     for(let j=1; j<=matched.length; ++j) {
-                                        matched[e.data.headingsKey[metaArray[0][j-1]]] = metaArray[i][j];
+                                        matched[e.data.headingsKey[metaArray[0][j]]] = metaArray[i][j];
                                     }
                                     metaObj[metaArray[i][0]] = matched;
                                 }

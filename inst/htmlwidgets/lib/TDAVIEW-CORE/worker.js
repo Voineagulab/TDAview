@@ -1,6 +1,6 @@
 if( 'undefined' === typeof window){
 
-importScripts('../PAPAPARSE/papaparse.min.js', '../MAPPER/mapper1D.js', '../MAPPER/cutoff.js', '../MLJS/ml.min.js');
+importScripts('../PAPAPARSE/papaparse.min.js', '../MAPPER/mapper1D.js', '../MAPPER/mapper2D.js', '../MAPPER/cutoff.js', '../MLJS/ml.min.js');
 
 this.onmessage = function(e) {
     var reader = new FileReaderSync();
@@ -54,10 +54,17 @@ this.onmessage = function(e) {
         }
     }
 
-    let pca = new ML.PCA(new ML.MatrixLib.MatrixTransposeView(matrix), {method: "SVD"});
-    let filter = pca.getEigenvectors().getRow(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
-    let mapperObj = mapper1D(dist, filter, 50, 50, 20);
+    let pca = new ML.PCA(matrix, {method: "SVD"});
+    let mapperObj = undefined;
 
-    self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey});   
+    if(e.data.filterDim == 1) {
+        let filter = pca.getEigenvectors().getRow(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
+        mapperObj = mapper1D(dist, filter, 50, 50, 20);
+    } else {
+        let filter = [pca.getEigenvectors().getRow(0), pca.getEigenvectors().getRow(1)];
+        mapperObj = mapper2D(dist, filter, [50,50], 50, 20);   
+    }
+
+    self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey});
 }
 }
