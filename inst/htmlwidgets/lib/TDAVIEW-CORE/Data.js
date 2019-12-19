@@ -94,21 +94,28 @@ class Data {
 
         //Determine defined types of variables
         this.types = {};
+        let conversionCount = 0;
         for(var key in metadata) {
             let data = this.metadata[key];
             for(let i=0; i<data.length; i++) {
-                if(data[i] !== null) {
+                if(data[i] != null && data[i] != "NA") {
                     this.types[key] = isNaN(data[i]) ? DATA_TYPE_CATEGORY : DATA_TYPE_NUMBER;
                     break;
                 }
             }
 
-            if(this.types[key] == DATA_TYPE_NUMBER) {
+            if(this.types[key] === undefined) this.types[key] = DATA_TYPE_CATEGORY; //All NA treated as categorical
+            else if(this.types[key] == DATA_TYPE_NUMBER) {
                 for(let i=0; i<data.length; ++i) {
                     data[i] = parseFloat(data[i]);
+                    if(data[i] == NaN) {
+                        ++conversionCount;
+                        data[i] = 0;
+                    }
                 }
             }
         }
+        if(conversionCount > 0) window.alert(conversionCount + " numeric NAs converted to zeros");
     }
 
     getHasNodeLabels() {
