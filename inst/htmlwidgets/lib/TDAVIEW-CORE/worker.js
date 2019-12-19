@@ -3,6 +3,8 @@ if( 'undefined' === typeof window){
 importScripts('../PAPAPARSE/papaparse.min.js', '../MAPPER/mapper1D.js', '../MAPPER/mapper2D.js', '../MAPPER/cutoff.js', '../MLJS/ml.min.js');
 
 this.onmessage = function(e) {
+    let warning = undefined;
+
     var reader = new FileReaderSync();
     
     let dataFile = e.data.dataFile;
@@ -10,7 +12,7 @@ this.onmessage = function(e) {
     let dataParsed = Papa.parse(dataCSV);
 
     if(dataParsed.meta.aborted) {
-        throw "Invalid CSV";
+        throw "Invalid data CSV";
     }
 
     //Note: every array entry is a line therefore dataArray.length == row count
@@ -18,7 +20,7 @@ this.onmessage = function(e) {
     
     for(let i=1; i<dataArray.length; ++i) {
         if(dataArray[i].length != dataArray[0].length) {
-            throw "Invalid headers or column lengths";
+            throw "Invalid data headers or column lengths";
         }
     }
 
@@ -29,6 +31,18 @@ this.onmessage = function(e) {
         headingsKey[dataArray[i][0]] = i;
         dataArray[i].shift();
     }
+
+    let conversionCount = 0;
+    for(let i=0; i<dataArray.length; ++i) {
+        for(let j=0; j<dataArray[0].length; ++j) {
+            if(isNaN(dataArray[i][j])) {
+                dataArray[i][j] = 0;
+                ++conversionCount;
+            }
+        }
+    }
+
+    if(conversionCount > 0) warning = (conversionCount + " numeric data NAs converted to zeros");
 
     let colCount = dataArray[0].length;
 
@@ -83,7 +97,7 @@ this.onmessage = function(e) {
             }
         }
     }
-    
+
     let pca = new ML.PCA(matrix, {method: "SVD"});
     let mapperObj = undefined;
 
@@ -95,6 +109,6 @@ this.onmessage = function(e) {
         mapperObj = mapper2D(dist, filter, [50,50], 50, 20);   
     }
 
-    self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey});
+    self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey, warning: warning});
 }
 }

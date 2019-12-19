@@ -115,7 +115,7 @@ class Data {
                 }
             }
         }
-        if(conversionCount > 0) window.alert(conversionCount + " numeric NAs converted to zeros");
+        if(conversionCount > 0) window.alert(conversionCount + " numeric metadata NAs converted to zeros");
     }
 
     getHasNodeLabels() {

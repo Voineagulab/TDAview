@@ -75,6 +75,11 @@ class MenuLoad {
                 this.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
                 this.myWorker.postMessage({dataFile: event.target[0].files[0], filterDim: filterdim.options[filterdim.selectedIndex].value, distFunc: distfunc.options[distfunc.selectedIndex].value});
                 this.myWorker.onmessage = function(e){
+                    if(e.data.warning) {
+                        console.warn(e.data.warning);
+                        window.alert(e.data.warning);
+                    }
+
                     //Update loading bar
                     self.loadingBar.style.width = 100 * e.data.progress + "%";
                     if(e.data.mapper) {
@@ -88,12 +93,12 @@ class MenuLoad {
                                 let dataCSV = m.target.result.trim();
                                 let dataParsed = Papa.parse(dataCSV);
                                 if(dataParsed.meta.aborted) {
-                                    throw "Invalid CSV";
+                                    throw "Invalid metadata CSV";
                                 }
                                 let metaArray = dataParsed.data;
                                 for(let i=1; i<metaArray.length; ++i) {
                                     if(metaArray[i].length != metaArray[0].length) {
-                                        throw "Invalid headers or column lengths";
+                                        throw "Invalid metadata headers or column lengths";
                                     }
                                 }
                                 
@@ -115,6 +120,7 @@ class MenuLoad {
                 };
                 this.myWorker.onerror = function (e) {
                     console.error(e.message);
+                    window.alert(e.message);
                 };
                 
             }
