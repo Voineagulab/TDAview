@@ -177,8 +177,7 @@ class MenuNodes {
         if(document.getElementById("continuoussize").checked) {
             obj.type = "continuous";
         } else {
-            obj.type = document.getElementById("contentsize").checked ? "content" : "none";
-            
+            obj.type = document.getElementById("contentsize").checked ? "content" : (document.getElementById("degreesize").checked ? "degree" : "none");
         }
         return obj;
     }
@@ -197,6 +196,8 @@ class MenuNodes {
             document.getElementById("contentsize").click();
         } else if(obj.type == "none") {
             document.getElementById("nonesize").click();
+        } else if(obj.type == "degree") {
+            document.getElementById("degreesize").click();
         }
     }
     
