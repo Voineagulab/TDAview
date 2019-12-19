@@ -27,7 +27,8 @@ class MenuLoad {
                     <br><br>
                     <font size="2">Distance Function</font><br>
                     <select id="distfunc">
-                        <option value="manhatten">Euclidean</option>
+                        <option value="euclidean">Euclidean</option>
+                        <option value="absolutepearson">Absolute Pearson</option>
                     </select>
                     <br><br>
                     <font size="2">Filter Function</font><br>
@@ -61,6 +62,7 @@ class MenuLoad {
         }
 
         var filterdim = document.getElementById("filterdim");
+        var distfunc = document.getElementById("distfunc");
 
         document.getElementById("mapperForm").addEventListener('submit', function(event) {
             event.preventDefault();
@@ -71,7 +73,7 @@ class MenuLoad {
                 }
 
                 this.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
-                this.myWorker.postMessage({dataFile: event.target[0].files[0], filterDim: filterdim.options[filterdim.selectedIndex].value});
+                this.myWorker.postMessage({dataFile: event.target[0].files[0], filterDim: filterdim.options[filterdim.selectedIndex].value, distFunc: distfunc.options[distfunc.selectedIndex].value});
                 this.myWorker.onmessage = function(e){
                     //Update loading bar
                     self.loadingBar.style.width = 100 * e.data.progress + "%";

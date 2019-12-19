@@ -33,27 +33,57 @@ this.onmessage = function(e) {
     let colCount = dataArray[0].length;
 
     let matrix = new ML.Matrix(dataArray);
-    let dist = new ML.Matrix(colCount, colCount); //let dist = new ML.distanceMatrix(dataArray, ML.Distance.euclidean);
+    let dist = new ML.Matrix(colCount, colCount);
 
-    let squares = new Array(colCount);
-    for(let i=0; i<squares.length; ++i) {
-        let col = new ML.MatrixLib.MatrixColumnView(matrix, i);
-        squares[i] = col.dot(col);
-    }
-
-    //Calculate L2 distance
     let cells = (colCount * (colCount + 1)) / 2;
-    for(let i=0, k=0; i<colCount; ++i) {
-        for(let j=0; j<colCount && j<=i; ++j, ++k) {
-            let col1 = new ML.MatrixLib.MatrixColumnView(matrix, i);
-            let col2 = new ML.MatrixLib.MatrixColumnView(matrix, j);
-            let value = Math.sqrt(squares[i] - 2 * col1.dot(col2) + squares[j]);
-            dist.set(i, j, value);
-            dist.set(j, i, value);
-            if(k%colCount == 0) this.postMessage({progress: k/cells});
+    if(e.data.distFunc == "euclidean") {
+        let squares = new Array(colCount);
+        for(let i=0; i<squares.length; ++i) {
+            let col = new ML.MatrixLib.MatrixColumnView(matrix, i);
+            squares[i] = col.dot(col);
+        }
+    
+        for(let i=0, k=0; i<colCount; ++i) {
+            for(let j=0; j<colCount && j<=i; ++j, ++k) {
+                let col1 = new ML.MatrixLib.MatrixColumnView(matrix, i);
+                let col2 = new ML.MatrixLib.MatrixColumnView(matrix, j);
+                let value = Math.sqrt(squares[i] - 2 * col1.dot(col2) + squares[j]);
+                dist.set(i, j, value);
+                dist.set(j, i, value);
+                if(k%colCount == 0) this.postMessage({progress: k/cells});
+            }
+        }
+    } else {
+        let cov = new ML.MatrixLib.covariance(matrix);
+        for(let i=0, k=0; i<colCount; ++i) {
+            for(let j=0; j<colCount && j<=i; ++j, ++k) {
+                let squareDiff1 = 0;
+                let squareDiff2 = 0;
+                let mean1 = 0;
+                let mean2 = 0;
+                let col1 = new ML.MatrixLib.MatrixColumnView(matrix, i);
+                let col2 = new ML.MatrixLib.MatrixColumnView(matrix, j);
+                let value = 0;
+                for (let l=0; l < dataArray.length; ++l) {
+                    mean1 += col1.get(l, 0);
+                    mean2 += col2.get(l, 0);
+                }
+                mean1 /= dataArray.length;
+                mean2 /= dataArray.length;
+
+                for (let l=0; l < dataArray.length; ++l) {
+                    squareDiff1 += Math.pow(col1.get(l, 0) - mean1, 2);
+                    squareDiff2 += Math.pow(col2.get(l, 0) - mean2, 2);
+                }
+
+                value = 1 - Math.abs(cov.get(i, j) / (Math.sqrt(squareDiff1) * Math.sqrt(squareDiff2)));
+                dist.set(i, j, value);
+                dist.set(j, i, value);
+                if(k%colCount == 0) this.postMessage({progress: k/cells});
+            }
         }
     }
-
+    
     let pca = new ML.PCA(matrix, {method: "SVD"});
     let mapperObj = undefined;
 
