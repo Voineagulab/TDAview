@@ -14,8 +14,6 @@ class MenuLabels {
         <fieldset>
         <legend>Nodes</legend>
             <form name="labels">
-            <input type="radio" name="labeltype" value="name" id="name">
-            <label for="name">Given Name</label><br>
             <input type="radio" name="labeltype" value="size" id="size">
             <label for="size">Points</label><br>
             <input type="radio" name="labeltype" value="none" id="none" checked>
@@ -37,13 +35,6 @@ class MenuLabels {
         `;
     }
 
-    updateNamesEnabled(value) {
-        document.getElementById("name").disabled = value;
-        if(value) {
-            document.getElementById("name").click();
-        }
-    }
-
     getSettings() {
         return {
             labelText: this._serializeLabelText(),
@@ -61,10 +52,6 @@ class MenuLabels {
     _initLabelText() {
         var self = this;
 
-        document.getElementById("name").onclick = function() {
-            self.OnLabelTextName();
-        }
-
         document.getElementById("size").onclick = function() {
             self.OnLabelTextPoints();
         }
@@ -76,17 +63,15 @@ class MenuLabels {
 
     _serializeLabelText() {
         return {
-            source: document.getElementById("name").checked ? "name" : (document.getElementById("size").checked ? "size" : "none")
+            source: (document.getElementById("size").checked ? "size" : "none")
         }
     }
 
     _deserializeLabelText(obj) {
         switch(obj.source) {
-            case "name": 
-                document.getElementById("name").click();
-                break;
             case "size":
                 document.getElementById("size").click();
+                break;
             default: 
                 document.getElementById("none").click();
         }
@@ -149,11 +134,6 @@ class MenuLabels {
         document.getElementById("labelSize").value = obj.value;
         document.getElementById("labelSize").onchange();
     }
-    
-    /**
-     * Invoked when all labels are to read the given node name.
-     */
-    OnLabelTextName() {}
     
     /**
      * Invoked when all labels are to read the node point count.

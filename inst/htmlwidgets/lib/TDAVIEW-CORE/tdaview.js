@@ -37,7 +37,6 @@ class tdaview {
         legendBar.setVisibility(false);
         legendPie.setVisibility(false);
 
-
         var sidebar = new Menu(element);
         sidebar.setSubmenusEnabled(false);
 
@@ -49,8 +48,6 @@ class tdaview {
             self.graph.update();
         };
 
-        
-
         sidebar.menuNodes.OnNodeSizePoints = function() {
             self.graph.forEachNode(n => self.graph.setNodeScale(n, self.data.getPointsNormalised(n.userData)));
             self.graph.updateNodeScales();
@@ -59,7 +56,13 @@ class tdaview {
             self.graph.update();
         };
 
-        
+        sidebar.menuNodes.OnNodeSizeDegree = function() {
+            self.graph.forEachNode(n => self.graph.setNodeScale(n, n.countNeighbors()/self.maxDegree));
+            self.graph.updateNodeScales();
+            self.graph.applyLinkPositions();
+            self.graph.forEachNode(n => self.graph.setLabelPosition(n));
+            self.graph.update();
+        };
 
         sidebar.menuNodes.OnNodeSizeContinuous = function(value) {
             self.data.loadVariable(value);
@@ -73,8 +76,6 @@ class tdaview {
             legendBar.setVisibility(false);
             legendPie.setVisibility(false);
         };
-
-        
 
         sidebar.menuNodes.OnNodeColorContinuous = function(value) {
             self.data.loadVariable(value);
@@ -124,9 +125,6 @@ class tdaview {
             return categories.length;
         };
 
-        
-        
-
         sidebar.menuNodes.OnNodeColorChange = function(value) {
             var color = new THREE.Color("#" + value);
             nodeMap.setColor(color);
@@ -134,9 +132,6 @@ class tdaview {
             if(shouldShareMap) self.graph.updateLinkColors();
             self.graph.update();
         };
-
-        
-        
 
         sidebar.menuNodes.OnNodeGradientChange = function(steps) {
             nodeMap.setGradient(steps);
@@ -150,17 +145,10 @@ class tdaview {
             }
         };
 
-        
-
-        
-
-        
         sidebar.menuEdges.OnEdgeAlphaChange = function(alpha) {
             self.graph.setLinkAlpha(alpha);
             self.graph.update();
         };
-
-        
 
         sidebar.menuEdges.OnEdgeWidthChange = function(width) {
             self.graph.setLinkScale(width);
@@ -168,14 +156,11 @@ class tdaview {
             self.graph.update();
         };
 
-        
-
         sidebar.menuEdges.OnEdgeColorUniform = function() {
             self.graph.setLinkColorMap(edgeMap);
             self.graph.updateLinkColors();
             self.graph.update();
         };
-
         
         sidebar.menuEdges.OnEdgeColorFromNodes = function() {
             self.graph.setLinkColorMap(nodeMap);
@@ -210,11 +195,6 @@ class tdaview {
 
         sidebar.menuLabels.OnLabelColorChange = function(value) {
             self.graph.setLabelColors(value);
-        };
-
-        sidebar.menuLabels.OnLabelTextName = function() {
-            self.graph.forEachNode(n => self.graph.setLabelText(n, n.userData.getName()));
-            self.graph.setLabelVisibilities(true);
         };
 
         sidebar.menuLabels.OnLabelTextPoints = function() {
@@ -315,6 +295,7 @@ class tdaview {
             }
 
             var links = [];
+            self.maxDegree = -1;
             for(let i=0, curr=0; i<self.data.adjacency.length; i++) {
                 let row = self.data.adjacency[i];
                 for(let j=0; j<i; j++) {
@@ -325,6 +306,9 @@ class tdaview {
                     }
                 }
             }
+
+            for(let i=0; i<nodes.length; ++i) self.maxDegree = Math.max(self.maxDegree, nodes[i].countNeighbors());
+
             self.graph.set(nodes, links);
             self.graph.forEachNode(n => self.graph.setNodeScale(n, 0.5));
             self.graph.updateNodeScales();

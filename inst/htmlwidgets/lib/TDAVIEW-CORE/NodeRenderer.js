@@ -176,6 +176,10 @@ class NodeInstance {
         this.neighbors.push(node);
     }
 
+    countNeighbors() {
+        return this.neighbors.length;
+    }
+
     getPosition() {
         return new THREE.Vector3(this.x, this.y, 0);
     }

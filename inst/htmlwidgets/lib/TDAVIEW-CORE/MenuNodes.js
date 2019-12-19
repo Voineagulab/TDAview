@@ -29,6 +29,8 @@ class MenuNodes {
             <label for="nonesize">Uniform</label><br>
             <input type="radio" name="nodesize" value="content" id="contentsize" />
             <label for="contentsize">Points</label><br>
+            <input type="radio" name="nodesize" value="content" id="degreesize" />
+            <label for="degreesize">Degree</label><br>
             <input type="radio" name="nodesize" value="continuous" id="continuoussize" />
             <label for="continuoussize">Variable</label><br>
             <input placeholder="Select:" list="continuoussizedatalist" name="continuoussizeinput" id="continuoussizeinput" autocomplete="off" style="width: 200px;" disabled>
@@ -147,6 +149,11 @@ class MenuNodes {
             self.OnNodeSizePoints();
         };
 
+        document.getElementById("degreesize").onclick = function() {
+            sizedatainput.disabled = true;
+            self.OnNodeSizeDegree();
+        };
+
         document.getElementById("continuoussize").onclick = function() {
             sizedatainput.disabled = false;
             if(self.sizedatainputold) {
@@ -203,6 +210,11 @@ class MenuNodes {
      * Invoked when nodes are to be scaled by the number of data points they contain.
      */
     OnNodeSizePoints() {}
+
+    /**
+     * Invoked when nodes are to be scaled by the number of adjacent nodes
+     */
+    OnNodeSizeDegree() {}
 
     /**
      * Invoked when nodes are to be scaled by the mean of a contained continuous variable.

@@ -87,9 +87,8 @@ class Menu {
         `;
     }
 
-    update(continuousNames, categoricalNames, hasLabels) {
+    update(continuousNames, categoricalNames) {
         this.menuNodes.updateVariableNames(continuousNames, categoricalNames);
-        this.menuLabels.updateNamesEnabled(hasLabels);
     }
 
     setSubmenusEnabled(value) {
