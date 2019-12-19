@@ -112,7 +112,7 @@ class MenuLoad {
                                     }
                                     metaObj[metaArray[0][i]] = matched;
                                 }
-                                self.OnMapperFileChange(e.data.mapper, metaObj);
+                                self.OnMapperFileChange(e.data.mapper, metaObj, Object.keys(e.data.headingsKey));
                             }
                             reader.readAsText(event.target[1].files[0]);
                         }
@@ -130,7 +130,7 @@ class MenuLoad {
         });
     }
 
-    OnMapperFileChange(distance, filtration, data, meta=undefined) {}
+    OnMapperFileChange(distance, filtration, data, meta=undefined, rowNames=undefined) {}
 
     OnSettingsFileChange(settingsObj) {}
 }

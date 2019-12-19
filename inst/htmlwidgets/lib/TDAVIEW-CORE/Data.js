@@ -63,12 +63,11 @@ class Data {
             mapper.points_in_vertex[Math.round(Math.random() * (mapper.num_vertices-1)) ][("Sample_" + (i+1))] = (i+1);
         }
 
-        let nodeNames = Array.from({length: mapper.num_vertices}, (_, i) => "Node " + i);
-
-        return new Data(mapper, metadata, nodeNames);
+        return new Data(mapper, metadata);
     }
 
-    constructor(mapper, metadata, nodeNames) {
+    constructor(mapper, metadata, rowNames) {
+        this.rowNames = rowNames;
         this.metadata = metadata;
         this.adjacency = mapper.adjacency;
         this.maxBinPoints = Utility.Max(mapper.points_in_vertex.map(obj => Object.keys(obj).length));
@@ -77,7 +76,6 @@ class Data {
         this.variable = new CachedVariable();
         this.mins = new ContinuousVariable();
         this.maxs = new ContinuousVariable();
-        this.hasNodeNames = (nodeNames != undefined);
         
         //Convert indices to zero based
         for(let i=0; i<mapper.num_vertices; i++) {
@@ -89,7 +87,7 @@ class Data {
         //Create bins for each node
         this.bins = new Array(mapper.num_vertices);
         for(let i=0; i<mapper.num_vertices; i++) {
-            this.bins[i] = new Bin(mapper.points_in_vertex[i], nodeNames ? nodeNames[i] : undefined);
+            this.bins[i] = new Bin(mapper.points_in_vertex[i]);
         }
 
         //Determine defined types of variables
@@ -189,6 +187,10 @@ class Data {
     getCategoricalNames() {
         return this.getVariableNames().filter(name => this.types[name] === DATA_TYPE_CATEGORY);
     }
+
+    getPointNames(bin) {
+        return Object.keys(bin.points).map(p => this.rowNames[p]);
+    }
 }
 
 
@@ -281,14 +283,9 @@ class CachedVariable {
 }
 
 class Bin extends CachedVariable {
-    constructor(points, name = undefined) {
+    constructor(points) {
         super();
         this.points = points;
-        this.name = name;
-    }
-
-    getName() {
-        return this.name;
     }
 
     getPointCount() {
@@ -297,9 +294,5 @@ class Bin extends CachedVariable {
 
     getPoints() {
         return Object.values(this.points);
-    }
-
-    getPointNames() {
-        return Object.keys(this.points);
     }
 }

@@ -250,15 +250,15 @@ class tdaview {
         var dataname, datauri;
 
         self.graph.OnNodeSelect = function(node) {
-            var names = node.userData.getPointNames();
+            var names =  self.data.getPointNames(node.userData);
             dataname = "Node " + node.id;
             datauri = "data:text/csv;charset=utf-8," + encodeURI(dataname + "\r\n" + names.join('\r\n'));
             sidebar.menuSelect.Open(dataname + " (" + names.length + " rows)", names);
         };
 
         self.graph.OnLinkSelect = function(link) {
-            let i1 = link.source.userData.getPointNames();
-            let i2 = link.target.userData.getPointNames();
+            let i1 = self.data.getPointNames(link.source.userData);
+            let i2 = self.data.getPointNames(link.target.userData);
             let names = i1.filter(i => i2.includes(i));
             dataname = "Link " + link.link_id;
             datauri = "data:text/csv;charset=utf-8," + encodeURI(dataname + "\r\n" + names.join('\r\n'));
@@ -285,11 +285,12 @@ class tdaview {
 
         this.sidebar = sidebar;
 
-        sidebar.menuLoad.OnMapperFileChange = function(mapperObj, metaObj) {
+        sidebar.menuLoad.OnMapperFileChange = function(mapperObj, metaObj, rowNames) {
+            console.log(rowNames);
             //Save settings
             var settingsObj = self.getSettings();
 
-            self.data = new Data(mapperObj, metaObj);
+            self.data = new Data(mapperObj, metaObj, rowNames);
 
             var nodes = new Array(self.data.bins.length);
             for(let i=0; i<nodes.length; i++) {
