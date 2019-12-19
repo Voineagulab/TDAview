@@ -88,8 +88,9 @@ class tdaview {
             self.graph.update();
 
             legendPie.setVisibility(false);
-            legendBar.setVisibility(true);
             legendBar.setLabels(self.data.getContinuousMin("mean"), self.data.getContinuousMax("mean"));
+            legendBar.setTitle(value);
+            legendBar.setVisibility(true);
         };
         
         //TODO this is now correct (colors=[0.2, 0.4, 0.6, 0.8] for 4 categories - steps[x].percentage and hence the underlyig texture is slightly wrong
@@ -121,6 +122,7 @@ class tdaview {
             self.graph.update();
             legendBar.setVisibility(false);
             legendPie.createEntries(categories);
+            legendPie.setTitle(value);
             legendPie.setVisibility(true);
             return categories.length;
         };

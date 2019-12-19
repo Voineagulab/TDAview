@@ -10,6 +10,11 @@
 }
 
 .legendbarlabel {
+    top: 20px;
+    position: absolute;
+}
+
+#legendbartitle {
     top: -20px;
     position: absolute;
 }

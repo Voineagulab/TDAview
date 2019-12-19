@@ -8,6 +8,7 @@ class LegendBar {
         
         this.minLabel = document.getElementById("legendbarmin");
         this.maxLabel = document.getElementById("legendbarmax");
+        this.title = document.getElementById("legendbartitle");
         this.bar = document.getElementById("legendbar");
         this.visible = true;
     }
@@ -15,10 +16,15 @@ class LegendBar {
     generateHTML() {
         return /*html*/`
         <div id="legendbar" draggable="true">
-        <div id="legendbarmin" class="legendbarlabel unselectable">min</div>
-        <div id ="legendbarmax" class="legendbarlabel unselectable">max</div>
+            <div id="legendbartitle">Title</div><br>
+            <div id="legendbarmin" class="legendbarlabel unselectable">min</div>
+            <div id ="legendbarmax" class="legendbarlabel unselectable">max</div>
         </div>
         `;
+    }
+
+    setTitle(title) {
+        this.title.textContent = title;
     }
 
     setLabels(min, max) {

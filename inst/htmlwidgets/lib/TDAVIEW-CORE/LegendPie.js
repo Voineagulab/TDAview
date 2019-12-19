@@ -3,6 +3,7 @@ class LegendPie {
         var self = this;
 
         this.domElement = document.createElement("div");
+        this.title = document.getElementById("legendpietitle");
         element.appendChild(this.domElement);
         this.colorString = "ffffff";
     }
@@ -10,6 +11,7 @@ class LegendPie {
     generateHTML(labels) { //${labels.map(l => `<div>${l}</div>`)}
         return /*html*/`
         <div id="legendpie">
+            <div id="legendpietitle">Title</div>
             <table cellpadding="0" cellspacing="2" border="0">
             ${labels.map(label => `
                 <tr>
@@ -20,6 +22,10 @@ class LegendPie {
             </table>
         </div>
         `;
+    }
+
+    setTitle(title) {
+        this.title.textContent = title;
     }
 
     createEntries(labels) {
