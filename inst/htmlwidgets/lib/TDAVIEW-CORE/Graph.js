@@ -526,7 +526,7 @@ class Graph {
         for(let i=0; i<this.nodes.length; i++) {
             box.expandByPoint(this.nodes[i].getPosition()); //TODO something in model matrix is broken? expandByObject AND setFromObject don't work
         }
-        box.expandByScalar(100); //TODO fix hardcoded margin
+        box.expandByScalar(200); //TODO fix hardcoded margin
         return box;
     }
 
