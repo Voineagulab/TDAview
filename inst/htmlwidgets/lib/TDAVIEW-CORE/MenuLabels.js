@@ -30,7 +30,7 @@ class MenuLabels {
         </fieldset>
         <fieldset>
         <legend>Size</legend>
-            <input type="text" id="labelSize" value="1"><br>
+            <input type="text" id="labelSize" value="10"><br>
         </fieldset>
         `;
     }
