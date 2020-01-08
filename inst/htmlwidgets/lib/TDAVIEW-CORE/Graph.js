@@ -108,22 +108,20 @@ class Graph {
         };
 
         nodeSet.OnObjectDragStart = function(node) {
-            self.simulation.alphaTarget(0.7).restart();
             self.initiallizing = false;
             self.update();
         };
     
         nodeSet.OnObjectDrag = function(node, vector) {
-            node.fx = vector.x;
-            node.fy = vector.y;
-            self.setLabelPosition(node);
-            self._applySelectionPosition();
+            node.fixed = true;
+            node.px = vector.x;
+            node.py = vector.y;
+            self.simulation.resume();
             self.update();
         };
     
         nodeSet.OnObjectDragEnd = function(node) {
-            self.simulation.alphaTarget(0);
-            node.fx = node.fy = null;
+            node.fixed = false;
         };
 
         nodeSet.OnObjectSelect = function(node) {
@@ -165,10 +163,12 @@ class Graph {
         }
 
         //Initiallise simulation
-        this.simulation = d3.forceSimulation(nodes)
-            .force("link", d3.forceLink(links))
-            .force('center', d3.forceCenter())
-            .force("charge", d3.forceManyBody().strength(-10))
+        this.simulation = d3.layout.force()
+            .gravity(0.1)
+            .distance(30)
+            .charge(-300)
+            .nodes(nodes)
+            .links(links)
             .on("tick", function() {
                 self.forEachNode(n => self.setLabelPosition(n));
                 self._applyNodePositions();
@@ -196,6 +196,7 @@ class Graph {
             }
         }
 
+        this.simulation.start();
         window.requestAnimationFrame(animate);
         this.isEmpty = false;
     }
@@ -244,7 +245,7 @@ class Graph {
             this.nodes[i].x = pos[i].x;
             this.nodes[i].y = pos[i].y;
         }
-        self.simulation.alphaTarget(0).restart();
+        self.simulation.start();
     }
 
     /**
@@ -468,6 +469,15 @@ class Graph {
 
     setLinkGradientsFromNodes() {
         this.links.forEach(l => this.linkRenderer.setGradientFromNodes(l));
+    }
+
+    fillContext(ctx) {
+        this.linkRenderer.fillContext(ctx, this.camera);
+
+        //Write nodes to context
+        //Write labels to contex
+
+        //use matrix to convert to viewport coordinates, but should a4 portrait/landscape be default?
     }
 
     _render() {
