@@ -3,7 +3,6 @@ class LegendPie {
         var self = this;
 
         this.domElement = document.createElement("div");
-        this.title = document.getElementById("legendpietitle");
         element.appendChild(this.domElement);
         this.colorString = "ffffff";
     }
@@ -25,7 +24,7 @@ class LegendPie {
     }
 
     setTitle(title) {
-        this.title.textContent = title;
+        document.getElementById("legendpietitle").textContent = title;
     }
 
     createEntries(labels) {
