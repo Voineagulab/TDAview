@@ -81,33 +81,12 @@ class MenuLoad {
                 let or = new FileReader();
                 or.onload = function(ore) {
                     let mapperObject = JSON.parse(ore.target.result);
-
-                    let dr = new FileReader();
-                    dr.onload = function(dre) {
-                        let dataParsed = Papa.parse(dre.target.result.trim());
-
-                        if(dataParsed.meta.aborted)
-                            throw "Invalid data CSV";
-
-                        let dataArray = dataParsed.data;
-
-                        for(let i=1; i<dataArray.length; ++i) 
-                            if(dataArray[i].length != dataArray[0].length) 
-                                throw "Invalid data headers or column lengths";
-
-                        let headingsKey = {};
-                        dataArray.shift(); 
-                        for(let i=0; i<dataArray.length; ++i) {
-                            headingsKey[dataArray[i][0]] = i;
-                            dataArray[i].shift();
-                        }
-
+                    MatrixReader.ReadMatrixFromFile(dataFile, function(dataArray, headingsKey, conversionCount) {
                         self._ReadMetaAsync(metaFile, headingsKey, function(metaObject) {
                             self.OnMapperFileChange(mapperObject, metaObject, Object.keys(headingsKey));
                             self._SetLoadingFinished();
                         });
-                    }
-                    dr.readAsText(dataFile);
+                    });
                 }
                 or.readAsText(overrideFile);
             } else {
@@ -122,7 +101,7 @@ class MenuLoad {
                 }
 
                 self.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
-                self.myWorker.postMessage({dataFile: event.target[0].files[0], filterDim: filterdim.options[filterdim.selectedIndex].value, distFunc: distfunc.options[distfunc.selectedIndex].value});
+                self.myWorker.postMessage({dataFile: dataFile, filterDim: filterdim.options[filterdim.selectedIndex].value, distFunc: distfunc.options[distfunc.selectedIndex].value});
                 self.myWorker.onmessage = function(e){
                     if(e.data.warning) {
                         console.warn(e.data.warning);
@@ -134,11 +113,11 @@ class MenuLoad {
                     if(e.data.mapper) {
                         self.loadingBar.style.width = 0;
 
-                        if(!event.target[1].files[0]) {
+                        if(!metaFile) {
                             self.OnMapperFileChange(e.data.mapper, {}, Object.keys(e.data.headingsKey));
                             self._SetLoadingFinished();
                         } else {
-                            self._ReadMetaAsync(event.target[1].files[0], e.data.headingsKey, function(metaObject) {
+                            self._ReadMetaAsync(metaFile, e.data.headingsKey, function(metaObject) {
                                 self.OnMapperFileChange(e.data.mapper, metaObject, Object.keys(e.data.headingsKey));
                                 self._SetLoadingFinished();
                             });
