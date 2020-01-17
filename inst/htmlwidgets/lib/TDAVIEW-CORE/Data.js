@@ -53,14 +53,14 @@ class Data {
             }
             metadata.Intake[i] = Math.random();
             metadata.Condition[i] = condition_categories[Math.floor(Math.random() * (condition_categories.length-1))];
-            mapper.points_in_vertex[i] = {[("Sample_" + (i+1))]: (i+1)};
+            mapper.points_in_vertex[i] = {[("Sample_" + (i))]: (i)};
         }
 
         
         for(let i=mapper.num_vertices; i<num_points; i++) {
             metadata.Intake[i] = Math.random();
             metadata.Condition[i] = condition_categories[Math.round(Math.random() * (condition_categories.length-1))];
-            mapper.points_in_vertex[Math.round(Math.random() * (mapper.num_vertices-1)) ][("Sample_" + (i+1))] = (i+1);
+            mapper.points_in_vertex[Math.round(Math.random() * (mapper.num_vertices-1)) ][("Sample_" + (i))] = (i);
         }
 
         return new Data(mapper, metadata);
@@ -76,13 +76,6 @@ class Data {
         this.variable = new CachedVariable();
         this.mins = new ContinuousVariable();
         this.maxs = new ContinuousVariable();
-        
-        //Convert indices to zero based
-        for(let i=0; i<mapper.num_vertices; i++) {
-            Object.keys(mapper.points_in_vertex[i]).forEach(function(key) {
-                mapper.points_in_vertex[i][key] -= 1;
-            });
-        }
 
         //Create bins for each node
         this.bins = new Array(mapper.num_vertices);
@@ -143,7 +136,7 @@ class Data {
             if(this.variable.getIsCategorical()) {
                 this.variable.getCategorical().setFromEntries(this.metadata[name]);
                 for(let i=0; i<this.bins.length; i++) {
-                    let entries = this.bins[i].getPoints().map(value => this.metadata[name][value]);
+                    let entries = this.bins[i].getPoints().map(value => this.metadata[name][value-1]);
                     this.bins[i].getCategorical().setFromEntries(entries);
                 }
             } else {
@@ -152,7 +145,7 @@ class Data {
                 this.maxs.setProperties(-Infinity, -Infinity, -Infinity, -Infinity);
                 for(let i=0; i<this.bins.length; i++) {
                     let localVariable = this.bins[i].getContinuous();
-                    localVariable.setFromEntries(this.bins[i].getPoints().map(value => this.metadata[name][value]));
+                    localVariable.setFromEntries(this.bins[i].getPoints().map(value => this.metadata[name][value-1]));
                     this.mins.transformProperties(localVariable, Math.min);
                     this.maxs.transformProperties(localVariable, Math.max);
                 }
