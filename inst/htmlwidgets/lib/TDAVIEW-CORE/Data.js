@@ -69,7 +69,7 @@ class Data {
     constructor(mapper, metadata, rowNames) {
         this.rowNames = rowNames;
         this.metadata = metadata;
-        this.adjacency = mapper.adjacency;
+        this.mapper = mapper;
         this.maxBinPoints = Utility.Max(mapper.points_in_vertex.map(obj => Object.keys(obj).length));
 
         this.name = undefined;
@@ -121,7 +121,11 @@ class Data {
     }
 
     getAdjacency() {
-        return this.adjacency;
+        return this.mapper.adjacency;
+    }
+
+    getMapper() {
+        return this.mapper;
     }
 
     getBins() {

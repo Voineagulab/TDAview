@@ -221,25 +221,43 @@ class tdaview {
             self.graph.update();
         }
 
-        function saveAs(uri, filename) {
-            var link = document.createElement('a');
-            if (typeof link.download === 'string') {
-                link.href = uri;
-                link.download = filename;
-                document.body.appendChild(link); //Firefox requires the link to be in the body
-                link.click();
-                document.body.removeChild(link); //remove the link when done
+        function saveAs(blob, filename) {
+            if (window.navigator.msSaveOrOpenBlob) {
+              window.navigator.msSaveOrOpenBlob(blob, filename);
             } else {
-                window.open(uri);
+              const a = document.createElement('a');
+              document.body.appendChild(a);
+              const url = window.URL.createObjectURL(blob);
+              a.href = url;
+              a.download = filename;
+              a.click();
+              setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+              }, 0)
             }
-        }
+          }
 
         sidebar.menuSave.OnExportGraph = function(value) {
-            html2canvas(self.graph.domElement).then(function(canvas) {
-                    var imgtype = value.toLowerCase();
-                    saveAs(canvas.toDataURL("image/" + imgtype.toLowerCase()), "graph." + imgtype);
+            if(value == "PDF") {
+                var doc = new jsPDF({
+                    orientation: self.graph.width < self.graph.height ? 'portrait' : 'landscape',
+                    unit: 'px',
+                    format: [self.graph.width, self.graph.height] //should actually use viewport width/height
+                  });
+
+                self.graph.fillContext(doc);
+                doc.save('graph.pdf')
+                  
+            } else {
+                var imgtype = value.toLowerCase();
+                html2canvas(self.graph.domElement).then(function(canvas) {
+                    canvas.toBlob(function(blob){
+                        saveAs(blob.slice(0, blob.size, "image/" + imgtype.toLowerCase()), "graph." + imgtype);
+                    }); 
                 }
             );
+            }
         };
 
         sidebar.OnZoom = function(value) {
@@ -252,7 +270,7 @@ class tdaview {
         self.graph.OnNodeSelect = function(node) {
             var names =  self.data.getPointNames(node.userData);
             dataname = "Node " + node.id;
-            datauri = "data:text/csv;charset=utf-8," + encodeURI(dataname + "\r\n" + names.join('\r\n'));
+            datauri = dataname + "\r\n" + names.join('\r\n');
             sidebar.menuSelect.Open(dataname + " (" + names.length + " rows)", names);
         };
 
@@ -261,7 +279,7 @@ class tdaview {
             let i2 = self.data.getPointNames(link.target.userData);
             let names = i1.filter(i => i2.includes(i));
             dataname = "Link " + link.link_id;
-            datauri = "data:text/csv;charset=utf-8," + encodeURI(dataname + "\r\n" + names.join('\r\n'));
+            datauri = dataname + "\r\n" + names.join('\r\n');
             sidebar.menuSelect.Open(dataname + " (" + names.length + " rows)", names);
         }
 
@@ -270,13 +288,16 @@ class tdaview {
         };
 
         sidebar.menuSelect.OnExportData = function() {
-            saveAs(datauri, dataname + ".csv" )
+            saveAs(new Blob(['\ufeff' + datauri], {type: 'text/csv;charset=utf-8'}), dataname + ".csv");
         }
 
         sidebar.menuSave.OnSettingsExport = function() {
-            let uri = "data:text/json;charset=utf-8," + encodeURI(JSON.stringify(self.getSettings(), null, 2));
-            saveAs(uri, "settings.json");
+            saveAs(new Blob([JSON.stringify(self.getSettings(), null, 2)], {type: "application/octet-stream"}), "settings.json");
 
+        }
+
+        sidebar.menuSave.OnMapperExport = function() {
+            saveAs(new Blob([JSON.stringify(self.data.getMapper(), null, 2)], {type: "application/octet-stream"}), "mapper.json");
         }
 
         sidebar.menuLoad.OnSettingsFileChange = function(settingsObj) {
@@ -286,7 +307,6 @@ class tdaview {
         this.sidebar = sidebar;
 
         sidebar.menuLoad.OnMapperFileChange = function(mapperObj, metaObj, rowNames) {
-            console.log(rowNames);
             //Save settings
             var settingsObj = self.getSettings();
 
@@ -299,8 +319,9 @@ class tdaview {
 
             var links = [];
             self.maxDegree = -1;
-            for(let i=0, curr=0; i<self.data.adjacency.length; i++) {
-                let row = self.data.adjacency[i];
+            let adjacency = self.data.getAdjacency();
+            for(let i=0, curr=0; i<adjacency.length; i++) {
+                let row = adjacency[i];
                 for(let j=0; j<i; j++) {
                     if(row[j]) {
                         links.push(new LinkInstance(curr++, nodes[i], nodes[j]));
@@ -326,14 +347,6 @@ class tdaview {
 
     resize() {
         this.graph.resize();
-    }
-    
-    setMapper(obj) {
-
-    }
-
-    getMapper() {
-
     }
 
     setSettings(obj) {

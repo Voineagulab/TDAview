@@ -10,8 +10,9 @@ class MenuSave {
     generateHTML() {
         return /*html*/`
         <fieldset>
-        <legend>Settings</legend>
-            <input type="button" class="myButton" id="settingsexport" value="Export Settings">
+        <legend>Editor</legend>
+            <input type="button" class="myButton" id="settingsexport" value="Export Settings"><br><br>
+            <input type="button" class="myButton" id="mapperexport" value="Export Mapper">
         </fieldset>
 
         <fieldset>
@@ -23,7 +24,7 @@ class MenuSave {
             <select id="formatDropdown">
                     <option value="png">PNG</option>
                     <option value="jpg">JPG</option>
-                    <option value="pdf" disabled>PDF</option>
+                    <option value="pdf">PDF</option>
             </select>
             <br><br>
             <input type="button" class="myButton" id="graphexport" value="Export Graph">
@@ -46,6 +47,10 @@ class MenuSave {
 
         document.getElementById("settingsexport").onclick = function() {
             self.OnSettingsExport();
+        }
+
+        document.getElementById("mapperexport").onclick = function() {
+            self.OnMapperExport();
         }
     }
 
@@ -75,4 +80,6 @@ class MenuSave {
     OnExportGraph(format) {}
 
     OnSettingsExport() {}
+
+    OnMapperExport() {}
 }
