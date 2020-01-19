@@ -8,10 +8,12 @@ class NodeRenderer extends THREE.Group {
         this.slices = Math.min(maxAttributes-4, 2*maxVaryings-1);
         this.instance_count = count;
 
+        this.colormap = colormap;
+
         this.material = new THREE.RawShaderMaterial({
             uniforms: {
                 nodeZoom: {value: 1.0},
-                nodeTex: {value: colormap.getTexture() },
+                nodeTex: {value: this.colormap.getTexture() },
             },
             vertexShader: /*glsl*/`
                 precision highp float;
@@ -85,7 +87,7 @@ class NodeRenderer extends THREE.Group {
 
         //Create paired attributes for pie slice run-length encoding
         for(let i=0; i<this.slices; i++) {
-            let runVectors = new Float32Array(2 * this.instance_count).fill(Infinity);
+            let runVectors = new Float32Array(2 * this.instance_count).fill(1.0);
             geometry.addAttribute("run" + i, new THREE.BufferAttribute(runVectors, 2));
         }
 
@@ -120,10 +122,10 @@ class NodeRenderer extends THREE.Group {
         array[2 * node.id + 1] = node.color;
     }
 
-    setPieBuffer(node, percentages, colors) {
+    setPieBuffer(node, percentages, colors) { 
         if(percentages.length <= this.slices) {
             for(let i=0, totalPercent=0; i<percentages.length; i++) {
-                var array = this.mesh.geometry.attributes["run" + i].array;
+                let array = this.mesh.geometry.attributes["run" + i].array;
                 totalPercent += percentages[i];
                 array[2 * node.id + 0] = totalPercent;
                 array[2 * node.id + 1] = colors[i];
@@ -151,6 +153,41 @@ class NodeRenderer extends THREE.Group {
 
     setPixelZoom(value) {
         this.material.uniforms.nodeZoom.value = value;
+    }
+
+    fillContext(ctx) {
+        let scales = this.mesh.geometry.attributes.scale.array;
+        let offsets = this.mesh.geometry.attributes.position.array;
+
+        for(let i=0; i<this.instance_count; ++i) {
+            let prev = undefined;
+            for(let j=0; j<this.slices; ++j) {
+                let array = this.mesh.geometry.attributes["run" + j].array;
+
+                let startPercent = prev ? prev[2 * i + 0] : 0;
+                let endPercent = array[2 * i + 0];
+
+                prev = array;
+
+                if(endPercent > 1.0 || startPercent == endPercent) continue;
+
+                let color = array[2 * i + 1];
+                let offsetX = offsets[2 * i + 0];
+                let offsetY = offsets[2 * i + 1];
+                let scale = scales[i];
+                let startAngle = startPercent*2*Math.PI - 0.5*Math.PI;
+                let endAngle = endPercent*2*Math.PI - 0.5*Math.PI;
+
+                ctx.beginPath();
+                ctx.moveTo(offsetX, offsetY);
+                ctx.fillStyle = "#" + this.colormap.getColor(color).getHexString().toUpperCase();
+                ctx.arc(offsetX, offsetY, scale, startAngle, endAngle, false);
+                ctx.closePath();
+                ctx.fill();
+                
+                if(endPercent >= 1.0) break;
+            }
+        }
     }
 }
 

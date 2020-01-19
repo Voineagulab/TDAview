@@ -472,12 +472,10 @@ class Graph {
     }
 
     fillContext(ctx) {
-        this.linkRenderer.fillContext(ctx, this.camera);
-
-        //Write nodes to context
+        this.linkRenderer.fillContext(ctx);
+        this.nodeRenderer.fillContext(ctx);
+        
         //Write labels to contex
-
-        //use matrix to convert to viewport coordinates, but should a4 portrait/landscape be default?
     }
 
     _render() {

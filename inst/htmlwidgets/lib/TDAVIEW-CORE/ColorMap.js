@@ -14,13 +14,33 @@ class ColorMap {
     }
 
     setColor(color) {
+        this.steps = undefined;
+        this.color = color;
         for(let j=0; j<this.n; j++) {
             this._SetColorSingle(color, j);
         }
         this._UpdateMap();
     }
 
+    getColor(percentage) { //this is more accurate than pixel interpolation
+        if(this.color) {
+            return this.color;
+        } else {
+            var ret = new THREE.Color();
+            for(let i=0; i<this.steps.length-1; ++i) {
+                if(percentage > this.steps[i].percentage) {
+                    ret.copy(this.steps[i].color);
+                    ret.lerp(this.steps[i+1].color, (percentage - this.steps[i].percentage)/(this.steps[i+1].percentage - this.steps[i].percentage))
+                    return ret;
+                }
+            }
+            return this.steps[this.steps.length-1].color;
+        }
+    }
+
     setGradient(steps) {
+        this.steps = steps;
+        this.color = undefined;
         let j=0;
         let i=0;
 
@@ -36,7 +56,7 @@ class ColorMap {
         for(; i<steps.length-1; i++) {
             for(; j<steps[i+1].percentage * this.n; j++) {
                 temp.copy(steps[i].color);
-                temp.lerp(steps[i+1].color, (j/this.n - steps[i].percentage)/(steps[i+1].percentage - steps[i].percentage))
+                temp.lerp(steps[i+1].color, (j/this.n - steps[i].percentage)/(steps[i+1].percentage - steps[i].percentage));
 
                 this._SetColorSingle(temp, j);
             }
