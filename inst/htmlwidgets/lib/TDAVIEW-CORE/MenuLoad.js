@@ -33,7 +33,9 @@ class MenuLoad {
                     <br><br>
                     <font size="2">Filter Function</font><br>
                     <select id="filterfunc">
-                        <option value="PCA">PCA</option>
+                        <option value="PCAEV1">PCA EV 1</option>
+                        <option value="PCAEV2">PCA EV 2</option>
+                        <option value="PCAEV1,2">PCA EV 1,2</option>
                     </select>
                     <br><br>
                     <font size="2">Override</font><br>
@@ -65,6 +67,14 @@ class MenuLoad {
 
         var filterdim = document.getElementById("filterdim");
         var distfunc = document.getElementById("distfunc");
+
+        const filterfuncpartitionindex = 2;
+        var filterfunc = document.getElementById("filterfunc");
+
+        self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
+        filterdim.onchange = function() {
+            self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
+        };
 
         document.getElementById("mapperForm").addEventListener('submit', function(event) {
             event.preventDefault();
@@ -101,7 +111,7 @@ class MenuLoad {
                 }
 
                 self.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
-                self.myWorker.postMessage({dataFile: dataFile, filterDim: filterdim.options[filterdim.selectedIndex].value, distFunc: distfunc.options[distfunc.selectedIndex].value});
+                self.myWorker.postMessage({dataFile: dataFile, filterDim: filterdim.options[filterdim.selectedIndex].value, distFunc: distfunc.options[distfunc.selectedIndex].value, filterFunc: filterfunc.options[filterfunc.selectedIndex].value});
                 self.myWorker.onmessage = function(e){
                     if(e.data.warning) {
                         console.warn(e.data.warning);
@@ -131,6 +141,22 @@ class MenuLoad {
                 };
             }
         });
+    }
+
+    _UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex){
+        if(filterdim.options[filterdim.selectedIndex].value == 1) {
+            for(let i=0; i<filterfunc.options.length; ++i) {
+                filterfunc.options[i].disabled = (i>=filterfuncpartitionindex);
+                filterfunc.options[i].hidden = (i>=filterfuncpartitionindex);
+            }
+            filterfunc.selectedIndex = 0;
+        } else {
+            for(let i=0; i<filterfunc.options.length; ++i) {
+                filterfunc.options[i].disabled = (i<filterfuncpartitionindex);
+                filterfunc.options[i].hidden = (i<filterfuncpartitionindex);
+            }
+            filterfunc.selectedIndex = filterfuncpartitionindex;
+        }
     }
 
     _SetLoadingProgress(value) {
