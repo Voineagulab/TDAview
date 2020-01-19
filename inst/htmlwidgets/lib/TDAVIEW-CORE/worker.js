@@ -64,17 +64,26 @@ this.onmessage = function(e) {
 
         let pca = new ML.PCA(matrix, {method: "SVD"});
         let mapperObj = undefined;
+        let filter = undefined;
 
         if(e.data.filterDim == 1) {
-            let filter = pca.getEigenvectors().getRow(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
+            if(e.data.filterFunc == "PCAEV1") {
+                filter = pca.getEigenvectors().getRow(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
+            } else if(e.data.filterFunc == "PCAEV2") {
+                filter = pca.getEigenvectors().getRow(1);
+            } else {
+                throw "Unknown filter function";
+            }
             mapperObj = mapper1D(dist, filter, 50, 50, 20);
         } else {
-            let filter = [pca.getEigenvectors().getRow(0), pca.getEigenvectors().getRow(1)];
+            if(e.data.filterFunc == "PCAEV1,2") {
+                filter = [pca.getEigenvectors().getRow(0), pca.getEigenvectors().getRow(1)];
+            } else {
+                throw "Unknown filter function";
+            }
             mapperObj = mapper2D(dist, filter, [50,50], 50, 20);   
         }
-
         self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey, warning: warning});
-
     });
 }
 }
