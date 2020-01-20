@@ -197,6 +197,36 @@ class MenuLoad {
         reader.readAsText(file);
     }
 
+    _ReadMetaAsyncTranspose(file, headingsKey, callback) {
+        var reader = new FileReader();
+        reader.onload = function(m) {
+            let dataCSV = m.target.result.trim();
+            let dataParsed = Papa.parse(dataCSV);
+            if(dataParsed.meta.aborted) {
+                throw "Invalid metadata CSV";
+            }
+            let metaArray = dataParsed.data;
+            for(let i=1; i<metaArray.length; ++i) {
+                if(metaArray[i].length != metaArray[0].length) {
+                    throw "Invalid metadata headers or column lengths";
+                }
+            }
+
+            //Get meta object
+            let metaObj = {};
+            for(let i=1; i<metaArray.length; ++i) {
+                //Match indices
+                let matched = new Array(metaArray[0].length-1);
+                for(let j=1; j<=matched.length; ++j) {
+                    matched[headingsKey[metaArray[0][j]]] = metaArray[i][j];
+                }
+                metaObj[metaArray[i][0]] = matched;
+            }
+            callback(metaObj);
+        }
+        reader.readAsText(file);
+    }
+
     OnMapperFileChange(mapperObject, metaObject, rownames) {}
 
     OnSettingsFileChange(settingsObj) {}
