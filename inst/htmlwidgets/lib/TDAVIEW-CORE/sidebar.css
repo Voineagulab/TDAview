@@ -32,6 +32,7 @@
     background-color: red;
     top: 0px;
     position: fixed;
+    z-index: 999999;
 }
 
 input[type="range"].vranger {
