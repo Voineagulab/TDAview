@@ -178,9 +178,8 @@ class NodeRenderer extends THREE.Group {
                 let startAngle = startPercent*2*Math.PI - 0.5*Math.PI;
                 let endAngle = endPercent*2*Math.PI - 0.5*Math.PI;
 
-                ctx.beginPath();
                 ctx.moveTo(offsetX, offsetY);
-                ctx.fillStyle = "#" + this.colormap.getColor(color).getHexString().toUpperCase();
+                ctx.fillColor("#" + this.colormap.getColor(color).getHexString().toUpperCase());
                 ctx.arc(offsetX, offsetY, scale, startAngle, endAngle, false);
                 ctx.closePath();
                 ctx.fill();

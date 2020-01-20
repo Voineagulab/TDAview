@@ -22,6 +22,7 @@ class ColorMap {
         this._UpdateMap();
     }
 
+    //TODO fix for > 2 steps
     getColor(percentage) { //this is more accurate than pixel interpolation
         if(this.color) {
             return this.color;
@@ -29,6 +30,8 @@ class ColorMap {
             var ret = new THREE.Color();
             for(let i=0; i<this.steps.length-1; ++i) {
                 if(percentage > this.steps[i].percentage) {
+                    if(this.steps[i].percentage > this.steps[i+1].percentage) continue; 
+
                     ret.copy(this.steps[i].color);
                     ret.lerp(this.steps[i+1].color, (percentage - this.steps[i].percentage)/(this.steps[i+1].percentage - this.steps[i].percentage))
                     return ret;

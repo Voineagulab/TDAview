@@ -242,27 +242,27 @@ class tdaview {
             if(value == "pdf") {
                 let size = self.graph._getBoundingBox().getSize(); //width, height, depth
 
-                //JSPDF
-                var doc = new jsPDF({
-                    orientation: 'landscape',
-                    unit: 'px',
-                    format: [size.x, size.y],
-                });
+                const doc = new PDFDocument({size: [size.x, size.y]});
+                const stream = doc.pipe(blobStream());
+
+                //Background color (easier to apply before viewport transformations)
+                doc.rect(0, 0, size.x, size.y);
+                doc.fillColor('#' + backgroundColor.getHexString().toUpperCase());
+                doc.fill();
 
                 /*
                 Examples
                 scale: new Matrix(scaleX, 0, 0, scaleY, 0, 0),
                 translate: new Matrix(1, 0, 0, 1, e, f),
                 */
-                doc.context2d.transform(1, 0, 0, -1, size.x/2, size.y/2);
+                doc.transform(1, 0, 0, -1, size.x/2, size.y/2);
 
-                self.graph.fillContext(doc.context2d);
+                self.graph.fillContext(doc);
 
-                //doc.html(legendBar, 10, 10, {'width': 180});
-                /*doc.addHTML(legendBar.domElement, 0, 0, {}, function() {
-                    doc.save('graph.pdf');
-                });*/
-                doc.save('graph.pdf');
+                doc.end();
+                stream.on('finish', function() {
+                    saveAs(stream.toBlob('application/pdf'), "graph.pdf");
+                });
                 
             } else {
                 html2canvas(self.graph.domElement).then(function(canvas) {
