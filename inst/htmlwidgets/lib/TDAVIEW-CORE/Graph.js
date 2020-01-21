@@ -482,7 +482,7 @@ class Graph {
           ctx.fontSize(this.fontSize);
           ctx.fillColor("black");
           for(let i=0; i<this.labels.length; ++i) {
-            ctx.text(this.labels[i].element.textContent, this.labels[i].position.x, -this.labels[i].position.y, {align: 'center'});
+            ctx.text(this.labels[i].element.textContent, this.labels[i].position.x, -this.labels[i].position.y);
           }
         }
     }
