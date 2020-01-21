@@ -261,9 +261,9 @@ class tdaview {
                 doc.save();
                 doc.scale(1, size.y / self.graph.height);
 
-                doc.fillColor("blue");
-                doc.rect(0, 0, 10, 10);
-                doc.fill();
+                //doc.fillColor("blue");
+                //doc.rect(0, 0, 10, 10);
+                //doc.fill();
 
                 legendBar.fillContext(doc);
                 legendPie.fillContext(doc);
