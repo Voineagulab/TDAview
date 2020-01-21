@@ -13,30 +13,34 @@ class MatrixReader {
         }
     }
 
+    //Thing to match is first row of each column
     static ReadMatrixFromString(dataCSV, callback) {
         let dataParsed = Papa.parse(dataCSV);
-    
+
         if(dataParsed.meta.aborted) {
             throw "Invalid data CSV";
         }
-    
+
         //Note: every array entry is a line therefore dataArray.length == row count
         var dataArray = dataParsed.data;
-        
+
         for(let i=1; i<dataArray.length; ++i) {
             if(dataArray[i].length != dataArray[0].length) {
                 throw "Invalid data headers or column lengths";
             }
         }
-    
+
         //Remove headings
         var headingsKey = {};
-        dataArray.shift(); 
-        for(let i=0; i<dataArray.length; ++i) {
-            headingsKey[dataArray[i][0]] = i;
-            dataArray[i].shift();
+        for(let i=1; i<dataArray[0].length; ++i) {
+            headingsKey[dataArray[0][i]] = i-1;
         }
-    
+        dataArray.shift();
+
+        for(let i=0; i<dataArray.length; ++i) {
+          dataArray[i].shift();
+        }
+
         let conversionCount = 0;
         for(let i=0; i<dataArray.length; ++i) {
             for(let j=0; j<dataArray[0].length; ++j) {
@@ -46,7 +50,8 @@ class MatrixReader {
                 }
             }
         }
-    
+        console.log(dataArray);
+        console.log(headingsKey);
         callback(dataArray, headingsKey, conversionCount);
     }
 }

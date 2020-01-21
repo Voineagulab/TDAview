@@ -253,7 +253,6 @@ class tdaview {
                 //Viewport transformation, draws nodes links and labels
                 doc.save();
                 doc.translate(size.x/2, size.y/2);
-                //doc.scale(1, -1);
                 self.graph.fillContext(doc);
                 doc.restore();
 

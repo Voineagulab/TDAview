@@ -52,7 +52,7 @@ class MenuLoad {
         </fieldset>
         `;
     }
-    
+
     _init() {
         var self = this;
 
@@ -62,7 +62,7 @@ class MenuLoad {
                 let settingsObj = JSON.parse(e.target.result);
                 self.OnSettingsFileChange(settingsObj);
             }
-            reader.readAsText(this.files[0]);    
+            reader.readAsText(this.files[0]);
         }
 
         var filterdim = document.getElementById("filterdim");
@@ -167,6 +167,7 @@ class MenuLoad {
         this.loadingBar.style.width = 0;
     }
 
+    //Thing to match is first column of each row
     _ReadMetaAsync(file, headingsKey, callback) {
         var reader = new FileReader();
         reader.onload = function(m) {
@@ -182,6 +183,8 @@ class MenuLoad {
                 }
             }
 
+            console.log(metaArray);
+
             //Get meta object
             let metaObj = {};
             for(let i=1; i<metaArray[0].length; ++i) {
@@ -191,36 +194,6 @@ class MenuLoad {
                     matched[headingsKey[metaArray[j][0]]] = metaArray[j][i];
                 }
                 metaObj[metaArray[0][i]] = matched;
-            }
-            callback(metaObj);
-        }
-        reader.readAsText(file);
-    }
-
-    _ReadMetaAsyncTranspose(file, headingsKey, callback) {
-        var reader = new FileReader();
-        reader.onload = function(m) {
-            let dataCSV = m.target.result.trim();
-            let dataParsed = Papa.parse(dataCSV);
-            if(dataParsed.meta.aborted) {
-                throw "Invalid metadata CSV";
-            }
-            let metaArray = dataParsed.data;
-            for(let i=1; i<metaArray.length; ++i) {
-                if(metaArray[i].length != metaArray[0].length) {
-                    throw "Invalid metadata headers or column lengths";
-                }
-            }
-
-            //Get meta object
-            let metaObj = {};
-            for(let i=1; i<metaArray.length; ++i) {
-                //Match indices
-                let matched = new Array(metaArray[0].length-1);
-                for(let j=1; j<=matched.length; ++j) {
-                    matched[headingsKey[metaArray[0][j]]] = metaArray[i][j];
-                }
-                metaObj[metaArray[i][0]] = matched;
             }
             callback(metaObj);
         }
