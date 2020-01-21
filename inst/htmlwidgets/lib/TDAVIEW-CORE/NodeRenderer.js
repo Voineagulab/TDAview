@@ -45,7 +45,7 @@ class NodeRenderer extends THREE.Group {
                 #define M_PI 3.14159265358979
 
                 uniform sampler2D nodeTex;
-            
+
                 varying vec2 vPosition;
                 ${Array.from({ length: this.slices }, (_, i) => "varying vec2 vRun" + i + ";").join('')}
 
@@ -122,7 +122,7 @@ class NodeRenderer extends THREE.Group {
         array[2 * node.id + 1] = node.color;
     }
 
-    setPieBuffer(node, percentages, colors) { 
+    setPieBuffer(node, percentages, colors) {
         if(percentages.length <= this.slices) {
             for(let i=0, totalPercent=0; i<percentages.length; i++) {
                 let array = this.mesh.geometry.attributes["run" + i].array;
@@ -173,7 +173,7 @@ class NodeRenderer extends THREE.Group {
 
                 let color = array[2 * i + 1];
                 let offsetX = offsets[2 * i + 0];
-                let offsetY = offsets[2 * i + 1];
+                let offsetY = -offsets[2 * i + 1];
                 let scale = scales[i];
                 let startAngle = startPercent*2*Math.PI - 0.5*Math.PI;
                 let endAngle = endPercent*2*Math.PI - 0.5*Math.PI;
@@ -183,7 +183,7 @@ class NodeRenderer extends THREE.Group {
                 ctx.arc(offsetX, offsetY, scale, startAngle, endAngle, false);
                 ctx.closePath();
                 ctx.fill();
-                
+
                 if(endPercent >= 1.0) break;
             }
         }
@@ -241,12 +241,12 @@ class NodeInstance {
         let r = this.width;
 
         //Check if inside bounding box;
-        if(position.x >= targ.x - r && 
-            position.x <= targ.x + r && 
-            position.y >= targ.y - r && 
+        if(position.x >= targ.x - r &&
+            position.x <= targ.x + r &&
+            position.y >= targ.y - r &&
             position.y <= targ.y + r) {
             //Check if inside circle
-            
+
             if(Math.pow(position.x - targ.x, 2) + Math.pow(position.y - targ.y, 2) <= r*r) {
                 return true;
             }

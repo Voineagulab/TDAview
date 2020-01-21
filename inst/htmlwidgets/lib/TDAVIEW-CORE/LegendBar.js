@@ -5,7 +5,7 @@ class LegendBar {
         this.domElement = document.createElement("div");
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
-        
+
         this.minLabel = document.getElementById("legendbarmin");
         this.maxLabel = document.getElementById("legendbarmax");
         this.title = document.getElementById("legendbartitle");
@@ -21,6 +21,16 @@ class LegendBar {
             <div id ="legendbarmax" class="legendbarlabel unselectable">max</div>
         </div>
         `;
+    }
+
+    fillContext(ctx) {
+      if(!this.visible) return;
+
+      let rect = this.bar.getBoundingClientRect();
+      console.log(rect);
+      ctx.fillColor(this.bar.style.color.toUpperCase());
+      ctx.rect(rect.left, rect.bottom, rect.width, rect.height);
+      ctx.fill();
     }
 
     setTitle(title) {

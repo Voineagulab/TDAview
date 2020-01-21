@@ -23,6 +23,10 @@ class LegendPie {
         `;
     }
 
+    fillContext(ctx) {
+      
+    }
+
     setTitle(title) {
         document.getElementById("legendpietitle").textContent = title;
     }

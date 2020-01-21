@@ -1,4 +1,4 @@
-class tdaview { 
+class tdaview {
     constructor(element) {/*, distance, filtration, dataArrays, metaArrays) {*/
         var self = this;
 
@@ -26,7 +26,7 @@ class tdaview {
             }
             return outColor;
         }
-        
+
         var nodeMap = new ColorMap();
         var edgeMap = new ColorMap(1);
 
@@ -92,7 +92,7 @@ class tdaview {
             legendBar.setTitle(value);
             legendBar.setVisibility(true);
         };
-        
+
         //TODO this is now correct (colors=[0.2, 0.4, 0.6, 0.8] for 4 categories - steps[x].percentage and hence the underlyig texture is slightly wrong
         sidebar.menuNodes.OnNodeColorCategorical = function(value) {
             self.data.loadVariable(value);
@@ -163,7 +163,7 @@ class tdaview {
             self.graph.updateLinkColors();
             self.graph.update();
         };
-        
+
         sidebar.menuEdges.OnEdgeColorFromNodes = function() {
             self.graph.setLinkColorMap(nodeMap);
             self.graph.applyLinkPositions();
@@ -183,14 +183,14 @@ class tdaview {
         sidebar.menuLabels.OnLabelSizeChange = function(value) {
             self.graph.setFontScale(value);
         };
-        
+
         sidebar.menuLabels.OnLabelColorFromBackground = function() {
             isLabelFromBackground = true;
             let colString = getHighContrastColor(backgroundColor, tempColor).getHexString();
             self.graph.setLabelColors(colString);
             self.graph.setSelectColor(colString);
         };
-        
+
         sidebar.menuLabels.OnLabelColorUniform = function() {
             isLabelFromBackground = false;
         };
@@ -207,7 +207,7 @@ class tdaview {
         sidebar.menuLabels.OnLabelTextNone = function() {
             self.graph.setLabelVisibilities(false);
         };
-        
+
         sidebar.menuSave.OnBackgroundColorChange = function(value) {
             backgroundColor.set("#" + value);
             self.graph.setBackgroundColor(backgroundColor);
@@ -245,30 +245,41 @@ class tdaview {
                 const doc = new PDFDocument({size: [size.x, size.y]});
                 const stream = doc.pipe(blobStream());
 
-                //Background color (easier to apply before viewport transformations)
+                //Background color
                 doc.rect(0, 0, size.x, size.y);
                 doc.fillColor('#' + backgroundColor.getHexString().toUpperCase());
                 doc.fill();
 
-                /*
-                Examples
-                scale: new Matrix(scaleX, 0, 0, scaleY, 0, 0),
-                translate: new Matrix(1, 0, 0, 1, e, f),
-                */
-                doc.transform(1, 0, 0, -1, size.x/2, size.y/2);
-
+                //Viewport transformation, draws nodes links and labels
+                doc.save();
+                doc.translate(size.x/2, size.y/2);
+                //doc.scale(1, -1);
                 self.graph.fillContext(doc);
+                doc.restore();
 
+                //Canvas transformation, draws legends
+                doc.save();
+                doc.scale(1, size.y / self.graph.height);
+
+                doc.fillColor("blue");
+                doc.rect(0, 0, 10, 10);
+                doc.fill();
+
+                legendBar.fillContext(doc);
+                legendPie.fillContext(doc);
+                doc.restore();
+
+                //Download result
                 doc.end();
                 stream.on('finish', function() {
                     saveAs(stream.toBlob('application/pdf'), "graph.pdf");
                 });
-                
+
             } else {
                 html2canvas(self.graph.domElement).then(function(canvas) {
                     canvas.toBlob(function(blob){
                         saveAs(blob.slice(0, blob.size, "image/" + value), "graph." + value);
-                    }); 
+                    });
                 }
             );
             }
@@ -357,7 +368,7 @@ class tdaview {
             self.setSettings(settingsObj);
             self.sidebar.setSubmenusEnabled(true);
         }
-    }   
+    }
 
     resize() {
         this.graph.resize();

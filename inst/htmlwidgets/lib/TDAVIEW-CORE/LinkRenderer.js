@@ -11,27 +11,27 @@ class LinkRenderer extends THREE.Group {
             },
             vertexShader: /*glsl*/`
                 precision highp float;
-                
+
                 uniform mat4 modelViewMatrix;
                 uniform mat4 projectionMatrix;
                 uniform sampler2D linkTex;
                 uniform float linkAlpha;
                 uniform vec3 backgroundColor;
-                
+
                 attribute vec2 position;
                 attribute float u;
 
                 varying vec4 vColor;
-                
+
                 void main() {
                     vColor = vec4( mix( backgroundColor, texture2D( linkTex, vec2 ( u , 1.0) ).xyz, linkAlpha), 1.0);
                     gl_Position = projectionMatrix * modelViewMatrix * vec4 ( position, -2.0, 1.0 );
                 }`,
             fragmentShader: /*glsl*/`
                 precision highp float;
-                
+
                 varying vec4 vColor;
-                
+
                 void main() {
                    gl_FragColor = vColor;
                 }`,
@@ -59,7 +59,7 @@ class LinkRenderer extends THREE.Group {
 
         geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), Infinity);
         geometry.boundingBox = new THREE.Box3(new THREE.Vector3(-0.5, -0.5, 0), new THREE.Vector3(0.5, 0.5, 0));
-        
+
         this.mesh = new THREE.Mesh(geometry, this.material);
         this.add(this.mesh);
     }
@@ -103,7 +103,7 @@ class LinkRenderer extends THREE.Group {
     }
 
     setPositionFromNodes(link) {
-        //Calculate four positions on circumferences perpendicular to link direction 
+        //Calculate four positions on circumferences perpendicular to link direction
         var sourcePos = new THREE.Vector3(link.source.x, link.source.y, 0);
         var targetPos = new THREE.Vector3(link.target.x, link.target.y, 0);
         var cross = new THREE.Vector2(-(targetPos.y - sourcePos.y), targetPos.x - sourcePos.x).normalize();
@@ -111,7 +111,7 @@ class LinkRenderer extends THREE.Group {
         var p1 = cross.clone().multiplyScalar(link.source.getRadius() * -this.width).add(sourcePos);
         var p2 = cross.clone().multiplyScalar(link.target.getRadius() * -this.width).add(targetPos);
         var p3 = cross.clone().multiplyScalar(link.target.getRadius() * this.width).add(targetPos);
-        
+
         //Assign all vector components to buffer
         var p = this.mesh.geometry.attributes.position.array;
         var index = 8 * link.link_id;
@@ -150,14 +150,14 @@ class LinkRenderer extends THREE.Group {
         let array = this.mesh.geometry.attributes.position.array;
         let col = this.mesh.geometry.attributes.u.array;
         for(let i=0, j=0; i<array.length; i+=8, j+=4) {
-            let grad = ctx.linearGradient(array[i + 2], array[i + 3], array[i + 4], array[i + 5]);
+            let grad = ctx.linearGradient(array[i + 2], -array[i + 3], array[i + 4], -array[i + 5]);
             grad.stop(0, "#" + this.colormap.getColor(col[j + 0]).getHexString().toUpperCase());
             grad.stop(1 ,"#" + this.colormap.getColor(col[j + 2]).getHexString().toUpperCase());
 
-            ctx.moveTo(array[i + 0], array[i + 1]);
-            ctx.lineTo(array[i + 2], array[i + 3]);
-            ctx.lineTo(array[i + 4], array[i + 5]);
-            ctx.lineTo(array[i + 6], array[i + 7]);
+            ctx.moveTo(array[i + 0], -array[i + 1]);
+            ctx.lineTo(array[i + 2], -array[i + 3]);
+            ctx.lineTo(array[i + 4], -array[i + 5]);
+            ctx.lineTo(array[i + 6], -array[i + 7]);
             ctx.closePath();
             ctx.fill(grad);
         }

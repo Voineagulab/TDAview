@@ -32,11 +32,11 @@ class Graph {
         this.renderer.setClearColor(0xffffff, 1.0);
         this.renderer.depth = false;
         this.renderer.sortObjects = false;
-        
+
         this.labelRenderer = new THREE.CSS2DRenderer();
         this.labelRenderer.setSize(this.width, this.height);
         this.labelRenderer.domElement.setAttribute("id", "labelcanvas");
-        
+
         this.domElement.appendChild(this.renderer.domElement);
         this.domElement.appendChild(this.labelRenderer.domElement);
 
@@ -81,7 +81,7 @@ class Graph {
         this.shouldAutoZoom = true;
         this.selectedNode = undefined;
         this.initiallizing = true;
-        
+
         this.labels = new Array(nodes.length);
         this.labelsVisible = true;
         for(let i=0; i<this.labels.length; i++) {
@@ -100,7 +100,7 @@ class Graph {
         nodeSet.ObjectContainsPoint = function(node, position) {
             return node.containsPoint(position);
         };
-        
+
         nodeSet.ObjectDragCenter = function(node, center) {
             center.x = node.x;
             center.y = node.y;
@@ -111,7 +111,7 @@ class Graph {
             self.initiallizing = false;
             self.update();
         };
-    
+
         nodeSet.OnObjectDrag = function(node, vector) {
             node.fixed = true;
             node.px = vector.x;
@@ -119,7 +119,7 @@ class Graph {
             self.simulation.resume();
             self.update();
         };
-    
+
         nodeSet.OnObjectDragEnd = function(node) {
             node.fixed = false;
         };
@@ -174,7 +174,7 @@ class Graph {
                 self._applyNodePositions();
                 self.applyLinkPositions();
                 self._applySelectionPosition();
-                
+
                 if(this.initiallizing && this.shouldAutoZoom) {
                     this._setZoom(0.0);
                 }
@@ -252,7 +252,7 @@ class Graph {
      * Sets dimensions of the renderer and related DOM elements using client width/height
      */
     resize() {
-        this.width = this.domElement.clientWidth; 
+        this.width = this.domElement.clientWidth;
         this.height = this.domElement.clientHeight;
         let aspect = this.width / this.height;
         this.camera.left = - this.frustumSize * aspect/2;
@@ -278,7 +278,7 @@ class Graph {
     }
 
      /**
-     * Gets the camera zoom amount 
+     * Gets the camera zoom amount
      * @return {Number} Zoom value in the range [0.0, 1.0]
      */
     getZoom() {
@@ -365,14 +365,14 @@ class Graph {
 
     /**
      * Copies the color/pie changes to GPU memory
-     */  
+     */
     updateNodeColors() {
         this.nodeRenderer.updateColors();
     }
 
     /**
      * Copies the scale changes to GPU memory
-     */  
+     */
     updateNodeScales() {
         this.nodeRenderer.updateScales();
         this._updateSelectionScale();
@@ -386,7 +386,7 @@ class Graph {
     /**
      * Sets font size of all labels
      * @param {Number} value The new font size
-     */ 
+     */
     setFontScale(value) {
         this.fontScale = value;
         this._updateFontSize();
@@ -396,7 +396,7 @@ class Graph {
 
     /**
      * Updates all link positions to match nodes and copies these changes to GPU memory
-     */ 
+     */
     applyLinkPositions() {
         for(var i=0; i<this.links.length; i++) {
             this.linkRenderer.setPositionFromNodes(this.links[i]);
@@ -407,7 +407,7 @@ class Graph {
     /**
      * Sets the label position to match associated node layout
      * @param {NodeInstance} node The node whose label should be modified
-     */  
+     */
     setLabelPosition(node) {
         var label = this.labels[node.id];
         if(label) {
@@ -423,7 +423,7 @@ class Graph {
 
                 let difference = 2 * Math.PI - n[n.length-1].angle + n[0].angle;
                 let midAngle = n[n.length-1].angle + difference/2 - 2 * Math.PI;
-                
+
                 for(let i=0, d=0; i<(n.length-1); i++) {
                     d = n[i+1].angle - n[i].angle;
                     if(d > difference) {
@@ -458,10 +458,10 @@ class Graph {
     setLabelText(node, text) {
         this.labels[node.id].element.textContent = text;
     }
-    
+
     /**
      * Sets the color of the selection graphic
-     * @param {String} color 
+     * @param {String} color
      */
     setSelectColor(color) {
         this.selectionMesh.material.color.setHex("0x" + color);
@@ -472,10 +472,19 @@ class Graph {
     }
 
     fillContext(ctx) {
+        if(this.isEmpty) return;
+
         this.linkRenderer.fillContext(ctx);
         this.nodeRenderer.fillContext(ctx);
-        
-        //Write labels to contex
+
+        if(this.labelsVisible && this.labels.length > 0) {
+          console.log(this.labels[0]);
+          ctx.fontSize(this.fontSize);
+          ctx.fillColor("black");
+          for(let i=0; i<this.labels.length; ++i) {
+            ctx.text(this.labels[i].element.textContent, this.labels[i].position.x, -this.labels[i].position.y, {align: 'center'});
+          }
+        }
     }
 
     _render() {
@@ -486,7 +495,7 @@ class Graph {
 
     /**
      * Updates all node positions to match simulation and copies these changes to GPU memory
-     */ 
+     */
     _applyNodePositions() {
         for(var i=0; i<this.nodes.length; i++) {
             this.nodeRenderer.setOffsetBuffer(this.nodes[i]);
@@ -497,7 +506,7 @@ class Graph {
 
     /**
      * Updates the selection mesh position to match the currently selected node
-     */ 
+     */
     _applySelectionPosition() {
         if(this.selectedNode) {
             this.selectionMesh.position.x = this.selectedNode.x;
@@ -507,7 +516,7 @@ class Graph {
 
     /**
      * Updates the selection mesh radius to match the currently selected node
-     */ 
+     */
     _updateSelectionScale() {
         if(this.selectedNode) {
             let scale = this.selectedNode.getRadius() * 0.125;
@@ -518,7 +527,7 @@ class Graph {
     /**
      * Gets the maximum dimensions of the graph
      * @returns {THREE.Box3} A bounding box
-     */ 
+     */
     _getBoundingBox() {
         var box = new THREE.Box3();
         for(let i=0; i<this.nodes.length; i++) {
@@ -530,21 +539,22 @@ class Graph {
 
     /**
      * Updates zoom compensation value used internally to calculate label screen size
-     */ 
+     */
     _updateFontZoom() {
         this.fontZoom = this.camera.zoom;
         this._updateFontSize();
     }
 
     _updateFontSize() {
+      this.fontSize = this.fontScale * this.fontZoom;
         for(let i=0; i<this.labels.length; i++) {
-            this.labels[i].element.style.fontSize = this.fontScale * this.fontZoom + "px";
+            this.labels[i].element.style.fontSize = this.fontSize + "px";
         }
     }
 
      /**
      * Sets zoom compensation value used internally to calculate node screen size
-     */    
+     */
     _updatePixelZoom() {
         this.nodeRenderer.setPixelZoom(this.camera.zoom * window.innerHeight * window.devicePixelRatio / this.frustumSize * 2);
     }
