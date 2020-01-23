@@ -20,7 +20,7 @@ this.onmessage = function(e) {
                 let col = new ML.MatrixLib.MatrixColumnView(matrix, i);
                 squares[i] = col.dot(col);
             }
-        
+
             for(let i=0, k=0; i<colCount; ++i) {
                 for(let j=0; j<colCount && j<=i; ++j, ++k) {
                     let col1 = new ML.MatrixLib.MatrixColumnView(matrix, i);
@@ -68,20 +68,21 @@ this.onmessage = function(e) {
 
         if(e.data.filterDim == 1) {
             if(e.data.filterFunc == "PCAEV1") {
-                filter = pca.getEigenvectors().getRow(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
+                filter = pca.getEigenvectors().getColumn(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
             } else if(e.data.filterFunc == "PCAEV2") {
-                filter = pca.getEigenvectors().getRow(1);
+                filter = pca.getEigenvectors().getColumn(1);
             } else {
                 throw "Unknown filter function";
             }
-            mapperObj = mapper1D(dist, filter, 50, 50, 20);
+            mapperObj = mapper1D(dist, filter, 50, 50, 10);
+            console.log(mapperObj);
         } else {
             if(e.data.filterFunc == "PCAEV1,2") {
-                filter = [pca.getEigenvectors().getRow(0), pca.getEigenvectors().getRow(1)];
+                filter = [pca.getEigenvectors().getColumn(0), pca.getEigenvectors().getColumn(1)];
             } else {
                 throw "Unknown filter function";
             }
-            mapperObj = mapper2D(dist, filter, [50,50], 50, 20);   
+            mapperObj = mapper2D(dist, filter, [50,50], 50, 10);
         }
         self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey, warning: warning});
     });
