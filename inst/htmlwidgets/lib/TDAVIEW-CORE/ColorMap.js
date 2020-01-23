@@ -24,20 +24,28 @@ class ColorMap {
 
     //TODO fix for > 2 steps
     getColor(percentage) { //this is more accurate than pixel interpolation
+      console.log(this.steps);
         if(this.color) {
             return this.color;
         } else {
+          if(percentage <= this.steps[0].percentage) {
+            return this.steps[0].color;
+          } else if(percentage >= this.steps[this.steps.length-1].percentage) {
+            return this.steps[this.steps.length-1].color;
+          } else {
             var ret = new THREE.Color();
-            for(let i=0; i<this.steps.length-1; ++i) {
-                if(percentage > this.steps[i].percentage) {
-                    if(this.steps[i].percentage > this.steps[i+1].percentage) continue; 
+            for(let i=1; i<this.steps.length; ++i) {
+                if(percentage < this.steps[i].percentage) {
+                    if(this.steps[i].percentage == this.steps[i-1].percentage) continue;
 
-                    ret.copy(this.steps[i].color);
-                    ret.lerp(this.steps[i+1].color, (percentage - this.steps[i].percentage)/(this.steps[i+1].percentage - this.steps[i].percentage))
+                    ret.copy(this.steps[i-1].color);
+                    ret.lerp(this.steps[i].color, (percentage - this.steps[i-1].percentage)/(this.steps[i].percentage - this.steps[i-1].percentage))
+
+                    //console.log("Calculated color " + ret.getHexString() + " from p=" + percentage);
                     return ret;
                 }
             }
-            return this.steps[this.steps.length-1].color;
+          }
         }
     }
 
@@ -48,12 +56,12 @@ class ColorMap {
         let i=0;
 
         //Fill start if steps are uncapped
-        if(steps[0].percentage > 0) {  
+        if(steps[0].percentage > 0) {
             for(; j<(steps[0].percentage * this.n); j++) {
                 this._SetColorSingle(steps[0].color, j);
             }
         }
-        
+
         //Fill step-step gaps with gradients
         let temp = new THREE.Color();
         for(; i<steps.length-1; i++) {
