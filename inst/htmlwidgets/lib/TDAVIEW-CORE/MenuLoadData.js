@@ -18,11 +18,6 @@ class MenuLoadData {
             <input type="file" id="inputMeta" accept=".csv">
             <br><br>
         </fieldset>
-
-        <fieldset>
-        <legend>Settings</legend>
-                <input type="file" id="inputSettings" accept=".json">
-        </fieldset>
         `;
     }
 

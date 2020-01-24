@@ -11,7 +11,8 @@ class MenuSave {
         return /*html*/`
         <fieldset>
         <legend>Editor</legend>
-            <input type="button" class="myButton" id="settingsexport" value="Export Settings"><br><br>
+            <input type="button" class="myButton" id="settingsload" value="Restore Settings"><br><br>'
+            <input type="button" class="myButton" id="settingsexport" value="Export Settings"><br><br>'
             <input type="button" class="myButton" id="mapperexport" value="Export Mapper">
         </fieldset>
 
