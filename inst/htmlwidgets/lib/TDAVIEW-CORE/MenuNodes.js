@@ -6,6 +6,10 @@ class MenuNodes {
 
         this._initNodeColor();
         this._initNodeSize();
+
+        this._initLabelText();
+        this._initLabelColor();
+        this._initLabelSize();
     }
 
     generateHTML() {
@@ -37,6 +41,27 @@ class MenuNodes {
             <datalist id="continuoussizedatalist">
             </datalist>
         </fieldset>
+        <fieldset>
+        <legend>Nodes</legend>
+            <form name="labels">
+            <input type="radio" name="labeltype" value="size" id="size">
+            <label for="size">Points</label><br>
+            <input type="radio" name="labeltype" value="none" id="none" checked>
+            <label for="none">None</label>
+            </form>
+        </fieldset>
+        <fieldset>
+        <legend>Color</legend>
+            <input type="radio" name="labelColor" value="background" id="labelcolorbackground" class="label-color-meta-radio" checked/>
+            <label for="labelcolorbackground">From Background</label><br>
+            <input type="radio" name="labelColor" value="uniform" id="labelcolor" class="label-color-meta-radio" />
+            <label for="labelcolor">Uniform</label><br><br>
+            <div id="label-color-picker-insert"></div>
+        </fieldset>
+        <fieldset>
+        <legend>Size</legend>
+            <input type="text" id="labelSize" value="10"><br>
+        </fieldset>
         `;
     }
 
@@ -50,13 +75,19 @@ class MenuNodes {
     getSettings() {
         return {
             color: this._serializeNodeColor(),
-            size: this._serializeNodeSize()
+            size: this._serializeNodeSize(),
+            labelText: this._serializeLabelText(),
+            labelColor: this._serializeLabelColor(),
+            labelSize: this._serializeLabelSize()
         }
     }
 
     setSettings(obj) {
         this._deserializeNodeColor(obj.color);
         this._deserializeNodeSize(obj.size);
+        this._deserializeLabelText(obj.labelText);
+        this._deserializeLabelColor(obj.labelColor);
+        this._deserializeLabelSize(obj.labelSize);
     }
 
     _initNodeColor() {
@@ -75,7 +106,7 @@ class MenuNodes {
             self.nodeGradPicker.setState(STATE_SINGLE);
             self.nodeGradPicker.updateBarGradient();
             variablecolorinput.disabled = true;
-            
+
         };
 
         document.getElementById("nodecolorvariable").onclick = function() {
@@ -83,18 +114,18 @@ class MenuNodes {
             if(self.variablecolorinputold) {
                 variablecolorinput.value = self.variablecolorinputold;
                 variablecolorinput.onchange();
-            }            
+            }
         };
 
         variablecolorinput.onchange = function() {
             if(self.continuousNames.indexOf(variablecolorinput.value) >= 0) {
                 self.nodeGradPicker.setState(STATE_GRADIENT);
                 self.OnNodeColorContinuous(variablecolorinput.value);
-                variablecolorinput.placeholder = self.variablecolorinputold = variablecolorinput.value; 
+                variablecolorinput.placeholder = self.variablecolorinputold = variablecolorinput.value;
             } else if(self.categoricalNames.indexOf(variablecolorinput.value) >= 0) {
                 let count = self.OnNodeColorCategorical(variablecolorinput.value);
                 self.nodeGradPicker.setState(STATE_FIXED, count);
-                variablecolorinput.placeholder = self.variablecolorinputold = variablecolorinput.value; 
+                variablecolorinput.placeholder = self.variablecolorinputold = variablecolorinput.value;
             }
             self.nodeGradPicker.updateBarGradient();
             variablecolorinput.value = "";
@@ -128,7 +159,7 @@ class MenuNodes {
         if(obj.variable) {
             document.getElementById("nodecolorvariable").click();
         }
-        
+
         if(obj.type == "uniform") {
             document.getElementById("nodecoloruniform").click();
         }
@@ -165,12 +196,12 @@ class MenuNodes {
         sizedatainput.onchange = function() {
             if(self.continuousNames.indexOf(sizedatainput.value) >= 0) {
                 self.OnNodeSizeContinuous(sizedatainput.value)
-                sizedatainput.placeholder = self.sizedatainputold = sizedatainput.value; 
+                sizedatainput.placeholder = self.sizedatainputold = sizedatainput.value;
             }
             sizedatainput.value = "";
         };
     }
-    
+
     _serializeNodeSize() {
         var obj = {};
         obj.variable = this.sizedatainputold;
@@ -200,7 +231,126 @@ class MenuNodes {
             document.getElementById("degreesize").click();
         }
     }
-    
+
+    _initLabelText() {
+        var self = this;
+
+        document.getElementById("size").onclick = function() {
+            self.OnLabelTextPoints();
+        }
+
+        document.getElementById("none").onclick = function() {
+            self.OnLabelTextNone();
+        }
+    }
+
+    _serializeLabelText() {
+        return {
+            source: (document.getElementById("size").checked ? "size" : "none")
+        }
+    }
+
+    _deserializeLabelText(obj) {
+        switch(obj.source) {
+            case "size":
+                document.getElementById("size").click();
+                break;
+            default:
+                document.getElementById("none").click();
+        }
+    }
+
+    _initLabelColor() {
+        var self = this;
+
+        this.labelColPicker = new ColorPicker(document.getElementById("label-color-picker-insert"));
+        var labelcolor = document.getElementById("labelcolor");
+
+        this.labelColPicker.OnColorChange = function(color) {
+            if(!labelcolor.checked) {
+                labelcolor.click();
+            }
+            self.OnLabelColorChange(color);
+        };
+
+        labelcolor.onclick = function() {
+            self.OnLabelColorUniform();
+            self.OnLabelColorChange(self.labelColPicker.getColor());
+        }
+
+        document.getElementById("labelcolorbackground").onclick = function() {
+            self.OnLabelColorFromBackground();
+        }
+    }
+
+    _serializeLabelColor() {
+        return {
+            source: document.getElementById("labelcolor").checked ? "uniform" : "background",
+            color: this.labelColPicker.getColor(),
+        }
+    }
+
+    _deserializeLabelColor(obj) {
+        if(obj.source == "uniform") {
+            document.getElementById("labelcolor").click();
+        } else {
+            document.getElementById("labelcolorbackground").click();
+        }
+        this.labelColPicker.setColor(obj.color);
+    }
+
+    _initLabelSize() {
+        var self = this;
+        var labelSizeInput = document.getElementById("labelSize");
+        labelSizeInput.onchange = function(){
+            self.OnLabelSizeChange(labelSizeInput.value)
+        }
+    }
+
+    _serializeLabelSize() {
+        return {
+            value: document.getElementById("labelSize").value
+        }
+    }
+
+    _deserializeLabelSize(obj) {
+        document.getElementById("labelSize").value = obj.value;
+        document.getElementById("labelSize").onchange();
+    }
+
+    /**
+     * Invoked when all labels are to read the node point count.
+     */
+    OnLabelTextPoints() {}
+
+    /**
+     * Invoked when all labels are to be hidden.
+     */
+    OnLabelTextNone() {}
+
+    /**
+     * Invoked when all labels are to be colored to contrast automatically with the background.
+     */
+    OnLabelColorFromBackground() {}
+
+    /**
+     * Invoked when all edges are to be colored by a single uniform.
+     * The actual uniform will be supplied in the OnLabel ColorChange event.
+     */
+    OnLabelColorUniform() {}
+
+    /**
+     * Invoked when all labels are to be colored by a newly selected uniform.
+     * @param {String} color a six character hex color
+     */
+    OnLabelColorChange(color) {}
+
+    /**
+     * Invoked when all labels are to be scaled by a newly selected uniform.
+     * @param {Number} size the new font size
+     */
+    OnLabelSizeChange(size){}
+
     /**
      * Invoked when all nodes are to be scaled by a single uniform.
      * The actual uniform is currently constant and cannot be changed
@@ -231,14 +381,14 @@ class MenuNodes {
     OnNodeColorUniform() {}
 
     /**
-     * Invoked when nodes are to be colored by 
+     * Invoked when nodes are to be colored by
      * @param {String} name the name of a categorical variable
      * @returns {Number} the number of categories
      */
     OnNodeColorCategorical(name) {}
 
     /**
-     * Invoked when nodes are to be colored by 
+     * Invoked when nodes are to be colored by
      * @param {String} name the name of a continuous variable
      */
     OnNodeColorContinuous(name) {}

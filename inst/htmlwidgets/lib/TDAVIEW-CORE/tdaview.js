@@ -38,7 +38,7 @@ class tdaview {
         legendPie.setVisibility(false);
 
         var sidebar = new Menu(element);
-        sidebar.setSubmenusEnabled(false);
+        //sidebar.setSubmenusEnabled(false);
 
         sidebar.menuNodes.OnNodeSizeUniform = function() {
             self.graph.forEachNode(n => self.graph.setNodeScale(n, 0.5));
@@ -180,31 +180,31 @@ class tdaview {
             self.graph.update();
         };
 
-        sidebar.menuLabels.OnLabelSizeChange = function(value) {
+        sidebar.menuNodes.OnLabelSizeChange = function(value) {
             self.graph.setFontScale(value);
         };
 
-        sidebar.menuLabels.OnLabelColorFromBackground = function() {
+        sidebar.menuNodes.OnLabelColorFromBackground = function() {
             isLabelFromBackground = true;
             let colString = getHighContrastColor(backgroundColor, tempColor).getHexString();
             self.graph.setLabelColors(colString);
             self.graph.setSelectColor(colString);
         };
 
-        sidebar.menuLabels.OnLabelColorUniform = function() {
+        sidebar.menuNodes.OnLabelColorUniform = function() {
             isLabelFromBackground = false;
         };
 
-        sidebar.menuLabels.OnLabelColorChange = function(value) {
+        sidebar.menuNodes.OnLabelColorChange = function(value) {
             self.graph.setLabelColors(value);
         };
 
-        sidebar.menuLabels.OnLabelTextPoints = function() {
+        sidebar.menuNodes.OnLabelTextPoints = function() {
             self.graph.forEachNode(n => self.graph.setLabelText(n, n.userData.getPointCount()));
             self.graph.setLabelVisibilities(true);
         };
 
-        sidebar.menuLabels.OnLabelTextNone = function() {
+        sidebar.menuNodes.OnLabelTextNone = function() {
             self.graph.setLabelVisibilities(false);
         };
 

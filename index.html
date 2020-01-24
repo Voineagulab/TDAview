@@ -2,7 +2,7 @@
 <!--<!DOCTYPE HTML> this is breaking positions but should include it to standardize parser-->
 <meta charset="UTF-8">
 <html>
-    <head> 
+    <head>
         <script src="inst/htmlwidgets/lib/MLJS/ml.min.js"></script>
         <script src="inst/htmlwidgets/lib/MAPPER/cutoff.js"></script>
         <script src="inst/htmlwidgets/lib/MAPPER/mapper1D.js"></script>
@@ -36,8 +36,10 @@
         <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/LegendPie.js"></script>
         <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/LinkRenderer.js"></script>
         <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/NodeRenderer.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/Menu.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuLoad.js"></script>
+        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/Menu2.js"></script>
+        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuLoadData.js"></script>
+        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuLoadMapper.js"></script>
+        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuRunMapper.js"></script>
         <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuNodes.js"></script>
         <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuEdges.js"></script>
         <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuLabels.js"></script>
@@ -56,13 +58,10 @@
 
     <body>
         <div id="tdaview-container"></div>
-        
+
         <script>
                 var view = new tdaview(document.getElementById("tdaview-container"));
-                window.addEventListener('resize', () => view.resize(), false);            
+                window.addEventListener('resize', () => view.resize(), false);
             </script>
     </body>
 </html>
-
-
-
