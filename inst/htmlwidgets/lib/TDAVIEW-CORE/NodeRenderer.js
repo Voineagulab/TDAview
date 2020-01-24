@@ -161,6 +161,9 @@ class NodeRenderer extends THREE.Group {
 
         for(let i=0; i<this.instance_count; ++i) {
             let prev = undefined;
+            let centerX = offsets[2 * i + 0];
+            let centerY = offsets[2 * i + 1];
+
             for(let j=0; j<this.slices; ++j) {
                 let array = this.mesh.geometry.attributes["run" + j].array;
 
@@ -172,17 +175,27 @@ class NodeRenderer extends THREE.Group {
                 if(endPercent > 1.0 || startPercent == endPercent) continue;
 
                 let color = array[2 * i + 1];
-                let offsetX = offsets[2 * i + 0];
-                let offsetY = -offsets[2 * i + 1];
-                let scale = scales[i];
-                let startAngle = startPercent*2*Math.PI - 0.5*Math.PI;
-                let endAngle = endPercent*2*Math.PI - 0.5*Math.PI;
 
-                ctx.moveTo(offsetX, offsetY);
-                ctx.fillColor("#" + this.colormap.getColor(color).getHexString().toUpperCase());
-                ctx.arc(offsetX, offsetY, scale, startAngle, endAngle, false);
-                ctx.closePath();
+                let scale = scales[i];
+
+                let startX = Math.cos(2 * Math.PI * (startPercent));
+                let startY = Math.sin(2 * Math.PI * (startPercent));
+                let endX =  Math.cos(2 * Math.PI * (endPercent));
+                let endY =  Math.sin(2 * Math.PI * (endPercent));
+
+                const largeArcFlag = (endPercent - startPercent) > 0.5 ? 1 : 0;
+
+                 let pathData = [
+                  `M ${startX} ${startY}`, // Move
+                  `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`, // Arc
+                  `L 0 0`, // Line
+                ].join(' ');
+
+                ctx.save();
+                ctx.fillColor('#' + this.colormap.getColor(color).getHexString().toUpperCase());
+                ctx.path(pathData).translate(centerX, -centerY).scale(scale).rotate(-90);
                 ctx.fill();
+                ctx.restore();
 
                 if(endPercent >= 1.0) break;
             }
