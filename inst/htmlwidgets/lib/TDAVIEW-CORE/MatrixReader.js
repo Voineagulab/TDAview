@@ -50,8 +50,6 @@ class MatrixReader {
                 }
             }
         }
-        console.log(dataArray);
-        console.log(headingsKey);
         callback(dataArray, headingsKey, conversionCount);
     }
 }

@@ -478,7 +478,6 @@ class Graph {
         this.nodeRenderer.fillContext(ctx);
 
         if(this.labelsVisible && this.labels.length > 0) {
-          console.log(this.labels[0]);
           ctx.fontSize(this.fontSize);
           ctx.fillColor("black");
           for(let i=0; i<this.labels.length; ++i) {

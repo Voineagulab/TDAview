@@ -88,14 +88,10 @@ class MenuRunMapper {
               filterDim: filterdim.options[filterdim.selectedIndex].value,
               distFunc: distfunc.options[distfunc.selectedIndex].value,
               filterFunc: filterfunc.options[filterfunc.selectedIndex].value,
-              numintervals: numintervals.value,
+              numintervals: parseInt(numintervals.value),
               percentoverlap: percentoverlap.value,
-              numbins: numbins.value
+              numbins: parseInt(numbins.value)
             });
-
-            console.log(numintervals.value);
-            console.log(percentoverlap.value);
-            console.log(numbins.value);
 
             self.myWorker.onmessage = function(e){
                 if(e.data.warning) {

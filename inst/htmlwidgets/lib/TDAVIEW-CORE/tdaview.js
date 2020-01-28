@@ -38,7 +38,7 @@ class tdaview {
         legendPie.setVisibility(false);
 
         var sidebar = new Menu(element);
-        //sidebar.setSubmenusEnabled(false);
+        sidebar.setSubmenusEnabled(false);
 
         sidebar.menuNodes.OnNodeSizeUniform = function() {
             self.graph.forEachNode(n => self.graph.setNodeScale(n, 0.5));

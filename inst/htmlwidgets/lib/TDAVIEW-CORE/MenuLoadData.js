@@ -46,9 +46,6 @@ class MenuLoadData {
             return;
         }
 
-        console.log("headingskey: ");
-        console.log(headingsKey);
-
         var reader = new FileReader();
         reader.onload = function(m) {
             let dataCSV = m.target.result.trim();

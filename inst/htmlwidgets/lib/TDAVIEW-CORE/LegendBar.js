@@ -27,7 +27,6 @@ class LegendBar {
       if(!this.visible) return;
 
       let rect = this.bar.getBoundingClientRect();
-      console.log(rect);
       ctx.fillColor(this.bar.style.color.toUpperCase());
       ctx.rect(rect.left, rect.bottom, rect.width, rect.height);
       ctx.fill();

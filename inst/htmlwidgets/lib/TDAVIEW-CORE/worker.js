@@ -75,7 +75,6 @@ this.onmessage = function(e) {
                 throw "Unknown filter function";
             }
             mapperObj = mapper1D(dist, filter, e.data.numintervals, e.data.percentoverlap, e.data.numbins);
-            console.log(mapperObj);
         } else {
             if(e.data.filterFunc == "PCAEV1,2") {
                 filter = [pca.getEigenvectors().getColumn(0), pca.getEigenvectors().getColumn(1)];

@@ -183,8 +183,6 @@ class MenuLoad {
                 }
             }
 
-            console.log(metaArray);
-
             //Get meta object
             let metaObj = {};
             for(let i=1; i<metaArray[0].length; ++i) {

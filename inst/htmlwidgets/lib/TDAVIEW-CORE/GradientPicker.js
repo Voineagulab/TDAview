@@ -68,7 +68,7 @@ class GradientPicker {
                 self.updateBarGradient();
             }
         });
-        
+
         this.barRectLeft = this.bar.getBoundingClientRect().left;
 
         window.addEventListener("mouseup", function() {
@@ -117,7 +117,7 @@ class GradientPicker {
             for(let i=0; i<this.fixedSteps.length; ++i) {
                 this.setStepTranslation(this.fixedSteps[i], CONTAINER_WIDTH * (i+1)/(count+1));
             }
-            
+
             this.setSelected(this.fixedSteps[0])
             this.showSteps(this.fixedSteps);
             if(this.state == STATE_GRADIENT) this.hideSteps(this.steps);
@@ -146,7 +146,6 @@ class GradientPicker {
 
         //Double click on step to remove
         newStep.element.addEventListener("dblclick", function(event) {
-            console.log(self.steps);
             if(self.selected && self.steps.length > 2) {
                 for(let i=0; i<self.steps.length; i++) {
                     if(self.steps[i].percentage == newStep.percentage && self.steps[i].color == newStep.color) {
@@ -280,11 +279,11 @@ class GradientPicker {
         this.colorString = obj.color;
         this.steps = obj.gradient.map(s => {let newS = this.createGradientStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS});;
         this.fixedSteps = obj.fixed.map(s => {let newS = this.createStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS});
-        
+
         this.hideSteps(this.steps);
         this.hideSteps(this.fixedSteps);
         this.state = STATE_SINGLE;
-        this.setState(obj.state); 
+        this.setState(obj.state);
     }
 
     OnColorChange(value) {};

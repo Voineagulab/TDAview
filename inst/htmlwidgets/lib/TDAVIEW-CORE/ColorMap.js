@@ -22,9 +22,7 @@ class ColorMap {
         this._UpdateMap();
     }
 
-    //TODO fix for > 2 steps
     getColor(percentage) { //this is more accurate than pixel interpolation
-      console.log(this.steps);
         if(this.color) {
             return this.color;
         } else {
@@ -40,8 +38,6 @@ class ColorMap {
 
                     ret.copy(this.steps[i-1].color);
                     ret.lerp(this.steps[i].color, (percentage - this.steps[i-1].percentage)/(this.steps[i].percentage - this.steps[i-1].percentage))
-
-                    //console.log("Calculated color " + ret.getHexString() + " from p=" + percentage);
                     return ret;
                 }
             }
