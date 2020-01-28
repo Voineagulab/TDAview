@@ -55,6 +55,10 @@ class MenuRunMapper {
         var filterdim = document.getElementById("filterdim");
         var distfunc = document.getElementById("distfunc");
 
+        var numintervals = document.getElementById("numintervals");
+        var percentoverlap = document.getElementById("percentoverlap");
+        var numbins = document.getElementById("numbins");
+
         const filterfuncpartitionindex = 2;
         var filterfunc = document.getElementById("filterfunc");
 
@@ -79,7 +83,20 @@ class MenuRunMapper {
             }
 
             self.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
-            self.myWorker.postMessage({dataFile: dataFile, filterDim: filterdim.options[filterdim.selectedIndex].value, distFunc: distfunc.options[distfunc.selectedIndex].value, filterFunc: filterfunc.options[filterfunc.selectedIndex].value});
+            self.myWorker.postMessage({
+              dataFile: dataFile,
+              filterDim: filterdim.options[filterdim.selectedIndex].value,
+              distFunc: distfunc.options[distfunc.selectedIndex].value,
+              filterFunc: filterfunc.options[filterfunc.selectedIndex].value,
+              numintervals: numintervals.value,
+              percentoverlap: percentoverlap.value,
+              numbins: numbins.value
+            });
+
+            console.log(numintervals.value);
+            console.log(percentoverlap.value);
+            console.log(numbins.value);
+
             self.myWorker.onmessage = function(e){
                 if(e.data.warning) {
                     console.warn(e.data.warning);

@@ -74,7 +74,7 @@ this.onmessage = function(e) {
             } else {
                 throw "Unknown filter function";
             }
-            mapperObj = mapper1D(dist, filter, 50, 50, 10);
+            mapperObj = mapper1D(dist, filter, e.data.numintervals, e.data.percentoverlap, e.data.numbins);
             console.log(mapperObj);
         } else {
             if(e.data.filterFunc == "PCAEV1,2") {
@@ -82,7 +82,7 @@ this.onmessage = function(e) {
             } else {
                 throw "Unknown filter function";
             }
-            mapperObj = mapper2D(dist, filter, [50,50], 50, 10);
+            mapperObj = mapper2D(dist, filter, [e.data.numintervals,e.data.numintervals], e.data.percentoverlap, e.data.numbins);
         }
         self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey, warning: warning});
     });

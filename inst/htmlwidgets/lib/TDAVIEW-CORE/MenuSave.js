@@ -11,13 +11,8 @@ class MenuSave {
         return /*html*/`
         <fieldset>
         <legend>Editor</legend>
-<<<<<<< HEAD
-            <input type="button" class="myButton" id="settingsload" value="Restore Settings"><br><br>'
-            <input type="button" class="myButton" id="settingsexport" value="Export Settings"><br><br>'
-=======
             <input type="button" class="myButton" id="settingsimport" value="Import Settings"><br><br>
             <input type="button" class="myButton" id="settingsexport" value="Export Settings"><br><br>
->>>>>>> 106be36b6ba388e3be34e16b8e509cff1d2cea9e
             <input type="button" class="myButton" id="mapperexport" value="Export Mapper">
         </fieldset>
 
@@ -88,10 +83,6 @@ class MenuSave {
     OnSettingsExport() {}
 
     OnMapperExport() {}
-<<<<<<< HEAD
-}
-=======
 
     OnSettingsFileChange(obj){}
 }
->>>>>>> 106be36b6ba388e3be34e16b8e509cff1d2cea9e
