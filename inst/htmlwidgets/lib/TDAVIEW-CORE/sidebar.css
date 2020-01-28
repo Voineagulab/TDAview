@@ -185,7 +185,7 @@ select {
 }
 
 .open_acc .accordion-item-content {
-    max-height: 800px;
+    max-height: 1000px;
     padding-bottom: 10px;
     padding-top: 10px;
 }
@@ -271,4 +271,8 @@ fieldset {
     margin-left: 250px;
     height: 100%;
     position: relative;
+}
+
+.horizontalInput {
+    width: 100px;
 }

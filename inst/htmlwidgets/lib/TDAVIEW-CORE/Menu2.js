@@ -1,38 +1,57 @@
-/**
- * Everything except node positions is UI-related
- * To back up, for example, node size, we save "continuous" and "name-of-variable"
- * To restore, we'd then set continuous radio to be checked and trigger OnNodeSizeContinuous "name-of-variable"
- * It would be good to disable graph.update - perhaps don't initiallise it until some "graph.start" is called
- */
-
 class Menu {
 	constructor(element) {
+        var self = this;
+
         this.domElement = document.createElement("span");
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
 
+        //Initiallize accordion animations
+        var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
+        this.accItem = this.domElement.getElementsByClassName("accordion-item");
+
+
+        let openAcc = function(index) {
+            for(let j=0; j<self.accItem.length; j++) {
+                if(index!=j) {
+                    self.accItem[j].classList.remove("open_acc");
+                }
+            }
+            self.accItem[index].classList.toggle("open_acc");
+        }
+
+        for(let i=0; i<this.accItem.length; i++) {
+            accHD[i].addEventListener('click', function() { openAcc(i);}, false);
+        }
+
         this.menuLoadData = new MenuLoadData(document.getElementById("menu-load-data"));
-        this.menuLoadMapper = new MenuLoadMapper(document.getElementById("menu-load-mapper"));
-        this.menuRunMapper = new MenuRunMapper(document.getElementById("menu-run-mapper"));
+
+        let tryGetDataFile = function() {
+            let df = self.menuLoadData.getDataFile();
+            if(!df) {
+                self.menuLoadData.setDataFileValidity("Data file required");
+                openAcc(0);
+                throw "Data file required";
+            } else {
+                self.menuLoadData.setDataFileValidity("");
+            }
+            return df;
+        }
+
+        let getMetaAsync = function(headingsKey, callback) {
+            return self.menuLoadData.getMetaAsync(headingsKey, callback);
+        }
+
+        let loadingBar = document.getElementById("progress");
+        let setLoadingProgress = function(value) {
+            loadingBar.style.width = 100 * value + "%";
+        }
+        this.menuLoadMapper = new MenuLoadMapper(document.getElementById("menu-load-mapper"), tryGetDataFile, getMetaAsync);
+        this.menuRunMapper = new MenuRunMapper(document.getElementById("menu-run-mapper"), tryGetDataFile, getMetaAsync, setLoadingProgress);
         this.menuNodes = new MenuNodes(document.getElementById("menu-nodes"));
         this.menuEdges = new MenuEdge(document.getElementById("menu-edges"));
         this.menuSave = new MenuSave(document.getElementById("menu-save"));
         this.menuSelect = new MenuSelect(document.getElementById("menu-select"))
-
-        //Initiallize accordion animations
-        var self = this;
-        var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
-        this.accItem = this.domElement.getElementsByClassName("accordion-item");
-        for(let i=0; i<this.accItem.length; i++) {
-            accHD[i].addEventListener('click', function() {
-                for(let j=0; j<self.accItem.length; j++) {
-                    if(i!=j) {
-                        self.accItem[j].classList.remove("open_acc");
-                    }
-                }
-                self.accItem[i].classList.toggle("open_acc");
-            }, false);
-        }
 
         this.sidezoom = document.getElementById("sidezoom");
         this.sidezoom.addEventListener("input", function() {
@@ -52,7 +71,7 @@ class Menu {
                     </div>
                 </div>
                 <div class="accordion-item">
-                    <h4 class="accordion-item-heading">Load Mapper Obj</h4>
+                    <h4 class="accordion-item-heading">Load Mapper Object</h4>
                     <div class="accordion-item-content" id="menu-load-mapper">
                     </div>
                 </div>
@@ -108,7 +127,6 @@ class Menu {
         return {
             nodes: this.menuNodes.getSettings(),
             edges: this.menuEdges.getSettings(),
-            labels: this.menuLabels.getSettings(),
             save: this.menuSave.getSettings(),
             zoomSlider: this.sidezoom.value
         }
@@ -117,7 +135,6 @@ class Menu {
     setSettings(obj) {
         this.menuNodes.setSettings(obj.nodes);
         this.menuEdges.setSettings(obj.edges);
-        this.menuLabels.setSettings(obj.labels);
         this.menuSave.setSettings(obj.save);
         this.sidezoom.value = obj.zoomSlider;
     }

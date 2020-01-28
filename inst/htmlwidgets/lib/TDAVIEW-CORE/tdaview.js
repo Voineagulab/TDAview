@@ -315,6 +315,10 @@ class tdaview {
             saveAs(new Blob(['\ufeff' + datauri], {type: 'text/csv;charset=utf-8'}), dataname + ".csv");
         }
 
+        sidebar.menuSave.OnSettingsFileChange = function(settingsObj) {
+            self.setSettings(settingsObj);
+        }
+
         sidebar.menuSave.OnSettingsExport = function() {
             saveAs(new Blob([JSON.stringify(self.getSettings(), null, 2)], {type: "application/octet-stream"}), "settings.json");
 
@@ -324,13 +328,9 @@ class tdaview {
             saveAs(new Blob([JSON.stringify(self.data.getMapper())], {type: "application/octet-stream"}), "mapper.json");
         }
 
-        sidebar.menuLoad.OnSettingsFileChange = function(settingsObj) {
-            self.setSettings(settingsObj);
-        }
-
         this.sidebar = sidebar;
 
-        sidebar.menuLoad.OnMapperFileChange = function(mapperObj, metaObj, rowNames) {
+        sidebar.menuLoadMapper.OnMapperFileChange = sidebar.menuRunMapper.OnMapperFileChange = function(mapperObj, metaObj, rowNames) {
             //Save settings
             var settingsObj = self.getSettings();
 
