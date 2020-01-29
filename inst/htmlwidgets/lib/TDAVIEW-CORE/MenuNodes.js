@@ -15,7 +15,7 @@ class MenuNodes {
     generateHTML() {
         return /*html*/`
         <fieldset>
-        <legend>Color</legend>
+        <legend>Face Color</legend>
             <input type="radio" name="nodecolor" value="uniform" id="nodecoloruniform" checked/>
             <label for="nodecoloruniform">Uniform</label><br>
             <input type="radio" name="nodecolor" value="variable" id="nodecolorvariable"/>
@@ -28,11 +28,11 @@ class MenuNodes {
             <div id="node-color-picker-insert"></div>
         </fieldset>
         <fieldset>
-        <legend>Size</legend>
+        <legend>Face Size</legend>
             <input type="radio" name="nodesize" value="none" id="nonesize" checked/>
             <label for="nonesize">Uniform</label><br>
             <input type="radio" name="nodesize" value="content" id="contentsize" />
-            <label for="contentsize">Points</label><br>
+            <label for="contentsize">Number of Points</label><br>
             <input type="radio" name="nodesize" value="content" id="degreesize" />
             <label for="degreesize">Degree</label><br>
             <input type="radio" name="nodesize" value="continuous" id="continuoussize" />
@@ -42,16 +42,25 @@ class MenuNodes {
             </datalist>
         </fieldset>
         <fieldset>
-        <legend>Nodes</legend>
-            <form name="labels">
-            <input type="radio" name="labeltype" value="size" id="size">
-            <label for="size">Points</label><br>
-            <input type="radio" name="labeltype" value="none" id="none" checked>
-            <label for="none">None</label>
-            </form>
+        <legend>Label Source</legend>
+            <input type="radio" name="labeltype" value="none" id="labelnone" checked>
+            <label for="labelnone">None</label><br>
+
+            <input type="radio" name="labeltype" value="size" id="labelcontent">
+            <label for="labelcontent">Number of Points</label><br>
+
+            <input type="radio" name="labeltype" value="degree" id="labeldegree">
+            <label for="labeldegree">Degree</label><br>
+
+            <input type="radio" name="labeltype" value="continuous" id="labelcontinuous">
+            <label for="labelcontinuous">Variable</label><br>
+
+            <input placeholder="Select:" list="continuouslabeldatalist" name="continuouslabelinput" id="continuouslabelinput" autocomplete="off" style="width: 200px;" disabled>
+            <datalist id="continuouslabeldatalist">
+            </datalist>
         </fieldset>
         <fieldset>
-        <legend>Color</legend>
+        <legend>Label Color</legend>
             <input type="radio" name="labelColor" value="background" id="labelcolorbackground" class="label-color-meta-radio" checked/>
             <label for="labelcolorbackground">From Background</label><br>
             <input type="radio" name="labelColor" value="uniform" id="labelcolor" class="label-color-meta-radio" />
@@ -59,7 +68,7 @@ class MenuNodes {
             <div id="label-color-picker-insert"></div>
         </fieldset>
         <fieldset>
-        <legend>Size</legend>
+        <legend>Label Size</legend>
             <input type="text" id="labelSize" value="10"><br>
         </fieldset>
         `;
@@ -69,7 +78,7 @@ class MenuNodes {
         this.continuousNames = continuousNames;
         this.categoricalNames = categoricalNames;
         document.getElementById("variablecolordatalist").innerHTML = /*html*/`${continuousNames.concat(categoricalNames).map(v => `<option value="${v}">`).join('')}`;
-        document.getElementById("continuoussizedatalist").innerHTML = /*html*/`${continuousNames.map(v => `<option value="${v}">`).join('')}`;
+        document.getElementById("continuoussizedatalist").innerHTML = document.getElementById("continuouslabeldatalist").innerHTML = /*html*/`${continuousNames.map(v => `<option value="${v}">`).join('')}`;
     }
 
     getSettings() {
@@ -235,29 +244,48 @@ class MenuNodes {
     _initLabelText() {
         var self = this;
 
-        document.getElementById("size").onclick = function() {
-            self.OnLabelTextPoints();
-        }
-
-        document.getElementById("none").onclick = function() {
+        var labeldatainput = document.getElementById("continuouslabelinput");
+        this.labeldatainputold = undefined;
+        document.getElementById("labelnone").onclick = function() {
+            labeldatainput.disabled = true;
             self.OnLabelTextNone();
-        }
+        };
+
+        document.getElementById("labelcontent").onclick = function() {
+            labeldatainput.disabled = true;
+            self.OnLabelTextPoints();
+        };
+
+        document.getElementById("labeldegree").onclick = function() {
+            labeldatainput.disabled = true;
+            self.OnLabelTextDegree();
+        };
+
+        document.getElementById("labelcontinuous").onclick = function() {
+            labeldatainput.disabled = false;
+            if(self.labeldatainputold) {
+                labeldatainput.value = self.labeldatainputold;
+                labeldatainput.onchange();
+            }
+        };
+
+        labeldatainput.onchange = function() {
+            if(self.continuousNames.indexOf(labeldatainput.value) >= 0) {
+                self.OnLabelTextContinuous(labeldatainput.value)
+                labeldatainput.placeholder = self.labeldatainputold = labeldatainput.value;
+            }
+            labeldatainput.value = "";
+        };
     }
 
     _serializeLabelText() {
         return {
-            source: (document.getElementById("size").checked ? "size" : "none")
+            source: this._getRadioIndex(document.getElementsByName("labeltype"))
         }
     }
 
     _deserializeLabelText(obj) {
-        switch(obj.source) {
-            case "size":
-                document.getElementById("size").click();
-                break;
-            default:
-                document.getElementById("none").click();
-        }
+        document.getElementsByName("labeltype")[obj.source].click();
     }
 
     _initLabelColor() {
@@ -318,6 +346,13 @@ class MenuNodes {
         document.getElementById("labelSize").onchange();
     }
 
+    _getRadioIndex(radios) {
+        for(let i=1; i<radios.length; i++) {
+            if(radios[i].checked) return i;
+        }
+        return 0;
+    }
+
     /**
      * Invoked when all labels are to read the node point count.
      */
@@ -327,6 +362,10 @@ class MenuNodes {
      * Invoked when all labels are to be hidden.
      */
     OnLabelTextNone() {}
+
+    OnLabelTextDegree() {}
+
+    OnLabelTextContinuous(name) {return false;}
 
     /**
      * Invoked when all labels are to be colored to contrast automatically with the background.

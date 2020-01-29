@@ -208,6 +208,17 @@ class tdaview {
             self.graph.setLabelVisibilities(false);
         };
 
+        sidebar.menuNodes.OnLabelTextDegree = function() {
+            self.graph.forEachNode(n => self.graph.setLabelText(n, n.countNeighbors()));
+            self.graph.setLabelVisibilities(true);
+        };
+
+        sidebar.menuNodes.OnLabelTextContinuous = function(value) {
+          self.data.loadVariable(value);
+          self.graph.forEachNode(n => self.graph.setLabelText(n, n.userData.getContinuous().mean.toFixed(2)));
+          self.graph.setLabelVisibilities(true);
+        };
+
         sidebar.menuSave.OnBackgroundColorChange = function(value) {
             backgroundColor.set("#" + value);
             self.graph.setBackgroundColor(backgroundColor);
@@ -219,7 +230,7 @@ class tdaview {
                 self.graph.setLabelColors(colString);
             }
             self.graph.update();
-        }
+        };
 
         function saveAs(blob, filename) {
             if (window.navigator.msSaveOrOpenBlob) {
