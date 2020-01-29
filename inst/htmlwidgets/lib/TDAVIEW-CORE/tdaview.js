@@ -142,6 +142,7 @@ class tdaview {
 
             if(legendBar.getVisibility()) {
                 legendBar.setGradientCSS(sidebar.menuNodes.nodeGradPicker.getGradientCSS());
+                legendBar.setColors(steps);
             } else {
                 legendPie.setColors(steps.map(s => s.color.getHexString()));
             }
@@ -272,6 +273,8 @@ class tdaview {
 
                 //Canvas transformation, draws legends
                 doc.save();
+
+                console.log(self.graph.width);
 
                 //doc.fillColor("blue");
                 //doc.rect(0, 0, 10, 10);

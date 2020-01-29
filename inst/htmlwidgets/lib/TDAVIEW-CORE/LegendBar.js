@@ -24,12 +24,21 @@ class LegendBar {
     }
 
     fillContext(ctx) {
-      if(!this.visible) return;
+      if(!this.visible || this.steps.length == 0) return;
 
       let rect = this.bar.getBoundingClientRect();
-      ctx.fillColor(this.bar.style.color.toUpperCase());
-      ctx.rect(rect.left, rect.bottom, rect.width, rect.height);
-      ctx.fill();
+
+      //TODO: Fix coordinate offset issues
+      let grad = ctx.linearGradient(rect.x - rect.width/2 - 175, rect.y - rect.height/2, rect.x + rect.width/2 - 175, rect.y + rect.height/2);
+
+      if(this.steps[0].percentage > 0) grad.stop(0, '#' + this.steps[0].color.getHexString().toUpperCase());
+      for(let i=0; i<this.steps.length; ++i) {
+        grad.stop(this.steps[i].percentage, '#' + this.steps[i].color.getHexString().toUpperCase());
+      }
+      if(this.steps[0].percentage < 1) grad.stop(1, '#' + this.steps[this.steps.length-1].color.getHexString().toUpperCase());
+
+      ctx.rect(rect.x - 250, rect.y, rect.width, rect.height);
+      ctx.fill(grad);
     }
 
     setTitle(title) {
@@ -46,7 +55,12 @@ class LegendBar {
     }
 
     setGradientCSS(style) {
+      console.log(style);
         this.bar.style.backgroundImage = style;
+    }
+
+    setColors(steps) {
+      this.steps = steps;
     }
 
     setVisibility(visible) {
