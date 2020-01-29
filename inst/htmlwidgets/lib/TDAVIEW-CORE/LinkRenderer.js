@@ -147,12 +147,13 @@ class LinkRenderer extends THREE.Group {
     }
 
     fillContext(ctx) {
+        let opacity = this.material.uniforms.linkAlpha.value;
         let array = this.mesh.geometry.attributes.position.array;
         let col = this.mesh.geometry.attributes.u.array;
         for(let i=0, j=0; i<array.length; i+=8, j+=4) {
             let grad = ctx.linearGradient(array[i + 2], -array[i + 3], array[i + 4], -array[i + 5]);
-            grad.stop(0, "#" + this.colormap.getColor(col[j + 0]).getHexString().toUpperCase());
-            grad.stop(1 ,"#" + this.colormap.getColor(col[j + 2]).getHexString().toUpperCase());
+            grad.stop(0, "#" + this.colormap.getColor(col[j + 0]).getHexString().toUpperCase(), opacity);
+            grad.stop(1 ,"#" + this.colormap.getColor(col[j + 2]).getHexString().toUpperCase(), opacity);
 
             ctx.moveTo(array[i + 0], -array[i + 1]);
             ctx.lineTo(array[i + 2], -array[i + 3]);
