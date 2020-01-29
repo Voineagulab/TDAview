@@ -251,25 +251,27 @@ class tdaview {
 
         sidebar.menuSave.OnExportGraph = function(value) {
             if(value == "pdf") {
-                let size = self.graph._getBoundingBox().getSize(); //width, height, depth
+                let bottomLeft = new THREE.Vector3(-1, -1, -1).unproject(self.graph.camera);
+                let topRight = new THREE.Vector3(1, 1, -1).unproject(self.graph.camera);
 
-                const doc = new PDFDocument({size: [size.x, size.y]});
+                const doc = new PDFDocument({size: [self.graph.width, self.graph.height], margin: 0});
                 const stream = doc.pipe(blobStream());
 
                 //Background color
-                doc.rect(0, 0, size.x, size.y);
+                doc.rect(0, 0, self.graph.width, self.graph.height);
                 doc.fillColor('#' + backgroundColor.getHexString().toUpperCase());
                 doc.fill();
 
                 //Viewport transformation, draws nodes links and labels
                 doc.save();
-                doc.translate(size.x/2, size.y/2);
+                doc.translate(self.graph.width/2 - self.graph.camera.position.x * (topRight.x - bottomLeft.x)/self.graph.width, self.graph.height/2 + self.graph.camera.position.y * (topRight.y - bottomLeft.y)/self.graph.height);
+                doc.scale(self.graph.width/(topRight.x - bottomLeft.x), self.graph.height/(topRight.y - bottomLeft.y));
+
                 self.graph.fillContext(doc);
                 doc.restore();
 
                 //Canvas transformation, draws legends
                 doc.save();
-                doc.scale(1, size.y / self.graph.height);
 
                 //doc.fillColor("blue");
                 //doc.rect(0, 0, 10, 10);
