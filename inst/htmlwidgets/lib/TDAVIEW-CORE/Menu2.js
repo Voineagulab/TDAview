@@ -117,7 +117,7 @@ class Menu {
     }
 
     setSubmenusEnabled(value) {
-        for(let i=1; i<this.accItem.length-1; ++i) {
+        for(let i=3; i<this.accItem.length-1; ++i) {
             if(value) this.accItem[i].classList.remove("disable_acc");
             else this.accItem[i].classList.add("disable_acc");
         }
