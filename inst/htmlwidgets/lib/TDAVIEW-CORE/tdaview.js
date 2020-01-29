@@ -263,6 +263,7 @@ class tdaview {
                 doc.fillColor('#' + backgroundColor.getHexString().toUpperCase());
                 doc.fill();
 
+                //TODO fix slightly incorrect zoom/pan behaviour
                 //Viewport transformation, draws nodes links and labels
                 doc.save();
                 doc.translate(self.graph.width/2 - self.graph.camera.position.x * (topRight.x - bottomLeft.x)/self.graph.width, self.graph.height/2 + self.graph.camera.position.y * (topRight.y - bottomLeft.y)/self.graph.height);

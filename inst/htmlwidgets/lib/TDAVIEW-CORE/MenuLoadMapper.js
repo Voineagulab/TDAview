@@ -12,7 +12,7 @@ class MenuLoadMapper {
         <fieldset>
         <legend>Mapper</legend>
             <form id="mapperLoadForm">
-                <font size="2">Override</font><br>
+                <font size="2">Existing</font><br>
                 <input type="file" id="inputOverride" accept=".json" required>
                 <br><br>
                 <input type="submit" value="Generate Graph" class="myButton">
