@@ -450,8 +450,9 @@ class Graph {
     }
 
     setLabelColors(color) {
+      this.labelColor = "#" + color.toUpperCase();
         for(let i=0; i<this.labels.length; i++) {
-            this.labels[i].element.style.color = "#" + color;
+            this.labels[i].element.style.color = this.labelColor;
         }
     }
 
@@ -479,7 +480,7 @@ class Graph {
 
         if(this.labelsVisible && this.labels.length > 0) {
           ctx.fontSize(this.fontScale);
-          ctx.fillColor("black");
+          ctx.fillColor(this.labelColor);
           for(let i=0; i<this.labels.length; ++i) {
             ctx.text(this.labels[i].element.textContent, this.labels[i].position.x, -this.labels[i].position.y);
           }

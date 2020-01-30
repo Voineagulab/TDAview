@@ -24,28 +24,46 @@ class LegendPie {
     }
 
     fillContext(ctx) {
-      
+      if(!this.visible || this.entries.length == 0) return;
+
+      let fontSizeCompute = parseFloat(window.getComputedStyle(this.title, null).getPropertyValue('font-size'));
+      let rect = this.title.getBoundingClientRect();
+      ctx.fontSize(fontSizeCompute);
+      ctx.fillColor(this.colorString);
+      ctx.text(this.title.textContent, rect.x-250, rect.y);
+
+      for(let i=0; i<this.entries.length; ++ i) {
+          let rect = this.entries[i].getBoundingClientRect();
+          ctx.rect(rect.x - 250, rect.y, rect.width, rect.height);
+          ctx.fill(this.colorStrings[i]);
+
+          rect = this.labels[i].getBoundingClientRect();
+          ctx.fillColor(this.colorString);
+          ctx.text(this.labels[i].textContent, rect.x-250, rect.y);
+      }
     }
 
     setTitle(title) {
-        document.getElementById("legendpietitle").textContent = title;
+        this.title.textContent = title;
     }
 
     createEntries(labels) {
         this.domElement.innerHTML = this.generateHTML(labels);
         this.entries = document.getElementsByClassName("legendpieentry");
         this.labels = document.getElementsByClassName("legendpielabel");
+        this.title = document.getElementById("legendpietitle");
         this._updateLabelColor();
     }
 
     setColors(colorStrings) {
+        this.colorStrings = colorStrings.map(c => "#" + c.toUpperCase());
         for(let i=0; i<this.entries.length; i++) {
-            this.entries[i].style.backgroundColor = "#" + colorStrings[i];
+            this.entries[i].style.backgroundColor = this.colorStrings[i];
         }
     }
 
     setLabelColor(colorString) {
-        this.colorString = colorString
+        this.colorString = "#" + colorString.toUpperCase();
         if(this.getVisibility()) {
             this._updateLabelColor();
         }
@@ -53,7 +71,7 @@ class LegendPie {
 
     _updateLabelColor() {
         for(let i=0; i<this.labels.length; i++) {
-            this.labels[i].style.color = "#" + this.colorString;
+            this.labels[i].style.color = this.colorString;
         }
     }
 
