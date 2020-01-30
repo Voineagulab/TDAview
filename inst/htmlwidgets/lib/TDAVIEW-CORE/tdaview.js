@@ -252,8 +252,8 @@ class tdaview {
 
         sidebar.menuSave.OnExportGraph = function(value) {
             if(value == "pdf") {
-                let bottomLeft = new THREE.Vector3(-1, -1, -1).unproject(self.graph.camera);
-                let topRight = new THREE.Vector3(1, 1, -1).unproject(self.graph.camera);
+                let bottomLeft = new THREE.Vector3(-1, -1, 0).unproject(self.graph.camera);
+                let topRight = new THREE.Vector3(1, 1, 0).unproject(self.graph.camera);
 
                 const doc = new PDFDocument({size: [self.graph.width, self.graph.height], margin: 0});
                 const stream = doc.pipe(blobStream());
@@ -263,10 +263,9 @@ class tdaview {
                 doc.fillColor('#' + backgroundColor.getHexString().toUpperCase());
                 doc.fill();
 
-                //TODO fix slightly incorrect zoom/pan behaviour
                 //Viewport transformation, draws nodes links and labels
                 doc.save();
-                doc.translate(self.graph.width/2 - self.graph.camera.position.x * (topRight.x - bottomLeft.x)/self.graph.width, self.graph.height/2 + self.graph.camera.position.y * (topRight.y - bottomLeft.y)/self.graph.height);
+                doc.translate(self.graph.width/2 - self.graph.camera.position.x * self.graph.width/(topRight.x - bottomLeft.x), self.graph.height/2 + self.graph.camera.position.y * self.graph.height/(topRight.y - bottomLeft.y));
                 doc.scale(self.graph.width/(topRight.x - bottomLeft.x), self.graph.height/(topRight.y - bottomLeft.y));
 
                 self.graph.fillContext(doc);
@@ -274,12 +273,6 @@ class tdaview {
 
                 //Canvas transformation, draws legends
                 doc.save();
-
-                console.log(self.graph.width);
-
-                //doc.fillColor("blue");
-                //doc.rect(0, 0, 10, 10);
-                //doc.fill();
 
                 legendBar.fillContext(doc);
                 legendPie.fillContext(doc);
