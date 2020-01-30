@@ -527,12 +527,12 @@ class Graph {
      * Gets the maximum dimensions of the graph
      * @returns {THREE.Box3} A bounding box
      */
-    _getBoundingBox() {
+    _getBoundingBox(margin) {
         var box = new THREE.Box3();
         for(let i=0; i<this.nodes.length; i++) {
             box.expandByPoint(this.nodes[i].getPosition()); //TODO something in model matrix is broken? expandByObject AND setFromObject don't work
         }
-        box.expandByScalar(200); //TODO fix hardcoded margin
+        box.expandByScalar(margin);
         return box;
     }
 
@@ -563,7 +563,7 @@ class Graph {
      * @param  {Number} value Zoom value in the range [0.0, 1.0]
      */
     _setZoom(value) {
-        this.camera.zoom = THREE.Math.lerp(this._getZoomMin(window.devicePixelRatio), this._getZoomMax(), value);
+        this.camera.zoom = THREE.Math.lerp(this._getZoomMin(), this._getZoomMax(), value);
         this.camera.updateProjectionMatrix();
         this._updatePixelZoom();
         this._updateFontZoom();
@@ -574,8 +574,10 @@ class Graph {
      * @return {Number} A raw zoom value
      */
     _getZoomMin() {
-        var box = this._getBoundingBox();
-        return Math.min(this.width / (box.max.x - box.min.x), this.height / (box.max.y - box.min.y)) * window.devicePixelRatio;
+        var box = this._getBoundingBox(200);
+        let aspect = this.width / this.height;
+        if(aspect > 1.0 ) return (this.frustumSize) / ( box.max.y - box.min.y );
+        return (this.frustumSize) / ( box.max.x - box.min.x );
     }
 
     /**
