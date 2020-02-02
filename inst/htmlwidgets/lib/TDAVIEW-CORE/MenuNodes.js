@@ -319,12 +319,12 @@ class MenuNodes {
     }
 
     _deserializeLabelColor(obj) {
+        this.labelColPicker.setColor(obj.color);
         if(obj.source == "uniform") {
             document.getElementById("labelcolor").click();
         } else {
             document.getElementById("labelcolorbackground").click();
         }
-        this.labelColPicker.setColor(obj.color);
     }
 
     _initLabelSize() {

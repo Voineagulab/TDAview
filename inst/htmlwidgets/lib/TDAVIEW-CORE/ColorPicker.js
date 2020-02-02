@@ -35,6 +35,7 @@ class ColorPicker {
     setColor(color) {
         this.silent = true;
         this.picker.set("#" + color);
+        this.color = color;
     }
 
 
