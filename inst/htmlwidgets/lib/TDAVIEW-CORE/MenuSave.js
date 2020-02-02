@@ -11,7 +11,7 @@ class MenuSave {
         return /*html*/`
         <fieldset>
         <legend>Editor</legend>
-            <input type="button" class="myButton" id="settingsimport" value="Import Settings"><br><br>
+            <input type="file" id="settingsimport" value="Import Settings"><br><br>
             <input type="button" class="myButton" id="settingsexport" value="Export Settings"><br><br>
             <input type="button" class="myButton" id="mapperexport" value="Export Mapper">
         </fieldset>
@@ -35,6 +35,16 @@ class MenuSave {
 
     _init() {
         var self = this;
+
+        document.getElementById("settingsimport").onchange = function(event) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let settingsObj = JSON.parse(e.target.result);
+                self.OnSettingsFileChange(settingsObj);
+            }
+            reader.readAsText(this.files[0]);
+        }
+
         this.backColorPicker = new ColorPicker(document.getElementById("back-color-picker-insert"));
 
         this.backColorPicker.OnColorChange = function(color) {
