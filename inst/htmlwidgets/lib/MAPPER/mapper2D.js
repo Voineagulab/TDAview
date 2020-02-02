@@ -144,7 +144,7 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
             let k1 = vertices_in_level.filter((value, index) => level_indices_1[index] == i && level_indices_2[index] == j);
             let k2 = vertices_in_level.filter((value, index) => level_indices_1[index] == i && level_indices_2[index] == j-1);
 
-            if(k1[0].length && k2[0].length) {
+            if(k1.length && k1[0].length && k2.length && k2[0].length) {
                 for(let v1Array of k1) {
                     for(let v1 of v1Array) {
                         for(let v2Array of k2) {
@@ -167,7 +167,7 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
             let k1 = vertices_in_level.filter((value, index) => level_indices_1[index] == i && level_indices_2[index] == j);
             let k2 = vertices_in_level.filter((value, index) => level_indices_1[index] == i-1 && level_indices_2[index] == j);
 
-            if(k1[0].length && k2[0].length) {
+            if(k1.length && k1[0].length && k2.length && k2[0].length) {
                 for(let v1Array of k1) {
                     for(let v1 of v1Array) {
                         for(let v2Array of k2) {
