@@ -186,7 +186,6 @@ select {
 
 .open_acc .accordion-item-content {
     max-height: 1000px;
-    padding-bottom: 10px;
     padding-top: 10px;
 }
 
@@ -256,6 +255,10 @@ fieldset {
     border-style: solid;
 }
 
+.fieldsetTight {
+    border-style: none;
+}
+
 /* Button styling | https://www.bestcssbuttongenerator.com/#/36 */
 
 .myButton {
@@ -267,12 +270,44 @@ fieldset {
 	top: 1px;
 }
 
+.myButtonBottom {
+    position: absolute;
+    width: 200px;
+    bottom: 10px;
+}
+
 #export {
     margin-left: 250px;
     height: 100%;
     position: relative;
 }
 
-.horizontalInput {
+/* Style tab links */
+.tablink {
+    background-color: #aaa;
+    color: black;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 4px 16px;
+    width: 50%;
+  }
+  
+  .tablink:hover {
+    background-color: #bbb;
+  }
+  
+  /* Style the tab content (and add height:100% for full page content) */
+  .tabcontent {
+    color: black;
+    display: none;
+    padding: 50px 20px;
+    height: 100%;
+    background-color: #e1e1e1;
+    height: 300px;
+  }
+
+  .horizontalInput {
     width: 100px;
-}
+  }

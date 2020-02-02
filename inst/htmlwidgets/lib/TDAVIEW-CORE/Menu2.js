@@ -10,7 +10,6 @@ class Menu {
         var accHD = this.domElement.getElementsByClassName("accordion-item-heading");
         this.accItem = this.domElement.getElementsByClassName("accordion-item");
 
-
         let openAcc = function(index) {
             for(let j=0; j<self.accItem.length; j++) {
                 if(index!=j) {
@@ -24,30 +23,12 @@ class Menu {
             accHD[i].addEventListener('click', function() { openAcc(i);}, false);
         }
 
-        this.menuLoadData = new MenuLoadData(document.getElementById("menu-load-data"));
-
-        let tryGetDataFile = function() {
-            let df = self.menuLoadData.getDataFile();
-            if(!df) {
-                self.menuLoadData.setDataFileValidity("Data file required");
-                openAcc(0);
-                throw "Data file required";
-            } else {
-                self.menuLoadData.setDataFileValidity("");
-            }
-            return df;
-        }
-
-        let getMetaAsync = function(headingsKey, callback) {
-            return self.menuLoadData.getMetaAsync(headingsKey, callback);
-        }
-
         let loadingBar = document.getElementById("progress");
         let setLoadingProgress = function(value) {
             loadingBar.style.width = 100 * value + "%";
         }
-        this.menuLoadMapper = new MenuLoadMapper(document.getElementById("menu-load-mapper"), tryGetDataFile, getMetaAsync);
-        this.menuRunMapper = new MenuRunMapper(document.getElementById("menu-run-mapper"), tryGetDataFile, getMetaAsync, setLoadingProgress);
+
+        this.menuLoad = new MenuLoad(document.getElementById("menu-load"), setLoadingProgress);
         this.menuNodes = new MenuNodes(document.getElementById("menu-nodes"));
         this.menuEdges = new MenuEdge(document.getElementById("menu-edges"));
         this.menuSave = new MenuSave(document.getElementById("menu-save"));
@@ -66,18 +47,8 @@ class Menu {
             <h1 class="heading"></h1><br>
             <div class="accordion-wrapper">
                 <div class="accordion-item">
-                    <h4 class="accordion-item-heading">Load Data</h4>
-                    <div class="accordion-item-content" id="menu-load-data">
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h4 class="accordion-item-heading">Load Mapper Object</h4>
-                    <div class="accordion-item-content" id="menu-load-mapper">
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h4 class="accordion-item-heading">Run Mapper</h4>
-                    <div class="accordion-item-content" id="menu-run-mapper">
+                    <h4 class="accordion-item-heading">Generate Graph</h4>
+                    <div class="accordion-item-content" id="menu-load">
                     </div>
                 </div>
             </div>
@@ -117,7 +88,7 @@ class Menu {
     }
 
     setSubmenusEnabled(value) {
-        for(let i=3; i<this.accItem.length-1; ++i) {
+        for(let i=1; i<this.accItem.length-1; ++i) {
             if(value) this.accItem[i].classList.remove("disable_acc");
             else this.accItem[i].classList.add("disable_acc");
         }
@@ -125,6 +96,7 @@ class Menu {
 
     getSettings() {
         return {
+            load: this.menuLoad.getSettings(),
             nodes: this.menuNodes.getSettings(),
             edges: this.menuEdges.getSettings(),
             save: this.menuSave.getSettings(),
@@ -133,6 +105,7 @@ class Menu {
     }
 
     setSettings(obj) {
+        this.menuLoad.setSettings(obj.load);
         this.menuNodes.setSettings(obj.nodes);
         this.menuEdges.setSettings(obj.edges);
         this.menuSave.setSettings(obj.save);

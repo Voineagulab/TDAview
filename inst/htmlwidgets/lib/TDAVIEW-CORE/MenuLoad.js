@@ -1,72 +1,87 @@
 class MenuLoad {
-    constructor(element, loadingBar) {
+    constructor(element, setLoadingProgress) {
         this.domElement = document.createElement("span");
         this.domElement.innerHTML = this.generateHTML();
-        this.loadingBar = loadingBar;
         element.appendChild(this.domElement);
 
-        this._init();
+        this._init(setLoadingProgress);
     }
 
     generateHTML() {
         return /*html*/`
         <fieldset>
-            <legend>Mapper</legend>
-                <form id="mapperForm">
-                    <font size="2">Data</font><br>
-                    <input type="file" id="inputData" accept=".csv" required>
-                    <br><br>
-                    <font size="2">Metadata</font><br>
-                    <input type="file" id="inputMeta" accept=".csv">
-                    <br><br>
-                    <font size="2">Filter Dimensions</font><br>
-                    <select id="filterdim">
-                        <option value="1">Mapper1D</option>
-                        <option value="2">Mapper2D</option>
-                    </select>
-                    <br><br>
-                    <font size="2">Distance Function</font><br>
-                    <select id="distfunc">
-                        <option value="euclidean">Euclidean</option>
-                        <option value="absolutepearson">Absolute Pearson</option>
-                    </select>
-                    <br><br>
-                    <font size="2">Filter Function</font><br>
-                    <select id="filterfunc">
-                        <option value="PCAEV1">PCA EV 1</option>
-                        <option value="PCAEV2">PCA EV 2</option>
-                        <option value="PCAEV1,2">PCA EV 1,2</option>
-                    </select>
-                    <br><br>
-                    <font size="2">Override</font><br>
-                    <input type="file" id="inputOverride" accept=".json">
-                    <br><br>
-
-                    <input type="submit" value="Generate Graph" class="myButton">
-                </form>
-            </fieldset>
-
-            <fieldset>
-            <legend>Settings</legend>
-                <input type="file" id="inputSettings" accept=".json">
+            <legend>Load Data</legend>
+            <font size="2">Data</font><br>
+            <input type="file" id="inputData" accept=".csv" required>
+            <br><br>
+            <font size="2">Metadata</font><br>
+            <input type="file" id="inputMeta" accept=".csv">
         </fieldset>
+
+        <br>
+
+        <fieldset class=fieldsetTight>
+            <legend>Mapper Object</legend>
+        </fieldset>
+        <button class="tablink" id="runtab">Run</button>
+        <button class="tablink" id="loadtab">Load</button>
+
+        <div id="runtabouter" class="tabcontent">
+            <font size="2">Filter Dimensions</font><br>
+            <select id="filterdim">
+                <option value="1">Mapper1D</option>
+                <option value="2">Mapper2D</option>
+            </select>
+            <br><br>
+            <font size="2">Num Intervals</font><br>
+            <input class="horizontalInput" id="numintervals" type="number" step="1" min="1" value="50"/>
+            <br>
+
+            <font size="2">Percent Overlap</font><br>
+            <input class="horizontalInput" id="percentoverlap" type="number" min="1" value="50"/>
+            <br>
+
+            <font size="2">Num Bins</font><br>
+            <input class="horizontalInput" id="numbins" type="number" step="1" min="1" value="10"/>
+
+            <br><br>
+            <font size="2">Distance Function</font><br>
+            <select id="distfunc">
+                <option value="euclidean">Euclidean</option>
+                <option value="absolutepearson">Absolute Pearson</option>
+            </select>
+            <br><br>
+            <font size="2">Filter Function</font><br>
+            <select id="filterfunc">
+                <option value="PCAEV1">PCA EV 1</option>
+                <option value="PCAEV2">PCA EV 2</option>
+                <option value="PCAEV1,2">PCA EV 1,2</option>
+            </select>
+            <br><br>
+            <input type="submit" id="mapperSubmitRun" value="Generate" class="myButtonBottom">
+            <br><br>
+
+        </div>
+
+        <div id="loadtabouter" class="tabcontent">
+            <font size="2">Existing</font><br>
+            <input type="file" id="inputOverride" accept=".json">
+            <br><br>
+            <input type="submit" id="mapperSubmitLoad" value="Generate" class="myButtonBottom">
+            <br><br>
+        </div>
         `;
     }
-
-    _init() {
+    
+    _init(setLoadingProgress) {
         var self = this;
-
-        document.getElementById("inputSettings").onchange = function(event) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let settingsObj = JSON.parse(e.target.result);
-                self.OnSettingsFileChange(settingsObj);
-            }
-            reader.readAsText(this.files[0]);
-        }
 
         var filterdim = document.getElementById("filterdim");
         var distfunc = document.getElementById("distfunc");
+
+        var numintervals = document.getElementById("numintervals");
+        var percentoverlap = document.getElementById("percentoverlap");
+        var numbins = document.getElementById("numbins");
 
         const filterfuncpartitionindex = 2;
         var filterfunc = document.getElementById("filterfunc");
@@ -76,71 +91,102 @@ class MenuLoad {
             self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
         };
 
-        document.getElementById("mapperForm").addEventListener('submit', function(event) {
-            event.preventDefault();
+        self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
+        filterdim.onchange = function() {
+            self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
+        };
 
-            let dataFile = event.target[0].files[0];
-            let metaFile = event.target[1].files[0];
-            let overrideFile = event.target[5].files[0];
+        function openPage(pageName, elmnt, color) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+              tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablink");
+            for (i = 0; i < tablinks.length; i++) {
+              tablinks[i].style.backgroundColor = "";
+            }
+            document.getElementById(pageName).style.display = "block";
+            elmnt.style.backgroundColor = color;
+        }
 
-            if(overrideFile) {
-                //1. Load override mapper object directly
-                //2. Load data file for headings column
-                //3. Load metadata file using headings column
+        document.getElementById("runtab").onclick = function(){openPage("runtabouter", this, "#e1e1e1");};
+        document.getElementById("loadtab").onclick = function(){openPage("loadtabouter", this, "#e1e1e1");};
+        runtab.click();
 
-                let or = new FileReader();
-                or.onload = function(ore) {
-                    let mapperObject = JSON.parse(ore.target.result);
-                    MatrixReader.ReadMatrixFromFile(dataFile, function(dataArray, headingsKey, conversionCount) {
-                        self._ReadMetaAsync(metaFile, headingsKey, function(metaObject) {
-                            self.OnMapperFileChange(mapperObject, metaObject, Object.keys(headingsKey));
-                            self._SetLoadingFinished();
-                        });
+        document.getElementById("mapperSubmitRun").onclick = function() {
+            var dataFile = self._tryGetFile(document.getElementById("inputData"));
+
+            if(!window.Worker)  throw "Current brower does not support WebWorkers";
+
+            if(self.myWorker) {
+                self.myWorker.terminate();
+                self.myWorker = undefined;
+            }
+
+            self.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
+            self.myWorker.postMessage({
+              dataFile: dataFile,
+              filterDim: filterdim.options[filterdim.selectedIndex].value,
+              distFunc: distfunc.options[distfunc.selectedIndex].value,
+              filterFunc: filterfunc.options[filterfunc.selectedIndex].value,
+              numintervals: parseInt(numintervals.value),
+              percentoverlap: percentoverlap.value,
+              numbins: parseInt(numbins.value)
+            });
+
+            self.myWorker.onmessage = function(e){
+                if(e.data.warning) {
+                    console.warn(e.data.warning);
+                    window.alert(e.data.warning);
+                }
+
+                setLoadingProgress(e.data.progress);
+
+                if(e.data.mapper) {
+                    self._getMetaAsync(e.data.headingsKey, function(metaObject) {
+                        self.OnMapperFileChange(e.data.mapper, metaObject, Object.keys(e.data.headingsKey));
+                        setLoadingProgress(0);
                     });
                 }
-                or.readAsText(overrideFile);
-            } else {
-                //1. Load data using webworker, which also returns headings column
-                //2. Load metadata file using headings column
-
-                if(!window.Worker)  throw "Current brower does not support WebWorkers";
-
-                if(self.myWorker) {
-                    self.myWorker.terminate();
-                    self.myWorker = undefined;
-                }
-
-                self.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
-                self.myWorker.postMessage({dataFile: dataFile, filterDim: filterdim.options[filterdim.selectedIndex].value, distFunc: distfunc.options[distfunc.selectedIndex].value, filterFunc: filterfunc.options[filterfunc.selectedIndex].value});
-                self.myWorker.onmessage = function(e){
-                    if(e.data.warning) {
-                        console.warn(e.data.warning);
-                        window.alert(e.data.warning);
-                    }
-
-                    self._SetLoadingProgress(e.data.progress);
-
-                    if(e.data.mapper) {
-                        self.loadingBar.style.width = 0;
-
-                        if(!metaFile) {
-                            self.OnMapperFileChange(e.data.mapper, {}, Object.keys(e.data.headingsKey));
-                            self._SetLoadingFinished();
-                        } else {
-                            self._ReadMetaAsync(metaFile, e.data.headingsKey, function(metaObject) {
-                                self.OnMapperFileChange(e.data.mapper, metaObject, Object.keys(e.data.headingsKey));
-                                self._SetLoadingFinished();
-                            });
-                        }
-                    }
-                }
-
-                self.myWorker.onerror = function (e) {
-                    console.error(e.message);
-                    window.alert(e.message);
-                };
             }
-        });
+
+            self.myWorker.onerror = function (e) {
+                console.error(e.message);
+                window.alert(e.message);
+            };
+        }
+
+        document.getElementById("mapperSubmitLoad").onclick = function() {
+            let dataFile = self._tryGetFile(document.getElementById("inputData"));
+            let overrideFile = self._tryGetFile(document.getElementById("inputOverride"));
+
+            //1. Load override mapper object directly
+            //2. Load data file for headings column
+            //3. Load metadata file using headings column
+
+            let or = new FileReader();
+            or.onload = function(ore) {
+                let mapperObject = JSON.parse(ore.target.result);
+                MatrixReader.ReadMatrixFromFile(dataFile, function(dataArray, headingsKey, conversionCount) {
+                    self._getMetaAsync(headingsKey, function(metaObject) {
+                        self.OnMapperFileChange(mapperObject, metaObject, Object.keys(headingsKey));
+                    });
+                });
+            }
+            or.readAsText(overrideFile);
+        }
+    }
+
+    _tryGetFile(element) {
+        if(!element.files[0]) {
+            element.setCustomValidity("File required");
+            element.reportValidity();
+            throw "Data file required";
+        } else {
+            element.setCustomValidity("");
+        }
+        return element.files[0];
     }
 
     _UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex){
@@ -159,16 +205,15 @@ class MenuLoad {
         }
     }
 
-    _SetLoadingProgress(value) {
-        this.loadingBar.style.width = 100 * value + "%";
-    }
-
-    _SetLoadingFinished() {
-        this.loadingBar.style.width = 0;
-    }
-
     //Thing to match is first column of each row
-    _ReadMetaAsync(file, headingsKey, callback) {
+    _getMetaAsync(headingsKey, callback) {
+        let metafile = document.getElementById("inputMeta").files[0];
+
+        if(!metafile) {
+            callback({});
+            return;
+        }
+
         var reader = new FileReader();
         reader.onload = function(m) {
             let dataCSV = m.target.result.trim();
@@ -195,7 +240,16 @@ class MenuLoad {
             }
             callback(metaObj);
         }
-        reader.readAsText(file);
+        reader.readAsText(metafile);
+    }
+
+    //TODO
+    getSettings() {
+        return {};
+    }
+
+    setSettings(obj) {
+
     }
 
     OnMapperFileChange(mapperObject, metaObject, rownames) {}

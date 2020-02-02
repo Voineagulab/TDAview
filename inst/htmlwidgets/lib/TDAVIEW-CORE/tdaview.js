@@ -340,7 +340,7 @@ class tdaview {
 
         this.sidebar = sidebar;
 
-        sidebar.menuLoadMapper.OnMapperFileChange = sidebar.menuRunMapper.OnMapperFileChange = function(mapperObj, metaObj, rowNames) {
+        sidebar.menuLoad.OnMapperFileChange = function(mapperObj, metaObj, rowNames) {
             //Save settings
             var settingsObj = self.getSettings();
 
