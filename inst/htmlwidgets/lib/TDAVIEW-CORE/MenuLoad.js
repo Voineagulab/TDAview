@@ -110,8 +110,8 @@ class MenuLoad {
             elmnt.style.backgroundColor = color;
         }
 
-        document.getElementById("runtab").onclick = function(){openPage("runtabouter", this, "#e1e1e1");};
-        document.getElementById("loadtab").onclick = function(){openPage("loadtabouter", this, "#e1e1e1");};
+        document.getElementById("runtab").onclick = function(){openPage("runtabouter", this, "#ececee");};
+        document.getElementById("loadtab").onclick = function(){openPage("loadtabouter", this, "#ececee");};
         runtab.click();
 
         document.getElementById("mapperSubmitRun").onclick = function() {

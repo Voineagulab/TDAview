@@ -273,7 +273,7 @@ fieldset {
 .myButtonBottom {
     position: absolute;
     width: 200px;
-    bottom: 10px;
+    bottom: 12.5px;
 }
 
 #export {
@@ -284,7 +284,7 @@ fieldset {
 
 /* Style tab links */
 .tablink {
-    background-color: #aaa;
+    background-color: #c6c6c6;
     color: black;
     float: left;
     border: none;
@@ -292,6 +292,8 @@ fieldset {
     cursor: pointer;
     padding: 4px 16px;
     width: 50%;
+    border-left: 2.5px solid #FFF;
+    border-right: 2.5px solid #FFF;
   }
   
   .tablink:hover {
@@ -304,8 +306,9 @@ fieldset {
     display: none;
     padding: 50px 20px;
     height: 100%;
-    background-color: #e1e1e1;
+    background-color: #ececee;
     height: 300px;
+    margin: 2.5px;
   }
 
   .horizontalInput {
