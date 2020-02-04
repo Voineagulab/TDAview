@@ -19,6 +19,7 @@
 }
 
 html, body, #tdaview-container, #export {
+    margin: 0px;
     height: 100%;
     min-height: 100%; /* for firefox */
     overflow: hidden;
