@@ -189,7 +189,7 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
             if(k1.length && k1[0].length && k2.length && k2[0].length) {
                 for(let v1Array of k1) {
                     for(let v1 of v1Array) {
-                        v -= 1;
+                        v1 -= 1;
                         for(let v2Array of k2) {
                             for(v2 of v2Array) {
                                 v2 -= 1;
