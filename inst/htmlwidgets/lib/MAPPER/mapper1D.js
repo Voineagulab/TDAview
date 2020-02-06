@@ -59,7 +59,7 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
         let points_in_level_logical = filter_values.map(v => (min_value_in_level <= v) && (v <= max_value_in_level));
         let num_points_in_level = points_in_level_logical.reduce((count, v) => count + (v==true), 0);
         let points_in_level_current = points_in_level_logical.map((v, index) => index).filter(i => (points_in_level_logical[i]==true));
-        points_in_level.push(points_in_level_current);
+        points_in_level.push(points_in_level_current.map(p => p+1));
 
         if (num_points_in_level == 0) {
             console.log('Level set is empty');
@@ -68,7 +68,7 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
             console.log('Level set has only one point')
             points_in_vertex.push(points_in_level_current);
             vertices_in_level.push([vertex_index]);
-            level_of_vertex.push(level);
+            level_of_vertex.push(level+1);
             vertex_index += 1;
         } else {
             let level_distance_matrix = new ML.MatrixLib.MatrixSelectionView(distance_matrix, points_in_level_current, points_in_level_current);
@@ -84,14 +84,30 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
                 }
             });
 
+            heights.sort();
+
             let cutoff = cluster_cutoff_at_first_empty_bin(heights, level_max_distance, num_bins_when_clustering);
 
-            //Apply cut 
-            let cut_result = level_hcluster_output.cut(cutoff);
-            let num_vertices_in_level = cut_result.length;
+            let n = level_hcluster_output.size; //nrow(tree$merge) + 1
+            
+            //finds the index of the first height greater than cutoff
+            //tree$height is the array of heights in non-decreasing order
 
+            let maxI = (n<=2) ? 0 : heights.length;
+            for(let i=0; i<heights.length; ++i) {
+                if(heights[i] > cutoff) {
+                    maxI = i;
+                    break;
+                }
+            }
+
+            let k = n - maxI; // n + 1 - apply(outer(c(tree$height, Inf), h, ">"), 2, which.max)
+
+            let group_result = level_hcluster_output.group(k)
+            let num_vertices_in_level = group_result.children.length;
             for(let i=0; i<num_vertices_in_level; ++i) {
-                points_in_vertex.push(cut_result[i].indices().map(i => points_in_level_current[i]+1).sort((a, b) => a - b)); //console.log(cut_result[0].indices()); //all in 1st group so R produces 1 1 1 1 ... 
+                points_in_vertex.push(group_result.children[i].indices().map(i => points_in_level_current[i]+1));
+                console.log(points_in_vertex[points_in_vertex.length-1]);
             }
 
             let vertex_ids = new Array(num_vertices_in_level);
@@ -99,8 +115,10 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
                 vertex_ids[i] = vertex_index + i;
             }
             vertices_in_level.push(vertex_ids);
-            level_of_vertex = level_of_vertex.concat(new Array(num_vertices_in_level).fill(level));
+            level_of_vertex = level_of_vertex.concat(new Array(num_vertices_in_level).fill(level+1));
             vertex_index += num_vertices_in_level;
+
+            
         }
     } // end mapper main loop
   
@@ -111,6 +129,9 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
     for(let i=0; i<num_vertices; ++i) {
         adja[i] = new Array(num_vertices).fill(0);
     }
+
+    //TODO: note sharing points is not enough to connect vertices - they must be in adjacent levels
+    //Also weird, the vertex that gets connected happens to be the first one
     
     for(let i=1; i<num_intervals; ++i) { //for all adjacent intervals
         for(let l1=0; l1<vertices_in_level[i].length; ++l1)  {
