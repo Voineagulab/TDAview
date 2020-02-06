@@ -85,16 +85,16 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
         let points_in_level_logical = filter_values[0].map((v, i) => (min_value_in_level_1 <= v) && (v <= max_value_in_level_1) && (min_value_in_level_2 <= filter_values[1][i]) && (filter_values[1][i] <= max_value_in_level_2));
         let num_points_in_level = points_in_level_logical.reduce((count, v) => count + (v==true), 0);
         let points_in_level_current = points_in_level_logical.map((v, index) => index).filter(i => (points_in_level_logical[i]==true));
-        points_in_level.push(points_in_level_current);
+        points_in_level.push(points_in_level_current.map(p => p+1));
 
         if (num_points_in_level == 0) {
             console.log('Level set is empty');
             vertices_in_level.push([]);
         } else if (num_points_in_level == 1) {
             console.log('Level set has only one point')
-            points_in_vertex.push(points_in_level_current);
-            vertices_in_level.push([vertex_index]);
-            level_of_vertex.push(level);
+            points_in_vertex.push([points_in_level_current[0] + 1]);
+            vertices_in_level.push([vertex_index + 1]);
+            level_of_vertex.push(level+1);
             vertex_index += 1;
         } else {
             let level_distance_matrix = new ML.MatrixLib.MatrixSelectionView(distance_matrix, points_in_level_current, points_in_level_current);
@@ -110,20 +110,37 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
                 }
             });
 
+            heights.sort((a, b) => a-b);
+
             let cutoff = cluster_cutoff_at_first_empty_bin(heights, level_max_distance, num_bins_when_clustering);
 
-            //Apply cut 
-            let cut_result = level_hcluster_output.cut(cutoff);
-            let num_vertices_in_level = cut_result.length;
+            let n = level_hcluster_output.size;
 
-            for(let i=0; i<num_vertices_in_level; ++i) {
-                points_in_vertex.push(cut_result[i].indices().map(i => points_in_level_current[i]+1).sort((a, b) => a - b)); //console.log(cut_result[0].indices()); //all in 1st group so R produces 1 1 1 1 ... 
+            let maxI = (n<=2) ? 0 : heights.length;
+            for(let i=0; i<heights.length; ++i) {
+                if(heights[i] > cutoff) {
+                    maxI = i;
+                    break;
+                }
             }
+
+            let k = n - maxI; // n + 1 - apply(outer(c(tree$height, Inf), h, ">"), 2, which.max)
+
+            let group_result = level_hcluster_output.group(k)
+            let num_vertices_in_level = group_result.children.length;
+
+            let points_in_vertex_curr = [];
+            for(let i=0; i<num_vertices_in_level; ++i) {
+                points_in_vertex_curr.push(group_result.children[i].indices().map(i => points_in_level_current[i]+1).sort((a, b) => a-b));
+            }
+            points_in_vertex_curr.sort((a, b) => !a.length || !b.length || a[0] - b[0]);
+            points_in_vertex.push(...points_in_vertex_curr);
 
             let vertex_ids = new Array(num_vertices_in_level);
             for(let i=0; i<vertex_ids.length; ++i) {
-                vertex_ids[i] = vertex_index + i;
+                vertex_ids[i] = vertex_index + i + 1;
             }
+
             vertices_in_level.push(vertex_ids);
             level_of_vertex = level_of_vertex.concat(new Array(num_vertices_in_level).fill(level));
             vertex_index += num_vertices_in_level;
@@ -147,8 +164,10 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
             if(k1.length && k1[0].length && k2.length && k2[0].length) {
                 for(let v1Array of k1) {
                     for(let v1 of v1Array) {
+                        v1 -= 1;
                         for(let v2Array of k2) {
                             for(v2 of v2Array) {
+                                v2 -= 1;
                                 if(v2 <= v1 && points_in_vertex[v1].some(val=> points_in_vertex[v2].includes(val))) { //add symmetric edge if any points intersect
                                     adja[v1][v2] = adja[v2][v1] = 1;
                                 }

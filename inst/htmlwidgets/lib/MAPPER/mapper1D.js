@@ -84,8 +84,8 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
                 }
             });
 
-            heights.sort();
-
+            heights.sort((a, b) => a-b);
+            
             let cutoff = cluster_cutoff_at_first_empty_bin(heights, level_max_distance, num_bins_when_clustering);
 
             let n = level_hcluster_output.size; //nrow(tree$merge) + 1
@@ -136,9 +136,6 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
         adja[i] = new Array(num_vertices).fill(0);
     }
 
-    //TODO: note sharing points is not enough to connect vertices - they must be in adjacent levels
-    //Also weird, the vertex that gets connected happens to be the first one
-    
     for(let i=1; i<num_intervals; ++i) { //for all adjacent intervals
         for(let l1=0; l1<vertices_in_level[i].length; ++l1)  {
             let v1 = vertices_in_level[i][l1]-1;
