@@ -66,8 +66,8 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
             vertices_in_level.push([]);
         } else if (num_points_in_level == 1) {
             console.log('Level set has only one point')
-            points_in_vertex.push(points_in_level_current);
-            vertices_in_level.push([vertex_index]);
+            points_in_vertex.push([points_in_level_current[0] + 1]);
+            vertices_in_level.push([vertex_index + 1]);
             level_of_vertex.push(level+1);
             vertex_index += 1;
         } else {
@@ -105,14 +105,20 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
 
             let group_result = level_hcluster_output.group(k)
             let num_vertices_in_level = group_result.children.length;
+
+            //Sorting isn't strictly necessary here, but makes diff comparison easier
+            let points_in_vertex_curr = [];
             for(let i=0; i<num_vertices_in_level; ++i) {
-                points_in_vertex.push(group_result.children[i].indices().map(i => points_in_level_current[i]+1));
-                console.log(points_in_vertex[points_in_vertex.length-1]);
+                points_in_vertex_curr.push(group_result.children[i].indices().map(i => points_in_level_current[i]+1).sort((a, b) => a-b));
             }
+            points_in_vertex_curr.sort((a, b) => !a.length || !b.length || a[0] - b[0]);
+            //for(let i=0; i<num_vertices_in_level; ++i) console.log(points_in_vertex_curr[i]);
+
+            points_in_vertex.push(...points_in_vertex_curr);
 
             let vertex_ids = new Array(num_vertices_in_level);
             for(let i=0; i<vertex_ids.length; ++i) {
-                vertex_ids[i] = vertex_index + i;
+                vertex_ids[i] = vertex_index + i + 1;
             }
             vertices_in_level.push(vertex_ids);
             level_of_vertex = level_of_vertex.concat(new Array(num_vertices_in_level).fill(level+1));
@@ -135,9 +141,9 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
     
     for(let i=1; i<num_intervals; ++i) { //for all adjacent intervals
         for(let l1=0; l1<vertices_in_level[i].length; ++l1)  {
-            let v1 = vertices_in_level[i][l1];
+            let v1 = vertices_in_level[i][l1]-1;
             for(let l2=0; l2<vertices_in_level[i-1].length; ++l2)  {
-                let v2 = vertices_in_level[i-1][l2];
+                let v2 = vertices_in_level[i-1][l2]-1;
                 if(v2 <= v1 && points_in_vertex[v1].some(val=> points_in_vertex[v2].includes(val))) { //add symmetric edge if any points intersect
                     adja[v1][v2] = adja[v2][v1] = 1;
                 }
