@@ -189,7 +189,6 @@ class tdaview {
             isLabelFromBackground = true;
             let colString = getHighContrastColor(backgroundColor, tempColor).getHexString();
             self.graph.setLabelColors(colString);
-            self.graph.setSelectColor(colString);
         };
 
         sidebar.menuNodes.OnLabelColorUniform = function() {
@@ -218,6 +217,34 @@ class tdaview {
           self.data.loadVariable(value);
           self.graph.forEachNode(n => self.graph.setLabelText(n, n.userData.getContinuous().mean.toFixed(2)));
           self.graph.setLabelVisibilities(true);
+        };
+
+        sidebar.menuEdges.OnLabelTextNone = function() {
+          self.graph.setEdgeLabelVisibilities(false);
+        };
+
+        sidebar.menuEdges.OnLabelTextCommon = function() {
+          self.graph.forEachEdge(function(link){
+            //TODO method slow
+            let i1 = self.data.getPointNames(link.source.userData);
+            let i2 = self.data.getPointNames(link.target.userData);
+            let names = i1.filter(i => i2.includes(i));
+            self.graph.setEdgeLabelText(names.length);
+          });
+        };
+
+        sidebar.menuEdges.OnLabelColorFromBackground = function() {
+            isEdgeLabelFromBackground = true;
+            let colString = getHighContrastColor(backgroundColor, tempColor).getHexString();
+            self.graph.setEdgeLabelColors(colString);
+        };
+
+        sidebar.menuEdges.OnLabelColorUniform = function() {
+            isEdgeLabelFromBackground = false;
+        };
+
+        sidebar.menuEdges.OnLabelColorChange = function(value) {
+            self.graph.setEdgeLabelColors(value);
         };
 
         sidebar.menuSave.OnBackgroundColorChange = function(value) {

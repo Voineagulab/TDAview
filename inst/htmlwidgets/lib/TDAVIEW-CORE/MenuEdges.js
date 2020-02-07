@@ -6,6 +6,10 @@ class MenuEdge {
 
         this._initEdgeColor();
         this._initEdgeStyle();
+        this._initLabelSource();
+        this._initLabelColor();
+
+        //TODO no way to change label size
     }
 
     generateHTML() {
@@ -23,9 +27,29 @@ class MenuEdge {
             Opacity
             <br>
             <input type="range" min="0" max="100" value="100" class="slider" id="edge-alpha-slider"><br>
-            Scale
+            Thickness
             <br>
             <input type="range" min="0" max="100" value="10" class="slider" id="edge-width-slider"><br>
+        </fieldset>
+        <fieldset>
+        <legend>Label Source</legend>
+            <input type="radio" name="labeledgetype" value="none" id="labeledgenone" checked>
+            <label for="labelnone">None</label><br>
+
+            <input type="radio" name="labeledgetype" value="common" id="labeledgecommon">
+            <label for="labelcontent">Points in Common</label><br>
+
+            <input placeholder="Select:" list="continuouslabeledgedatalist" name="continuouslabeledgeinput" id="continuouslabeledgeinput" autocomplete="off" style="width: 200px;" disabled>
+            <datalist id="continuouslabeledgedatalist">
+            </datalist>
+        </fieldset>
+        <fieldset>
+        <legend>Label Color</legend>
+            <input type="radio" name="labelEdgeColor" value="background" id="labeledgecolorbackground" class="label-edge-color-radio" checked/>
+            <label for="labelcolorbackground">From Background</label><br>
+            <input type="radio" name="labelEdgeColor" value="uniform" id="labeledgecolor" class="label-edge-color-radio" />
+            <label for="labeledgecolor">Uniform</label><br><br>
+            <div id="label-edge-color-picker-insert"></div>
         </fieldset>
         `;
     }
@@ -33,13 +57,15 @@ class MenuEdge {
     getSettings() {
         return {
             edgeColor: this._serializeEdgeColor(),
-            edgeStyle: this._serializeEdgeStyle()
+            edgeStyle: this._serializeEdgeStyle(),
+            edgeLabel: this._serializeEdgeLabel()
         }
     }
 
     setSettings(obj) {
         this._deserializeEdgeColor(obj.edgeColor);
         this._deserializeEdgeStyle(obj.edgeStyle);
+        this._deserializeEdgeLabel(obj.edgeLabel);
     }
 
     _initEdgeColor() {
@@ -110,6 +136,57 @@ class MenuEdge {
         document.getElementById("edge-width-slider").oninput();
     }
 
+    _initLabelSource() {
+      var self = this;
+
+      document.getElementById("labeledgenone").onclick = function() {
+        self.OnLabelTextNone();
+      };
+
+      document.getElementById("labeledgecommon").onclick = function() {
+        self.OnLabelTextCommon();
+      }
+    }
+
+    _serializeLabelSource() {
+      return {};
+    }
+
+    _deserializeLabelSource(obj) {
+
+    }
+
+    _initLabelColor() {
+      var self = this;
+
+      this.labelColPicker = new ColorPicker(document.getElementById("label-edge-color-picker-insert"), "ff0000");
+      var labelcolor = document.getElementById("labeledgecolor");
+
+      this.labelColPicker.OnColorChange = function(color) {
+        if(!labelcolor.checked) {
+          labelcolor.click();
+        }
+        self.OnLabelColorChange(color);
+      };
+
+      labelcolor.onclick = function() {
+        self.OnLabelColorUniform();
+        self.OnLabelColorChange(self.labelColPicker.getColor());
+      }
+
+      document.getElementById("labeledgecolorbackground").onclick = function() {
+        self.OnLabelColorFromBackground();
+      }
+    }
+
+    _serializeLabelColor() {
+      return {};
+    }
+
+    _deserializeLabelColor(obj) {
+
+    }
+
     /**
      * Invoked when all edges are to be blended with the background by this amount.
      * @param {Number} alpha a value in the range [0.0, 1.0]
@@ -117,7 +194,7 @@ class MenuEdge {
     OnEdgeAlphaChange(alpha) {}
 
     /**
-     * Invoked when all edges are to be multiplied by this value, 
+     * Invoked when all edges are to be multiplied by this value,
      * where 1.0 stretches them to node radii.
      * @param {Number} width a value in the range [0.0, 1.0]
      */
@@ -139,4 +216,14 @@ class MenuEdge {
      * @param {String} color a six character hex color
      */
     OnEdgeColorChange(color) {}
+
+    OnLabelTextNone() {}
+
+    OnLabelTextCommon() {}
+
+    OnLabelColorChange() {}
+
+    OnLabelColorUniform() {}
+
+    OnLabelColorFromBackground() {}
 }

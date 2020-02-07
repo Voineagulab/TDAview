@@ -53,9 +53,9 @@ class MenuLoad {
             <br><br>
             <font size="2">Filter Function</font><br>
             <select id="filterfunc">
-                <option value="PCAEV1">PCA EV 1</option>
-                <option value="PCAEV2">PCA EV 2</option>
-                <option value="PCAEV1,2">PCA EV 1,2</option>
+                <option value="PCAEV1">PCA 1</option>
+                <option value="PCAEV2">PCA 2</option>
+                <option value="PCAEV1,2">PCA 1,2</option>
             </select>
             <br><br>
             <input type="submit" id="mapperSubmitRun" value="Generate" class="myButtonBottom">
@@ -72,7 +72,7 @@ class MenuLoad {
         </div>
         `;
     }
-    
+
     _init(setLoadingProgress) {
         var self = this;
 

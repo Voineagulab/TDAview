@@ -91,6 +91,15 @@ class Graph {
             this.scene.add(this.labels[i]);
         }
 
+        this.edgeLabels = new Array(links.length);
+        this.edgeLabelsvisible = true;
+        for(let i=0; i<this.edgeLabels.length; ++i) {
+            let div = document.createElement('div');
+            div.className = "unselectable label";
+            this.edgeLabels[i] = new THREE.CSS2DObject(div);
+            this.scene.add(this.edgeLabels[i]);
+        }
+
         this.nodeRenderer = new NodeRenderer(this.nodeColorMap, nodes.length);
         this.linkRenderer = new LinkRenderer(this.edgeColorMap, links.length);
 
@@ -214,6 +223,10 @@ class Graph {
      */
     forEachNode(func) {
         this.nodes.forEach(func);
+    }
+
+    forEachEdge(func){
+      this.links.forEach(func);
     }
 
     OnNodeSelect(node) {}
@@ -458,6 +471,40 @@ class Graph {
 
     setLabelText(node, text) {
         this.labels[node.id].element.textContent = text;
+    }
+
+    setEdgeLabelPosition(link, distance=20) {
+      let label = this.edgeLabels[link.id];
+
+      var sourcePos = new THREE.Vector3(link.source.x, link.source.y, 0);
+      var targetPos = new THREE.Vector3(link.target.x, link.target.y, 0);
+      var midPos = sourcePos.clone().add(targetPos).divideScala(2);
+      var cross = new THREE.Vector2(-(targetPos.y - sourcePos.y), targetPos.x - sourcePos.x).normalize();
+
+      var p = cross.clone().multiplyScalar(distance).add(midPos);
+
+      label.position.x = p.x;
+      label.position.y = p.y;
+    }
+
+    setEdgeLabelVisibilities(visible) {
+      if(visible != this.edgeLabelsVisible) {
+        this.edgeLabelsVisible = visible;
+        for(let i=0; i<this.labels.length; ++i){
+          this.edgeLabels[i].element.classList.toggle("hiddenLabel");
+        }
+      }
+    }
+
+    setEdgeLabelColors(color) {
+      this.edgeLabelColor = "#"+ color.toUpperCase();
+      for(let i=0; i<this.edgeLabels.length; ++i) {
+        this.edgeLabels[i].element.style.color = this.edgeLabelColor;
+      }
+    }
+
+    setEdgeLabelText(link, text) {
+      this.edgeLabels[link.id].element.textContext = text;
     }
 
     /**
