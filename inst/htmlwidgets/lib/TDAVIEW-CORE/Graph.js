@@ -44,6 +44,7 @@ class Graph {
         this.camera = new THREE.OrthographicCamera(frustumSize*aspect/-2, frustumSize*aspect/2, frustumSize/2, frustumSize/-2, 1, 2000);
         this.camera.position.z = 400;
 
+        this.fontScaleEdge = 1;
         this.fontScale = 1;
         this.fontZoom = 0;
 
@@ -365,6 +366,8 @@ class Graph {
 
     setLinkScale(value) {
         this.linkRenderer.setWidth(value);
+        this.forEachEdge(l => this.setEdgeLabelPosition(l));
+        this.update();
     }
 
     /**
@@ -407,6 +410,12 @@ class Graph {
         this.update();
     }
 
+    setFontScaleEdge(value) {
+        this.fontScaleEdge = value;
+        this._updateFontSizeEdge();
+        this.forEachEdge(l => this.setEdgeLabelPosition(l));
+    }
+
     /**
      * Updates all link positions to match nodes and copies these changes to GPU memory
      */
@@ -415,6 +424,7 @@ class Graph {
             this.linkRenderer.setPositionFromNodes(this.links[i]);
         }
         this.linkRenderer.updatePositions();
+        this.forEachEdge(link => this.setEdgeLabelPosition(link));
     }
 
     /**
@@ -471,17 +481,17 @@ class Graph {
 
     setLabelText(node, text) {
         this.labels[node.id].element.textContent = text;
+        this.setLabelPosition(node);
     }
 
-    setEdgeLabelPosition(link, distance=20) {
-      let label = this.edgeLabels[link.id];
+    setEdgeLabelPosition(link) {
+      let label = this.edgeLabels[link.link_id];
 
       var sourcePos = new THREE.Vector3(link.source.x, link.source.y, 0);
       var targetPos = new THREE.Vector3(link.target.x, link.target.y, 0);
-      var midPos = sourcePos.clone().add(targetPos).divideScala(2);
+      var midPos = sourcePos.clone().add(targetPos).divideScalar(2);
       var cross = new THREE.Vector2(-(targetPos.y - sourcePos.y), targetPos.x - sourcePos.x).normalize();
-
-      var p = cross.clone().multiplyScalar(distance).add(midPos);
+      var p = cross.clone().multiplyScalar((link.source.getRadius() + link.target.getRadius())/2 * this.linkRenderer.width + this.fontScale/4 * (label.element.textContent.length + 2)).add(midPos);
 
       label.position.x = p.x;
       label.position.y = p.y;
@@ -490,8 +500,8 @@ class Graph {
     setEdgeLabelVisibilities(visible) {
       if(visible != this.edgeLabelsVisible) {
         this.edgeLabelsVisible = visible;
-        for(let i=0; i<this.labels.length; ++i){
-          this.edgeLabels[i].element.classList.toggle("hiddenLabel");
+        for(let i=0; i<this.edgeLabels.length; ++i){
+          this.edgeLabels[i].element.classList.toggle("hiddenlabel");
         }
       }
     }
@@ -504,7 +514,8 @@ class Graph {
     }
 
     setEdgeLabelText(link, text) {
-      this.edgeLabels[link.id].element.textContext = text;
+      this.edgeLabels[link.link_id].element.textContent = text;
+      this.setEdgeLabelPosition(link);
     }
 
     /**
@@ -590,12 +601,20 @@ class Graph {
     _updateFontZoom() {
         this.fontZoom = this.camera.zoom;
         this._updateFontSize();
+        this._updateFontSizeEdge();
     }
 
     _updateFontSize() {
       this.fontSize = this.fontScale * this.fontZoom;
         for(let i=0; i<this.labels.length; i++) {
             this.labels[i].element.style.fontSize = this.fontSize + "px";
+        }
+    }
+
+    _updateFontSizeEdge() {
+        this.fontSizeEdge = this.fontScaleEdge * this.fontZoom;
+        for(let i=0; i<this.edgeLabels.length; i++) {
+            this.edgeLabels[i].element.style.fontSize = this.fontSize + "px";
         }
     }
 

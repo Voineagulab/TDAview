@@ -8,8 +8,7 @@ class MenuEdge {
         this._initEdgeStyle();
         this._initLabelSource();
         this._initLabelColor();
-
-        //TODO no way to change label size
+        this._initLabelSize();
     }
 
     generateHTML() {
@@ -38,9 +37,6 @@ class MenuEdge {
 
             <input type="radio" name="labeledgetype" value="common" id="labeledgecommon">
             <label for="labelcontent">Points in Common</label><br>
-
-            <input placeholder="Select:" list="continuouslabeledgedatalist" name="continuouslabeledgeinput" id="continuouslabeledgeinput" autocomplete="off" style="width: 200px;" disabled>
-            <datalist id="continuouslabeledgedatalist">
             </datalist>
         </fieldset>
         <fieldset>
@@ -51,6 +47,10 @@ class MenuEdge {
             <label for="labeledgecolor">Uniform</label><br><br>
             <div id="label-edge-color-picker-insert"></div>
         </fieldset>
+        <fieldset>
+        <legend>Label Size</legend>
+            <input type="text" id="labelEdgeSize" value="10"><br>
+        </fieldset>
         `;
     }
 
@@ -59,7 +59,8 @@ class MenuEdge {
             edgeColor: this._serializeEdgeColor(),
             edgeStyle: this._serializeEdgeStyle(),
             edgeLabelSource: this._serializeLabelSource(),
-            edgeLabelColor: this._serializeEdgeColor()
+            edgeLabelColor: this._serializeLabelColor(),
+            edgeLabelSize: this._serializeLabelSize()
         }
     }
 
@@ -67,7 +68,8 @@ class MenuEdge {
         this._deserializeEdgeColor(obj.edgeColor);
         this._deserializeEdgeStyle(obj.edgeStyle);
         this._deserializeLabelSource(obj.edgeLabelSource);
-        this._deserializeLabelColor(obj.edgeLabelColor)
+        this._deserializeLabelColor(obj.edgeLabelColor);
+        this._deserializeLabelSize(obj.edgeLabelSize);
     }
 
     _initEdgeColor() {
@@ -151,11 +153,13 @@ class MenuEdge {
     }
 
     _serializeLabelSource() {
-      return {};
+        return {
+            source: this._getRadioIndex(document.getElementsByName("labeledgetype"))
+        };
     }
 
     _deserializeLabelSource(obj) {
-
+        document.getElementsByName("labeledgetype")[obj.source].click();
     }
 
     _initLabelColor() {
@@ -182,11 +186,43 @@ class MenuEdge {
     }
 
     _serializeLabelColor() {
-      return {};
+      return {
+        color: this.labelColPicker.getColor(),
+        source: this._getRadioIndex(document.getElementsByName("labelEdgeColor"))
+      };
     }
 
     _deserializeLabelColor(obj) {
+        this.labelColPicker.setColor(obj.color);
+        document.getElementsByName("labelEdgeColor")[obj.source].click();
+        
+    }
 
+    _initLabelSize() {
+        var self = this;
+        var labelSizeInput = document.getElementById("labelEdgeSize");
+        labelSizeInput.onchange = function(){
+            self.OnLabelSizeChange(labelSizeInput.value)
+        }
+    }
+
+    _serializeLabelSize() {
+        return {
+            value: document.getElementById("labelEdgeSize").value
+        }
+    }
+
+    _deserializeLabelSize(obj) {
+        var labelSizeInput = document.getElementById("labelEdgeSize");
+        labelSizeInput.value = obj.value;
+        labelSizeInput.onchange();
+    }
+
+    _getRadioIndex(radios) {
+        for(let i=1; i<radios.length; i++) {
+            if(radios[i].checked) return i;
+        }
+        return 0;
     }
 
     /**
@@ -228,4 +264,6 @@ class MenuEdge {
     OnLabelColorUniform() {}
 
     OnLabelColorFromBackground() {}
+
+    OnLabelSizeChange(value) {}
 }

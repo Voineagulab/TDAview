@@ -14,6 +14,7 @@ class tdaview {
         var shouldShareMap = true;
 
         var isLabelFromBackground = false;
+        var isEdgeLabelFromBackground = false;
         var backgroundColor = new THREE.Color();
         var tempColor = new THREE.Color();
         function getHighContrastColor(inColor, outColor) {
@@ -229,8 +230,9 @@ class tdaview {
             let i1 = self.data.getPointNames(link.source.userData);
             let i2 = self.data.getPointNames(link.target.userData);
             let names = i1.filter(i => i2.includes(i));
-            self.graph.setEdgeLabelText(names.length);
+            self.graph.setEdgeLabelText(link, names.length);
           });
+          self.graph.setEdgeLabelVisibilities(true);
         };
 
         sidebar.menuEdges.OnLabelColorFromBackground = function() {
@@ -247,6 +249,10 @@ class tdaview {
             self.graph.setEdgeLabelColors(value);
         };
 
+        sidebar.menuEdges.OnLabelSizeChange = function(value) {
+            self.graph.setFontScaleEdge(value);
+        };
+
         sidebar.menuSave.OnBackgroundColorChange = function(value) {
             backgroundColor.set("#" + value);
             self.graph.setBackgroundColor(backgroundColor);
@@ -256,6 +262,9 @@ class tdaview {
             legendPie.setLabelColor(colString);
             if(isLabelFromBackground) {
                 self.graph.setLabelColors(colString);
+            }
+            if(isEdgeLabelFromBackground) {
+                self.graph.setEdgeLabelColors(colString);
             }
             self.graph.update();
         };
