@@ -58,14 +58,16 @@ class MenuEdge {
         return {
             edgeColor: this._serializeEdgeColor(),
             edgeStyle: this._serializeEdgeStyle(),
-            edgeLabel: this._serializeEdgeLabel()
+            edgeLabelSource: this._serializeLabelSource(),
+            edgeLabelColor: this._serializeEdgeColor()
         }
     }
 
     setSettings(obj) {
         this._deserializeEdgeColor(obj.edgeColor);
         this._deserializeEdgeStyle(obj.edgeStyle);
-        this._deserializeEdgeLabel(obj.edgeLabel);
+        this._deserializeLabelSource(obj.edgeLabelSource);
+        this._deserializeLabelColor(obj.edgeLabelColor)
     }
 
     _initEdgeColor() {
