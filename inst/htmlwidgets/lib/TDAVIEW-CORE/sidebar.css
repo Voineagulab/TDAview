@@ -35,6 +35,15 @@
     z-index: 999999;
 }
 
+#progressText {
+  top: 10px;
+  left: 50%;
+  position: absolute;
+  z-index: 999999;
+  font-size: x-small;
+  color: grey;
+}
+
 input[type="range"].vranger {
     position: absolute;
     left: 260px;
@@ -80,7 +89,7 @@ select { width: 200px}
     mask-image: linear-gradient(bottom, rgba(0, 0, 0, 1.0), rgba(0, 0, 0, 0));
 }
 
-/*select styling 
+/*select styling
 
 select {
     width: 5.5em
@@ -295,11 +304,11 @@ fieldset {
     border-left: 2.5px solid #FFF;
     border-right: 2.5px solid #FFF;
   }
-  
+
   .tablink:hover {
     background-color: #bbb;
   }
-  
+
   /* Style the tab content (and add height:100% for full page content) */
   .tabcontent {
     color: black;

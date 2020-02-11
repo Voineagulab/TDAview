@@ -1,10 +1,10 @@
 class MenuLoad {
-    constructor(element, setLoadingProgress) {
+    constructor(element, setLoadingStep, setLoadingProgress) {
         this.domElement = document.createElement("span");
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
 
-        this._init(setLoadingProgress);
+        this._init(setLoadingStep, setLoadingProgress);
     }
 
     generateHTML() {
@@ -73,7 +73,7 @@ class MenuLoad {
         `;
     }
 
-    _init(setLoadingProgress) {
+    _init(setLoadingStep, setLoadingProgress) {
         var self = this;
 
         var filterdim = document.getElementById("filterdim");
@@ -136,16 +136,23 @@ class MenuLoad {
             });
 
             self.myWorker.onmessage = function(e){
-                if(e.data.warning) {
+                if(e.data.warning !== undefined) {
                     console.warn(e.data.warning);
                     window.alert(e.data.warning);
                 }
 
-                setLoadingProgress(e.data.progress);
+                if(e.data.progressstep !== undefined) {
+                  setLoadingStep(e.data.progressstep.text, e.data.progressstep.currstep, e.data.progressstep.numstep);
+                }
 
-                if(e.data.mapper) {
+                if(e.data.progress !== undefined) {
+                  setLoadingProgress(e.data.progress);
+                }
+
+                if(e.data.mapper !== undefined) {
                     self._getMetaAsync(e.data.headingsKey, function(metaObject) {
                         self.OnMapperFileChange(e.data.mapper, metaObject, Object.keys(e.data.headingsKey));
+                        setLoadingStep("");
                         setLoadingProgress(0);
                     });
                 }

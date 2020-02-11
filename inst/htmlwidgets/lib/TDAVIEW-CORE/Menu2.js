@@ -23,12 +23,21 @@ class Menu {
             accHD[i].addEventListener('click', function() { openAcc(i);}, false);
         }
 
+				let currentStep = 1;
+				let numSteps = 1;
         let loadingBar = document.getElementById("progress");
         let setLoadingProgress = function(value) {
-            loadingBar.style.width = 100 * value + "%";
+						loadingBar.style.width = (100 / numSteps * (value + currentStep-1)) + "%";
         }
 
-        this.menuLoad = new MenuLoad(document.getElementById("menu-load"), setLoadingProgress);
+				let loadingText = document.getElementById("progressText");
+				let setLoadingStep = function(text, currS=1, numS=1) {
+					currentStep = currS;
+					numSteps = numS;
+					loadingText.textContent =	text ? text + " (" + currS + '/' + numS + ')' : "";
+				}
+
+        this.menuLoad = new MenuLoad(document.getElementById("menu-load"), setLoadingStep, setLoadingProgress);
         this.menuNodes = new MenuNodes(document.getElementById("menu-nodes"));
         this.menuEdges = new MenuEdge(document.getElementById("menu-edges"));
         this.menuSave = new MenuSave(document.getElementById("menu-save"));
@@ -43,6 +52,7 @@ class Menu {
     generateHTML() {
         return /*html*/`
         <div id="progress"></div>
+				<div id="progressText"></div>
         <div class="unselectable sidenav">
             <h1 class="heading"></h1><br>
             <div class="accordion-wrapper">

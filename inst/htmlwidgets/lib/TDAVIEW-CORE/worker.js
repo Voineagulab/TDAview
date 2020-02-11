@@ -5,6 +5,8 @@ importScripts('../PAPAPARSE/papaparse.min.js', '../MAPPER/mapper1D.js', '../MAPP
 this.onmessage = function(e) {
     let warning = undefined;
 
+    this.postMessage({progressstep: {text: "loading data...", currstep: 1, numstep: 4}, progress: 0.5});
+
     MatrixReader.ReadMatrixFromFile(e.data.dataFile, function(dataArray, headingsKey, conversionCount) {
         if(conversionCount > 0) warning = (conversionCount + " numeric data NAs converted to zeros");
 
@@ -14,6 +16,8 @@ this.onmessage = function(e) {
         let dist = new ML.Matrix(colCount, colCount);
 
         let cells = (colCount * (colCount + 1)) / 2;
+
+        this.postMessage({progressstep: {text: "calculating distance matrix...", currstep: 2, numstep: 4}});
         if(e.data.distFunc == "euclidean") {
             let squares = new Array(colCount);
             for(let i=0; i<squares.length; ++i) {
@@ -62,10 +66,13 @@ this.onmessage = function(e) {
             }
         }
 
+        this.postMessage({progressstep: {text: "running pca...", currstep: 3, numstep: 4}});
+
         let pca = new ML.PCA(matrix, {method: "SVD"});
         let mapperObj = undefined;
         let filter = undefined;
 
+        this.postMessage({progressstep: {text: "running mapper...", currstep: 4, numstep: 4}});
         if(e.data.filterDim == 1) {
             if(e.data.filterFunc == "PCAEV1") {
                 filter = pca.getEigenvectors().getColumn(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
