@@ -4,6 +4,11 @@ class MenuLoad {
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
 
+        //e.g. http://127.0.0.1:8887?data=/Examples/exp_bySamples.csv&meta=/Examples/meta_bySamples.csv
+        let url = new URL(window.location.href);
+        this.defaultData = url.searchParams.get("data");
+        this.defaultMeta = url.searchParams.get("meta");
+        this.defaultLoad = url.searchParams.get("load");
         this._init(setLoadingStep, setLoadingProgress);
     }
 
@@ -12,10 +17,13 @@ class MenuLoad {
         <fieldset>
             <legend>Load Data</legend>
             <font size="2">Data</font><br>
-            <input type="file" id="inputData" accept=".csv" required>
+            <input type="file" id="inputData" style="display:none;" accept=".csv">
+            <label for="inputData" class="btn btninline">Browse...</label>
+            <font size="1" id="inputDataText" class="btninline">No file chosen</font>
             <br><br>
-            <font size="2">Metadata</font><br>
-            <input type="file" id="inputMeta" accept=".csv">
+            <input type="file" id="inputMeta" style="display:none;" accept=".csv">
+            <label for="inputMeta" class="btn btninline">Browse...</label>
+            <font size="1" id="inputMetaText" class="btninline">No file chosen</font>
         </fieldset>
 
         <br>
@@ -114,86 +122,111 @@ class MenuLoad {
         document.getElementById("loadtab").onclick = function(){openPage("loadtabouter", this, "#ececee");};
         runtab.click();
 
+        let inputData = document.getElementById("inputData");
+        let inputDataText = document.getElementById("inputDataText");
+        inputData.onchange = function() {
+          inputDataText.textContent = inputData.files[0] ? inputData.files[0].name : "No file chosen";
+        }
+
+        if(this.defaultData) inputDataText.textContent = this.defaultData;
+
+        let inputMeta = document.getElementById("inputMeta");
+        let inputMetaText = document.getElementById("inputMetaText");
+        inputMeta.onchange = function() {
+          inputMetaText.textContent = inputMeta.files[0] ? inputMeta.files[0].name : "No file chosen";
+        }
+
+        if(this.defaultMeta) inputDataText.textContent = this.defaultMeta;
+
         document.getElementById("mapperSubmitRun").onclick = function() {
-            var dataFile = self._tryGetFile(document.getElementById("inputData"));
+            self._tryGetFile(document.getElementById("inputData"), true, self.defaultData, function(dataFile) {
+                if(!window.Worker)  throw "Current brower does not support WebWorkers";
 
-            if(!window.Worker)  throw "Current brower does not support WebWorkers";
+                console.log(dataFile);
 
-            if(self.myWorker) {
-                self.myWorker.terminate();
-                self.myWorker = undefined;
-            }
+                if(self.myWorker) {
+                    self.myWorker.terminate();
+                    self.myWorker = undefined;
+                }
 
-            self.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
-            self.myWorker.postMessage({
-              dataFile: dataFile,
-              filterDim: filterdim.options[filterdim.selectedIndex].value,
-              distFunc: distfunc.options[distfunc.selectedIndex].value,
-              filterFunc: filterfunc.options[filterfunc.selectedIndex].value,
-              numintervals: parseInt(numintervals.value),
-              percentoverlap: percentoverlap.value,
-              numbins: parseInt(numbins.value)
+                self.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
+                self.myWorker.postMessage({
+                  dataFile: dataFile,
+                  filterDim: filterdim.options[filterdim.selectedIndex].value,
+                  distFunc: distfunc.options[distfunc.selectedIndex].value,
+                  filterFunc: filterfunc.options[filterfunc.selectedIndex].value,
+                  numintervals: parseInt(numintervals.value),
+                  percentoverlap: percentoverlap.value,
+                  numbins: parseInt(numbins.value)
+                });
+
+                self.myWorker.onmessage = function(e){
+                    if(e.data.warning !== undefined) {
+                        console.warn(e.data.warning);
+                        window.alert(e.data.warning);
+                    }
+
+                    if(e.data.progressstep !== undefined) {
+                      setLoadingStep(e.data.progressstep.text, e.data.progressstep.currstep, e.data.progressstep.numstep);
+                    }
+
+                    if(e.data.progress !== undefined) {
+                      setLoadingProgress(e.data.progress);
+                    }
+
+                    if(e.data.mapper !== undefined) {
+                        self._getMetaAsync(e.data.headingsKey, function(metaObject) {
+                            self.OnMapperFileChange(e.data.mapper, metaObject, Object.keys(e.data.headingsKey));
+                            setLoadingStep("");
+                            setLoadingProgress(0);
+                        });
+                    }
+                }
+
+                self.myWorker.onerror = function (e) {
+                    console.error(e.message);
+                    window.alert(e.message);
+                };
             });
-
-            self.myWorker.onmessage = function(e){
-                if(e.data.warning !== undefined) {
-                    console.warn(e.data.warning);
-                    window.alert(e.data.warning);
-                }
-
-                if(e.data.progressstep !== undefined) {
-                  setLoadingStep(e.data.progressstep.text, e.data.progressstep.currstep, e.data.progressstep.numstep);
-                }
-
-                if(e.data.progress !== undefined) {
-                  setLoadingProgress(e.data.progress);
-                }
-
-                if(e.data.mapper !== undefined) {
-                    self._getMetaAsync(e.data.headingsKey, function(metaObject) {
-                        self.OnMapperFileChange(e.data.mapper, metaObject, Object.keys(e.data.headingsKey));
-                        setLoadingStep("");
-                        setLoadingProgress(0);
-                    });
-                }
-            }
-
-            self.myWorker.onerror = function (e) {
-                console.error(e.message);
-                window.alert(e.message);
-            };
         }
 
         document.getElementById("mapperSubmitLoad").onclick = function() {
-            let dataFile = self._tryGetFile(document.getElementById("inputData"));
-            let overrideFile = self._tryGetFile(document.getElementById("inputOverride"));
+            self._tryGetFile(document.getElementById("inputData"), true, self.defaultData, function(dataFile) {
+                self._tryGetFile(document.getElementById("inputOverride"), true, self.defaultLoad, function(overrideFile) {
+                    //1. Load override mapper object directly
+                    //2. Load data file for headings column
+                    //3. Load metadata file using headings column
 
-            //1. Load override mapper object directly
-            //2. Load data file for headings column
-            //3. Load metadata file using headings column
-
-            let or = new FileReader();
-            or.onload = function(ore) {
-                let mapperObject = JSON.parse(ore.target.result);
-                MatrixReader.ReadMatrixFromFile(dataFile, function(dataArray, headingsKey, conversionCount) {
-                    self._getMetaAsync(headingsKey, function(metaObject) {
-                        self.OnMapperFileChange(mapperObject, metaObject, Object.keys(headingsKey));
-                    });
+                    let or = new FileReader();
+                    or.onload = function(ore) {
+                        let mapperObject = JSON.parse(ore.target.result);
+                        MatrixReader.ReadMatrixFromFile(dataFile, function(dataArray, headingsKey, conversionCount) {
+                            self._getMetaAsync(headingsKey, function(metaObject) {
+                                self.OnMapperFileChange(mapperObject, metaObject, Object.keys(headingsKey));
+                            });
+                        });
+                    }
+                    or.readAsText(overrideFile);
                 });
-            }
-            or.readAsText(overrideFile);
+            });
+
+
+
         }
     }
 
-    _tryGetFile(element) {
-        if(!element.files[0]) {
+    _tryGetFile(element, required, fallbackURL, callback) {
+        element.setCustomValidity("");
+        if(element.files[0]) {
+            callback(element.files[0]);
+        } else if(fallbackURL) {
+            fetch(fallbackURL).then(r => r.blob()).then(b => callback(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
+        } else if(required){
             element.setCustomValidity("File required");
             element.reportValidity();
             throw "Data file required";
-        } else {
-            element.setCustomValidity("");
+            callback(undefined);
         }
-        return element.files[0];
     }
 
     _UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex){
@@ -214,40 +247,40 @@ class MenuLoad {
 
     //Thing to match is first column of each row
     _getMetaAsync(headingsKey, callback) {
-        let metafile = document.getElementById("inputMeta").files[0];
-
-        if(!metafile) {
-            callback({});
-            return;
-        }
-
-        var reader = new FileReader();
-        reader.onload = function(m) {
-            let dataCSV = m.target.result.trim();
-            let dataParsed = Papa.parse(dataCSV);
-            if(dataParsed.meta.aborted) {
-                throw "Invalid metadata CSV";
+        this._tryGetFile(document.getElementById("inputMeta"), false, self.defaultMeta, function(metafile) {
+            if(!metafile) {
+                callback({});
+                return;
             }
-            let metaArray = dataParsed.data;
-            for(let i=1; i<metaArray.length; ++i) {
-                if(metaArray[i].length != metaArray[0].length) {
-                    throw "Invalid metadata headers or column lengths";
+
+            var reader = new FileReader();
+            reader.onload = function(m) {
+                let dataCSV = m.target.result.trim();
+                let dataParsed = Papa.parse(dataCSV);
+                if(dataParsed.meta.aborted) {
+                    throw "Invalid metadata CSV";
                 }
-            }
-
-            //Get meta object
-            let metaObj = {};
-            for(let i=1; i<metaArray[0].length; ++i) {
-                //Match indices
-                let matched = new Array(metaArray.length-1);
-                for(let j=1; j<=matched.length; ++j) {
-                    matched[headingsKey[metaArray[j][0]]] = metaArray[j][i];
+                let metaArray = dataParsed.data;
+                for(let i=1; i<metaArray.length; ++i) {
+                    if(metaArray[i].length != metaArray[0].length) {
+                        throw "Invalid metadata headers or column lengths";
+                    }
                 }
-                metaObj[metaArray[0][i]] = matched;
+
+                //Get meta object
+                let metaObj = {};
+                for(let i=1; i<metaArray[0].length; ++i) {
+                    //Match indices
+                    let matched = new Array(metaArray.length-1);
+                    for(let j=1; j<=matched.length; ++j) {
+                        matched[headingsKey[metaArray[j][0]]] = metaArray[j][i];
+                    }
+                    metaObj[metaArray[0][i]] = matched;
+                }
+                callback(metaObj);
             }
-            callback(metaObj);
-        }
-        reader.readAsText(metafile);
+            reader.readAsText(metafile);
+        });
     }
 
     //TODO

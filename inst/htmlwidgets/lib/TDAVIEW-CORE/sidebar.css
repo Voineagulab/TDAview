@@ -323,3 +323,16 @@ fieldset {
   .horizontalInput {
     width: 100px;
   }
+
+  .btn {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  appearance: button;
+  font-size: 12px;
+  padding: 2.5px;
+}
+
+.btninline {
+  display: inline-block;
+  margin-right: 5px;
+}
