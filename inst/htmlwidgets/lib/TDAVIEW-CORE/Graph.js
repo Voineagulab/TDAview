@@ -73,6 +73,7 @@ class Graph {
             this.scene.remove(this.linkRenderer);
             this.scene.remove(this.selectionMesh);
             for(let i=0; i<this.labels.length; ++i) this.scene.remove(this.labels[i]);
+            for(let i=0; i<this.edgeLabels.length; ++i) this.scene.remove(this.edgeLabels[i]);
             this.interactSystem.clearInteractSets();
         }
 
