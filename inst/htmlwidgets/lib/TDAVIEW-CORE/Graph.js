@@ -367,7 +367,7 @@ class Graph {
 
     setLinkScale(value) {
         this.linkRenderer.setWidth(value);
-        this.forEachEdge(l => this.setEdgeLabelPosition(l));
+        this.forEachEdge(link => this.setEdgeLabelPosition(link));
         this.update();
     }
 
@@ -415,6 +415,7 @@ class Graph {
         this.fontScaleEdge = value;
         this._updateFontSizeEdge();
         this.forEachEdge(l => this.setEdgeLabelPosition(l));
+        this.update();
     }
 
     /**
@@ -615,7 +616,7 @@ class Graph {
     _updateFontSizeEdge() {
         this.fontSizeEdge = this.fontScaleEdge * this.fontZoom;
         for(let i=0; i<this.edgeLabels.length; i++) {
-            this.edgeLabels[i].element.style.fontSize = this.fontSize + "px";
+            this.edgeLabels[i].element.style.fontSize = this.fontSizeEdge + "px";
         }
     }
 
