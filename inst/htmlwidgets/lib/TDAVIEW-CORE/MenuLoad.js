@@ -1,5 +1,6 @@
 class MenuLoad {
     constructor(element, setLoadingStep, setLoadingProgress) {
+        console.log(window.location);
         this.domElement = document.createElement("span");
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
