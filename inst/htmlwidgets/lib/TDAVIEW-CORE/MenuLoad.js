@@ -1,6 +1,5 @@
 class MenuLoad {
     constructor(element, setLoadingStep, setLoadingProgress) {
-        console.log(window.location);
         this.domElement = document.createElement("span");
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
@@ -270,7 +269,7 @@ class MenuLoad {
         if(element.files[0]) {
             success(element.files[0]);
         } else if(fallbackURL) {
-            fetch(fallbackURL).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
+            fetch(window.location.href + fallbackURL).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
         } else if(required){
             element.setCustomValidity("File required");
             element.reportValidity();
