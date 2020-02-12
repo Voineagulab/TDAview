@@ -545,6 +545,14 @@ class Graph {
             ctx.text(this.labels[i].element.textContent, this.labels[i].position.x, -this.labels[i].position.y);
           }
         }
+
+        if(this.edgeLabelsVisible && this.edgeLabels.length > 0) {
+          ctx.fontSize(this.fontScaleEdge);
+          ctx.fillColor(this.edgeLabelColor);
+          for(let i=0; i<this.edgeLabels.length; ++i) {
+            ctx.text(this.edgeLabels[i].element.textContent, this.edgeLabels[i].position.x, -this.edgeLabels[i].position.y);
+          }
+        }
     }
 
     _render() {
