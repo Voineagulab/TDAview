@@ -159,6 +159,11 @@ class MenuLoad {
           }
         }
 
+        function resetProgress() {
+            setLoadingStep("");
+            setLoadingProgress(0);
+        }
+
         document.getElementById("mapperSubmitRun").onclick = function() {
             setLoadingStep("loading data...", 1, 4);
             setLoadingProgress(0.5);
@@ -199,8 +204,7 @@ class MenuLoad {
                     if(e.data.mapper !== undefined) {
                         self._getMetaAsync(e.data.headingsKey, function(metaObject) {
                             self.OnMapperFileChange(e.data.mapper, metaObject, Object.keys(e.data.headingsKey));
-                            setLoadingStep("");
-                            setLoadingProgress(0);
+                            resetProgress();
                         });
                     }
                 }
@@ -209,14 +213,16 @@ class MenuLoad {
                     console.error(e.message);
                     window.alert(e.message);
                 };
-            }, function() {
-                setLoadingStep("", 1, 1);
-                setLoadingProgress(0);
-            });
+            }, resetProgress);
         }
 
         document.getElementById("mapperSubmitLoad").onclick = function() {
+            setLoadingStep("loading data...", 1, 2);
+            setLoadingProgress(0.5);
+
             self._tryGetDataFile(function(dataFile) {
+                setLoadingStep("loading mapper object...", 2, 2);
+                setLoadingProgress(0.5);
                 self._tryGetOverrideFile(function(overrideFile) {
                     //1. Load override mapper object directly
                     //2. Load data file for headings column
@@ -228,15 +234,13 @@ class MenuLoad {
                         MatrixReader.ReadMatrixFromFile(dataFile, function(dataArray, headingsKey, conversionCount) {
                             self._getMetaAsync(headingsKey, function(metaObject) {
                                 self.OnMapperFileChange(mapperObject, metaObject, Object.keys(headingsKey));
+                                resetProgress();
                             });
                         });
                     }
                     or.readAsText(overrideFile);
-                });
-            });
-
-
-
+                }, resetProgress);
+            }, resetProgress);
         }
     }
 
