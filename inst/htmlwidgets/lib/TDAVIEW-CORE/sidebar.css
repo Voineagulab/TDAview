@@ -328,11 +328,22 @@ fieldset {
   -webkit-appearance: button;
   -moz-appearance: button;
   appearance: button;
-  font-size: 12px;
-  padding: 2.5px;
+  font-size: 10px;
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 
 .btninline {
+  color: black;
   display: inline-block;
   margin-right: 5px;
+  overflow: hidden;
+  max-width: 120px;
+}
+
+.btninline.btndisable {
+  opacity: 0.65;
+  pointer-events: none;
 }

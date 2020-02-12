@@ -5,8 +5,6 @@ importScripts('../PAPAPARSE/papaparse.min.js', '../MAPPER/mapper1D.js', '../MAPP
 this.onmessage = function(e) {
     let warning = undefined;
 
-    this.postMessage({progressstep: {text: "loading data...", currstep: 1, numstep: 4}, progress: 0.5});
-
     MatrixReader.ReadMatrixFromFile(e.data.dataFile, function(dataArray, headingsKey, conversionCount) {
         if(conversionCount > 0) warning = (conversionCount + " numeric data NAs converted to zeros");
 

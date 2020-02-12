@@ -4,11 +4,6 @@ class MenuLoad {
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
 
-        //e.g. http://127.0.0.1:8887?data=/Examples/exp_bySamples.csv&meta=/Examples/meta_bySamples.csv
-        let url = new URL(window.location.href);
-        this.defaultData = url.searchParams.get("data");
-        this.defaultMeta = url.searchParams.get("meta");
-        this.defaultLoad = url.searchParams.get("load");
         this._init(setLoadingStep, setLoadingProgress);
     }
 
@@ -18,12 +13,20 @@ class MenuLoad {
             <legend>Load Data</legend>
             <font size="2">Data</font><br>
             <input type="file" id="inputData" style="display:none;" accept=".csv">
-            <label for="inputData" class="btn btninline">Browse...</label>
+            <label for="inputData" id="inputDataLabel" class="btn btninline">Choose File</label>
             <font size="1" id="inputDataText" class="btninline">No file chosen</font>
             <br><br>
             <input type="file" id="inputMeta" style="display:none;" accept=".csv">
-            <label for="inputMeta" class="btn btninline">Browse...</label>
+            <label for="inputMeta" id="inputMetaLabel" class="btn btninline">Choose File</label>
             <font size="1" id="inputMetaText" class="btninline">No file chosen</font>
+
+            <br><br>
+
+            <font size="2">Example Data</font><br>
+            <select id="examples">
+              <option value="none">None</option>
+              <option value="autism">Autism</option>
+            </select>
         </fieldset>
 
         <br>
@@ -73,7 +76,9 @@ class MenuLoad {
 
         <div id="loadtabouter" class="tabcontent">
             <font size="2">Existing</font><br>
-            <input type="file" id="inputOverride" accept=".json">
+            <input type="file" id="inputOverride" style="display:none;" accept=".csv">
+            <label for="inputOverride" id="inputOverrideLabel" class="btn btninline">Choose File</label>
+            <font size="1" id="inputOverrideText" class="btninline">No file chosen</font>
             <br><br>
             <input type="submit" id="mapperSubmitLoad" value="Generate" class="myButtonBottom">
             <br><br>
@@ -122,27 +127,44 @@ class MenuLoad {
         document.getElementById("loadtab").onclick = function(){openPage("loadtabouter", this, "#ececee");};
         runtab.click();
 
-        let inputData = document.getElementById("inputData");
-        let inputDataText = document.getElementById("inputDataText");
-        inputData.onchange = function() {
-          inputDataText.textContent = inputData.files[0] ? inputData.files[0].name : "No file chosen";
+        let inputDataLabel = document.getElementById("inputDataLabel");
+        let inputMetaLabel = document.getElementById("inputMetaLabel");
+        let inputOverrideLabel = document.getElementById("inputOverrideLabel");
+
+        this.inputData = document.getElementById("inputData");
+        this.inputDataText = document.getElementById("inputDataText");
+        this.inputMeta = document.getElementById("inputMeta");
+        this.inputMetaText = document.getElementById("inputMetaText");
+        this.inputOverride = document.getElementById("inputOverride");
+        this.inputOverrideText = document.getElementById("inputOverrideText");
+
+        this.examples = document.getElementById("examples");
+        this.examples.onchange = function() {
+          let selectedValue = self.examples.options[self.examples.selectedIndex].value;
+          if(selectedValue == "none") {
+            self.inputDataText.textContent = self.inputMetaText.textContent = self.inputOverrideText.textContent = "No file chosen";
+            inputDataLabel.classList.remove("btndisable");
+            inputMetaLabel.classList.remove("btndisable");
+            inputOverrideLabel.classList.remove("btndisable");
+          } else {
+            self.inputData.value = self.inputMeta.value = self.inputOverride.value = "";
+            inputDataLabel.classList.add("btndisable");
+            inputMetaLabel.classList.add("btndisable");
+            inputOverrideLabel.classList.add("btndisable");
+            if(selectedValue == "autism") { //TODO use yaml or json to track example paths
+                self.inputDataText.textContent = "/Examples/autism/exp_bySamples.csv";
+                self.inputMetaText.textContent = "/Examples/autism/meta_bySamples.csv";
+                self.inputOverrideText.textContent = "/Examples/autism/mapper_object1D_euc.json";
+            }
+          }
         }
-
-        if(this.defaultData) inputDataText.textContent = this.defaultData;
-
-        let inputMeta = document.getElementById("inputMeta");
-        let inputMetaText = document.getElementById("inputMetaText");
-        inputMeta.onchange = function() {
-          inputMetaText.textContent = inputMeta.files[0] ? inputMeta.files[0].name : "No file chosen";
-        }
-
-        if(this.defaultMeta) inputDataText.textContent = this.defaultMeta;
 
         document.getElementById("mapperSubmitRun").onclick = function() {
-            self._tryGetFile(document.getElementById("inputData"), true, self.defaultData, function(dataFile) {
-                if(!window.Worker)  throw "Current brower does not support WebWorkers";
+            setLoadingStep("loading data...", 1, 4);
+            setLoadingProgress(0.5);
 
-                console.log(dataFile);
+            self._tryGetDataFile(function(dataFile) {
+                if(!window.Worker)  throw "Current brower does not support WebWorkers";
 
                 if(self.myWorker) {
                     self.myWorker.terminate();
@@ -187,12 +209,15 @@ class MenuLoad {
                     console.error(e.message);
                     window.alert(e.message);
                 };
+            }, function() {
+                setLoadingStep("", 1, 1);
+                setLoadingProgress(0);
             });
         }
 
         document.getElementById("mapperSubmitLoad").onclick = function() {
-            self._tryGetFile(document.getElementById("inputData"), true, self.defaultData, function(dataFile) {
-                self._tryGetFile(document.getElementById("inputOverride"), true, self.defaultLoad, function(overrideFile) {
+            self._tryGetDataFile(function(dataFile) {
+                self._tryGetOverrideFile(function(overrideFile) {
                     //1. Load override mapper object directly
                     //2. Load data file for headings column
                     //3. Load metadata file using headings column
@@ -215,17 +240,41 @@ class MenuLoad {
         }
     }
 
-    _tryGetFile(element, required, fallbackURL, callback) {
+    _tryGetDataFile(success, failure) {
+        let fallbackURL = undefined;
+        if(this.examples.options[this.examples.selectedIndex].value != "none") {
+            fallbackURL = this.inputDataText.textContent;
+        }
+        this._tryGetFile(this.inputData, true, fallbackURL, success, failure);
+    }
+
+    _tryGetMetaFile(callback) {
+        let fallbackURL = undefined;
+        if(this.examples.options[this.examples.selectedIndex] != "none") {
+            fallbackURL = this.inputMetaText.textContent;
+        }
+        this._tryGetFile(this.inputMeta, false, fallbackURL, callback);
+    }
+
+    _tryGetOverrideFile(success, failure) {
+        let fallbackURL = undefined;
+        if(this.examples.options[this.examples.selectedIndex].value != "none") {
+            fallbackURL = this.inputOverrideText.textContent;
+        }
+        this._tryGetFile(this.inputOverride, true, fallbackURL, success, failure);
+    }
+
+    _tryGetFile(element, required, fallbackURL, success, failure=undefined) {
         element.setCustomValidity("");
         if(element.files[0]) {
-            callback(element.files[0]);
+            success(element.files[0]);
         } else if(fallbackURL) {
-            fetch(fallbackURL).then(r => r.blob()).then(b => callback(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
+            fetch(fallbackURL).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
         } else if(required){
             element.setCustomValidity("File required");
             element.reportValidity();
-            throw "Data file required";
-            callback(undefined);
+            if(failure) failure(undefined);
+            else throw "Data file required";
         }
     }
 
@@ -247,7 +296,7 @@ class MenuLoad {
 
     //Thing to match is first column of each row
     _getMetaAsync(headingsKey, callback) {
-        this._tryGetFile(document.getElementById("inputMeta"), false, self.defaultMeta, function(metafile) {
+        this._tryGetMetaFile(function(metafile) {
             if(!metafile) {
                 callback({});
                 return;
