@@ -138,6 +138,10 @@ class MenuLoad {
         this.inputOverride = document.getElementById("inputOverride");
         this.inputOverrideText = document.getElementById("inputOverrideText");
 
+        inputData.onchange = function() {self.inputDataText.textContent = inputData.files[0].name;}
+        inputMeta.onchange = function() {self.inputMetaText.textContent = inputMeta.files[0].name;}
+        inputOverride.onchange = function() {self.inputOverrideText.textContent = inputOverride.files[0].name;}
+
         this.examples = document.getElementById("examples");
         this.examples.onchange = function() {
           let selectedValue = self.examples.options[self.examples.selectedIndex].value;
