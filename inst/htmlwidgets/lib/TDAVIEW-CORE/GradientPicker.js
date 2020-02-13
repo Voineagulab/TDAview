@@ -98,7 +98,9 @@ class GradientPicker {
             while(this.steps.length < 2) {
                 let s = this.createStep();
                 this.steps.push(s);
-                this.setStepTranslation(s, CONTAINER_WIDTH/3 * i++);
+                //this.setStepTranslation(s, CONTAINER_WIDTH/3 * i++);
+                this.setStepTranslation(s, this.barRectLeft + (BAR_WIDTH-STEP_WIDTH) * i++);
+
             }
             this.setSelected(this.steps[0]);
             this.showSteps(this.steps);
@@ -115,7 +117,9 @@ class GradientPicker {
             }
 
             for(let i=0; i<this.fixedSteps.length; ++i) {
-                this.setStepTranslation(this.fixedSteps[i], CONTAINER_WIDTH * (i+1)/(count+1));
+                //this.setStepTranslation(this.fixedSteps[i], CONTAINER_WIDTH * (i+1)/(count+1));
+                this.setStepTranslation(this.fixedSteps[i], this.barRectLeft + (BAR_WIDTH-STEP_WIDTH) * (i+1)/(count+1));
+
             }
 
             this.setSelected(this.fixedSteps[0])

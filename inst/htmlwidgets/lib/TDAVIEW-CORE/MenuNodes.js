@@ -15,7 +15,7 @@ class MenuNodes {
     generateHTML() {
         return /*html*/`
         <fieldset>
-        <legend>Face Color</legend>
+        <legend>Node Color</legend>
             <input type="radio" name="nodecolor" value="uniform" id="nodecoloruniform" checked/>
             <label for="nodecoloruniform">Uniform</label><br>
             <input type="radio" name="nodecolor" value="variable" id="nodecolorvariable"/>
@@ -28,7 +28,7 @@ class MenuNodes {
             <div id="node-color-picker-insert"></div>
         </fieldset>
         <fieldset>
-        <legend>Face Size</legend>
+        <legend>Node Size</legend>
             <input type="radio" name="nodesize" value="none" id="nonesize" checked/>
             <label for="nonesize">Uniform</label><br>
             <input type="radio" name="nodesize" value="content" id="contentsize" />
