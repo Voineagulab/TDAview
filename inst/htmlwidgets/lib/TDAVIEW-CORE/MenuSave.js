@@ -11,9 +11,10 @@ class MenuSave {
         return /*html*/`
         <fieldset>
         <legend>Editor</legend>
-            <input type="file" id="settingsimport" value="Import Settings"><br><br>
-            <input type="button" class="myButton" id="settingsexport" value="Export Settings"><br><br>
-            <input type="button" class="myButton" id="mapperexport" value="Export Mapper">
+            <input type="file" id="settingsimportfile" style="display:none;"/>
+            <input type="button" class="myButton" id="settingsimport" value="Import Settings"/><br><br>
+            <input type="button" class="myButton" id="settingsexport" value="Export Settings"/><br><br>
+            <input type="button" class="myButton" id="mapperexport" value="Export Mapper"/>
         </fieldset>
 
         <fieldset>
@@ -36,7 +37,13 @@ class MenuSave {
     _init() {
         var self = this;
 
-        document.getElementById("settingsimport").onchange = function(event) {
+        let settingsimportfile = document.getElementById("settingsimportfile");
+        document.getElementById("settingsimport").onclick = function() {
+          console.log("hi");
+          settingsimportfile.click();
+        }
+
+        settingsimportfile.onchange = function(event) {
             let reader = new FileReader();
             reader.onload = function(e) {
                 let settingsObj = JSON.parse(e.target.result);

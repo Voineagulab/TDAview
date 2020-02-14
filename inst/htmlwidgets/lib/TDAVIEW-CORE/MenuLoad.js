@@ -76,7 +76,7 @@ class MenuLoad {
 
         <div id="loadtabouter" class="tabcontent">
             <font size="2">Existing</font><br>
-            <input type="file" id="inputOverride" style="display:none;" accept=".csv">
+            <input type="file" id="inputOverride" style="display:none;" accept=".json">
             <label for="inputOverride" id="inputOverrideLabel" class="btn btninline">Choose File</label>
             <font size="1" id="inputOverrideText" class="btninline">No file chosen</font>
             <br><br>
