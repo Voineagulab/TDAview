@@ -70,6 +70,7 @@ class LegendPie {
     }
 
     _updateLabelColor() {
+        this.title.style.color = this.colorString;
         for(let i=0; i<this.labels.length; i++) {
             this.labels[i].style.color = this.colorString;
         }

@@ -36,12 +36,12 @@
 }
 
 #progressText {
-  top: 10px;
+  top: 12px;
   left: 50%;
   position: absolute;
   z-index: 999999;
-  font-size: x-small;
-  color: grey;
+  font-size: 16px;
+  color: #7d7d7d;
 }
 
 input[type="range"].vranger {
