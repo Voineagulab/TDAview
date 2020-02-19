@@ -324,17 +324,6 @@ fieldset {
     width: 100px;
   }
 
-  .btn {
-  -webkit-appearance: button;
-  -moz-appearance: button;
-  appearance: button;
-  font-size: 10px;
-  padding-left: 6px;
-  padding-right: 6px;
-  padding-top: 3px;
-  padding-bottom: 3px;
-}
-
 .btninline {
   color: black;
   display: inline-block;

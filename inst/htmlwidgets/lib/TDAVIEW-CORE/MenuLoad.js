@@ -11,13 +11,15 @@ class MenuLoad {
         return /*html*/`
         <fieldset>
             <legend>Load Data</legend>
-            <font size="2">Data</font><br>
-            <input type="file" id="inputData" style="display:none;" accept=".csv">
-            <label for="inputData" id="inputDataLabel" class="btn btninline">Choose File</label>
+            <font size="2">Data</font>
+            
+            <input type="file" id="inputData" style="opacity:0%;" accept=".csv">
+            <button class="btninline" id="inputDataLabel">Choose File</button>
             <font size="1" id="inputDataText" class="btninline">No file chosen</font>
-            <br><br>
-            <input type="file" id="inputMeta" style="display:none;" accept=".csv">
-            <label for="inputMeta" id="inputMetaLabel" class="btn btninline">Choose File</label>
+
+            
+            <input type="file" id="inputMeta" style="opacity:0%;" accept=".csv">
+            <button class="btninline" id="inputMetaLabel">Choose File</button>
             <font size="1" id="inputMetaText" class="btninline">No file chosen</font>
 
             <br><br>
@@ -77,7 +79,7 @@ class MenuLoad {
         <div id="loadtabouter" class="tabcontent">
             <font size="2">Existing</font><br>
             <input type="file" id="inputOverride" style="display:none;" accept=".json">
-            <label for="inputOverride" id="inputOverrideLabel" class="btn btninline">Choose File</label>
+            <button class="btninline" id="inputOverrideLabel">Choose File</button>
             <font size="1" id="inputOverrideText" class="btninline">No file chosen</font>
             <br><br>
             <input type="submit" id="mapperSubmitLoad" value="Generate" class="myButtonBottom">
@@ -137,6 +139,10 @@ class MenuLoad {
         this.inputMetaText = document.getElementById("inputMetaText");
         this.inputOverride = document.getElementById("inputOverride");
         this.inputOverrideText = document.getElementById("inputOverrideText");
+
+        inputDataLabel.onclick = function() {self.inputData.click();}
+        inputMetaLabel.onclick = function() {self.inputMeta.click();}
+        inputOverrideLabel.onclick = function() {self.inputOverride.click();}
 
         inputData.onchange = function() {self.inputDataText.textContent = inputData.files[0].name;}
         inputMeta.onchange = function() {self.inputMetaText.textContent = inputMeta.files[0].name;}
