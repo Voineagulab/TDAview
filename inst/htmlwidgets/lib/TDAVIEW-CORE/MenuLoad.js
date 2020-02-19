@@ -12,13 +12,13 @@ class MenuLoad {
         <fieldset>
             <legend>Load Data</legend>
             <font size="2">Data</font>
-            
-            <input type="file" id="inputData" style="opacity:0%;" accept=".csv">
+
+            <input type="file" id="inputData" style="opacity:0;" accept=".csv">
             <button class="btninline" id="inputDataLabel">Choose File</button>
             <font size="1" id="inputDataText" class="btninline">No file chosen</font>
 
-            
-            <input type="file" id="inputMeta" style="opacity:0%;" accept=".csv">
+
+            <input type="file" id="inputMeta" style="opacity:0;" accept=".csv">
             <button class="btninline" id="inputMetaLabel">Choose File</button>
             <font size="1" id="inputMetaText" class="btninline">No file chosen</font>
 
@@ -78,7 +78,7 @@ class MenuLoad {
 
         <div id="loadtabouter" class="tabcontent">
             <font size="2">Existing</font><br>
-            <input type="file" id="inputOverride" style="display:none;" accept=".json">
+            <input type="file" id="inputOverride" style="opacity:0;" accept=".json">
             <button class="btninline" id="inputOverrideLabel">Choose File</button>
             <font size="1" id="inputOverrideText" class="btninline">No file chosen</font>
             <br><br>
