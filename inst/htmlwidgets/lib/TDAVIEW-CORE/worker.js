@@ -64,30 +64,86 @@ this.onmessage = function(e) {
             }
         }
 
-        this.postMessage({progressstep: {text: "running pca...", currstep: 3, numstep: 4}});
-
-        let pca = new ML.PCA(matrix, {method: "SVD"});
         let mapperObj = undefined;
         let filter = undefined;
 
-        this.postMessage({progressstep: {text: "running mapper...", currstep: 4, numstep: 4}});
-        if(e.data.filterDim == 1) {
-            if(e.data.filterFunc == "PCAEV1") {
-                filter = pca.getEigenvectors().getColumn(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
-            } else if(e.data.filterFunc == "PCAEV2") {
-                filter = pca.getEigenvectors().getColumn(1);
-            } else {
-                throw "Unknown filter function";
+        if(e.data.filterFunc == "CMDS") {
+            this.postMessage({progressstep: {text: "running classical mds...", currstep: 3, numstep: 4}});
+
+            let m = dist.clone();
+
+            // square distances
+            m.multiply(-0.5).pow(2);
+
+            // double centre the rows/columns
+            function mean(arr) {
+              let sum = 0;
+              for(let j=0; j<arr.length; ++j) {
+                sum += arr[j];
+              }
+              return sum / arr.length;
             }
-            mapperObj = mapper1D(dist, filter, e.data.numintervals, e.data.percentoverlap, e.data.numbins);
+
+            function means(mat) {
+              let sum = 0;
+              let ret = new Array(mat.cols);
+              for(let i=0; i<mat.cols; ++i) {
+                ret[i] = mean(mat[i])
+              }
+              return ret;
+            }
+
+            let rowMeans = means(m);
+            let colMeans = means(new ML.MatrixLib.MatrixTransposeView(m));
+            let totalMean = mean(rowMeans);
+
+            for(let i=0; i<m.cols; ++i) {
+              for(let j=0; j<m.rows; ++j) {
+                  m[i][j] += totalMean - rowMeans[i] - colMeans[j];
+              }
+            }
+
+            let svd = new ML.MatrixLib.SingularValueDecomposition(m);
+
+            const singularValues = svd.diagonal;
+            const eigenvalues = [];
+            for (const singularValue of singularValues) {
+              eigenvalues.push((singularValue * singularValue) / (m.rows - 1));
+            }
+
+            let u = svd.leftSingularVectors;
+            for(let i=0; i<u.cols; ++i) {
+              u.mulRowVector(i, eigenvalues);
+            }
+
+            this.postMessage({progressstep: {text: "running mapper...", currstep: 4, numstep: 4}});
+            mapperObj = mapper1D(dist, new ML.MatrixLib.MatrixSubView(u, 0, u.rows-1, 0, e.data.filterDim-1).to2DArray());
         } else {
-            if(e.data.filterFunc == "PCAEV1,2") {
-                filter = [pca.getEigenvectors().getColumn(0), pca.getEigenvectors().getColumn(1)];
+            this.postMessage({progressstep: {text: "running pca...", currstep: 3, numstep: 4}});
+
+            let pca = new ML.PCA(matrix, {method: "SVD"});
+
+            this.postMessage({progressstep: {text: "running mapper...", currstep: 4, numstep: 4}});
+            if(e.data.filterDim == 1) {
+                if(e.data.filterFunc == "PCAEV1") {
+                    filter = pca.getEigenvectors().getColumn(0); //Equivalent to pca.getLoadings().getColumn(0) but faster (no transpose)
+                } else if(e.data.filterFunc == "PCAEV2") {
+                    filter = pca.getEigenvectors().getColumn(1);
+                } else {
+                    throw "Unknown filter function";
+                }
+                mapperObj = mapper1D(dist, filter, e.data.numintervals, e.data.percentoverlap, e.data.numbins);
             } else {
-                throw "Unknown filter function";
+                if(e.data.filterFunc == "PCAEV1,2") {
+                    filter = [pca.getEigenvectors().getColumn(0), pca.getEigenvectors().getColumn(1)];
+                } else {
+                    throw "Unknown filter function";
+                }
+                mapperObj = mapper2D(dist, filter, [e.data.numintervals,e.data.numintervals], e.data.percentoverlap, e.data.numbins);
             }
-            mapperObj = mapper2D(dist, filter, [e.data.numintervals,e.data.numintervals], e.data.percentoverlap, e.data.numbins);
         }
+
+
         self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey, warning: warning});
     });
 }

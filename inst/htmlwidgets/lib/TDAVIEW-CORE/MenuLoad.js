@@ -4,6 +4,8 @@ class MenuLoad {
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
 
+        this.filterCompatibility = [1, 1, 2, 0];
+
         this._init(setLoadingStep, setLoadingProgress);
     }
 
@@ -69,6 +71,7 @@ class MenuLoad {
                 <option value="PCAEV1">PCA 1</option>
                 <option value="PCAEV2">PCA 2</option>
                 <option value="PCAEV1,2">PCA 1,2</option>
+                <option value="CMDS">Classical MDS</option>
             </select>
             <br><br>
             <input type="submit" id="mapperSubmitRun" value="Generate" class="myButtonBottom">
@@ -98,7 +101,7 @@ class MenuLoad {
         var percentoverlap = document.getElementById("percentoverlap");
         var numbins = document.getElementById("numbins");
 
-        const filterfuncpartitionindex = 2;
+        const filterfuncpartitionindex = 3;
         var filterfunc = document.getElementById("filterfunc");
 
         self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
@@ -292,20 +295,20 @@ class MenuLoad {
         }
     }
 
-    _UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex){
-        if(filterdim.options[filterdim.selectedIndex].value == 1) {
-            for(let i=0; i<filterfunc.options.length; ++i) {
-                filterfunc.options[i].disabled = (i>=filterfuncpartitionindex);
-                filterfunc.options[i].hidden = (i>=filterfuncpartitionindex);
-            }
-            filterfunc.selectedIndex = 0;
-        } else {
-            for(let i=0; i<filterfunc.options.length; ++i) {
-                filterfunc.options[i].disabled = (i<filterfuncpartitionindex);
-                filterfunc.options[i].hidden = (i<filterfuncpartitionindex);
-            }
-            filterfunc.selectedIndex = filterfuncpartitionindex;
+    _UpdateAvailableFilterFunc(filterdim, filterfunc) {
+        let valid = -1;
+        for(let i=0; i<this.filterCompatibility.length; ++i) {
+          if(!this.filterCompatibility[i] || this.filterCompatibility[i] == (filterdim.selectedIndex + 1)) {
+            filterfunc.options[i].disabled = false;
+            filterfunc.options[i].hidden = false;
+            if(valid < 0) valid = i;
+          } else {
+            filterfunc.options[i].disabled = true;
+            filterfunc.options[i].hidden = true;
+          }
         }
+
+        filterfunc.selectedIndex = valid;
     }
 
     //Thing to match is first column of each row
