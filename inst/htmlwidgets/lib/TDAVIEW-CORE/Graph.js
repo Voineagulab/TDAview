@@ -434,6 +434,8 @@ class Graph {
      * @param {NodeInstance} node The node whose label should be modified
      */
     setLabelPosition(node) {
+        if(!this.labelsVisible) return;
+
         var label = this.labels[node.id];
         if(label) {
             if(node.neighbors.length == 0) {
@@ -471,6 +473,8 @@ class Graph {
             for(let i=0; i<this.labels.length; i++) {
                 this.labels[i].element.classList.toggle("hiddenlabel");
             }
+            if(this.labelsVisible) this.forEachNode(n => this.setLabelPosition(n));
+            this.update();
         }
     }
 
@@ -487,6 +491,8 @@ class Graph {
     }
 
     setEdgeLabelPosition(link) {
+      if(!this.edgeLabelsVisible) return;
+
       let label = this.edgeLabels[link.link_id];
 
       var sourcePos = new THREE.Vector3(link.source.x, link.source.y, 0);
@@ -505,6 +511,8 @@ class Graph {
         for(let i=0; i<this.edgeLabels.length; ++i){
           this.edgeLabels[i].element.classList.toggle("hiddenlabel");
         }
+        if(this.edgeLabelsVisible) this.forEachEdge(l => this.setEdgeLabelPosition(l));
+        this.update();
       }
     }
 
