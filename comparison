@@ -1,0 +1,20 @@
+Mapper2D includes a point iff
+min1 <= filter val 1 <= max1 and
+min2 <= filter val 2 <= max2
+
+Filter intervals:
+min 1                         min 2                     max 1                       max 2                     #points in level
+0.000008370154209959637658933 0.1700675167378613572566  0.003255530572341886960674  0.1774887669689290403685  3  <- R output
+0.00000837015420991627        0.17006751673786183       0.0032555305723418414       0.17748876696892954       4  <- TDAVIEW output
+
+Filter values for the point NOT included in R output:
+filter val 1                filter val 2
+0.002545606828404003985078  0.1774887669689290681241  <- R output (point not included)
+0.0025456068284033517       0.17748876696892954       <- TDAVIEW output (point included)
+
+Because filter val 2 is NOT <= max2 inside R, it is not included (0.1774887669689290681241 > 0.1774887669689290403685 )
+
+
+For fast file comparison, use:
+python -m json.tool "mappercompressed.json" > "mapper.json"
+$ diff "mapperR.json" "mapperTdaview.json"
