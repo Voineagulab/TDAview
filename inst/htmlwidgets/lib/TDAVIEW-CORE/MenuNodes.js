@@ -135,6 +135,9 @@ class MenuNodes {
                 let count = self.OnNodeColorCategorical(variablecolorinput.value);
                 self.nodeGradPicker.setState(STATE_FIXED, count);
                 variablecolorinput.placeholder = self.variablecolorinputold = variablecolorinput.value;
+            } else {
+              document.getElementById("nodecoloruniform").click();
+              return;
             }
             self.nodeGradPicker.updateBarGradient();
             variablecolorinput.value = "";
@@ -159,7 +162,7 @@ class MenuNodes {
 
     _deserializeNodeColor(obj) {
         this.nodeGradPicker.setSettings(obj.colors);
-
+        
         document.getElementById("variablecolorinput").value = "";
         document.getElementById("variablecolorinput").placeholder = "Select: ";
 
@@ -225,7 +228,6 @@ class MenuNodes {
     _deserializeNodeSize(obj) {
         document.getElementById("continuoussizeinput").value = "";
         document.getElementById("continuoussizeinput").placeholder = "Select: ";
-
 
         this.sizedatainputold = obj.variable;
         if(obj.variable) {

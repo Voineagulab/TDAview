@@ -88,7 +88,7 @@ class GradientPicker {
         return this.state;
     }
 
-    setState(state, count=0) {
+    setState(state, count=undefined) {
         if(state == STATE_SINGLE) {
             this.setSelected(undefined);
             this.hideSteps(this.state == STATE_GRADIENT ? this.steps : this.fixedSteps);
@@ -107,6 +107,7 @@ class GradientPicker {
             if(this.state == STATE_FIXED) this.hideSteps(this.fixedSteps);
             this.instruction.innerText = "Adjust Gradient:";
         } else {
+            if(count === undefined) throw "step count not specified";
             while(this.fixedSteps.length < count) {
                 let s = this.createStep();
                 this.fixedSteps.push(s);
@@ -266,8 +267,8 @@ class GradientPicker {
         return {
             state: this.state,
             color: this.colorString,
-            gradient: this.steps.map(s => new Step(s.percentage, s.color)),
-            fixed: this.fixedSteps.map(s => new Step(s.percentage, s.color)),
+            gradient: this.steps.map(s => {return {percentage: s.percentage, color: '#' + s.color.getHexString()};}),
+            fixed: this.fixedSteps.map(s => {return {percentage: s.percentage, color: '#' + s.color.getHexString()};}),
         }
     }
 
@@ -281,13 +282,13 @@ class GradientPicker {
         }
 
         this.colorString = obj.color;
-        this.steps = obj.gradient.map(s => {let newS = this.createGradientStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS});;
-        this.fixedSteps = obj.fixed.map(s => {let newS = this.createStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS});
+        this.steps = obj.gradient.map(s => {var newS = this.createGradientStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS;});
+        this.fixedSteps = obj.fixed.map(s => {var newS = this.createStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS;});
 
         this.hideSteps(this.steps);
         this.hideSteps(this.fixedSteps);
         this.state = STATE_SINGLE;
-        this.setState(obj.state);
+        this.setState(obj.state, obj.fixed.length);
     }
 
     OnColorChange(value) {};
