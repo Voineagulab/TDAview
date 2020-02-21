@@ -98,7 +98,7 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
 
         if (num_points_in_level == 0) {
             console.log('Level set is empty');
-            vertices_in_level.push([]);
+            vertices_in_level.push([-1]);
         } else if (num_points_in_level == 1) {
             console.log('Level set has only one point')
             points_in_vertex.push([points_in_level_current[0] + 1]);
@@ -170,16 +170,16 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
             let k1 = vertices_in_level.filter((value, index) => level_indices_1[index] == i && level_indices_2[index] == j);
             let k2 = vertices_in_level.filter((value, index) => level_indices_1[index] == i && level_indices_2[index] == j-1);
 
-            if(k1.length && k1[0].length && k2.length && k2[0].length) {
-                for(let v1Array of k1) {
-                    for(let v1 of v1Array) {
-                        v1 -= 1;
-                        for(let v2Array of k2) {
-                            for(v2 of v2Array) {
-                                v2 -= 1;
-                                if(v2 <= v1 && points_in_vertex[v1].some(val=> points_in_vertex[v2].includes(val))) { //add symmetric edge if any points intersect
-                                    adja[v1][v2] = adja[v2][v1] = 1;
-                                }
+            for(let v1Array of k1) {
+                if(v1Array[0] == -1) continue;
+                for(let v1 of v1Array) {
+                    v1 -= 1;
+                    for(let v2Array of k2) {
+                        if(v2Array[0] == -1) continue;
+                        for(v2 of v2Array) {
+                            v2 -= 1;
+                            if(v2 <= v1 && points_in_vertex[v1].some(val=> points_in_vertex[v2].includes(val))) { //add symmetric edge if any points intersect
+                                adja[v1][v2] = adja[v2][v1] = 1;
                             }
                         }
                     }
@@ -195,16 +195,16 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
             let k1 = vertices_in_level.filter((value, index) => level_indices_1[index] == i && level_indices_2[index] == j);
             let k2 = vertices_in_level.filter((value, index) => level_indices_1[index] == i-1 && level_indices_2[index] == j);
 
-            if(k1.length && k1[0].length && k2.length && k2[0].length) {
-                for(let v1Array of k1) {
-                    for(let v1 of v1Array) {
-                        v1 -= 1;
-                        for(let v2Array of k2) {
-                            for(v2 of v2Array) {
-                                v2 -= 1;
-                                if(v2 <= v1 && points_in_vertex[v1].some(val=> points_in_vertex[v2].includes(val))) { //add symmetric edge if any points intersect
-                                    adja[v1][v2] = adja[v2][v1] = 1;
-                                }
+            for(let v1Array of k1) {
+                if(v1Array[0] == -1) continue;
+                for(let v1 of v1Array) {
+                    v1 -= 1;
+                    for(let v2Array of k2) {
+                        if(v2Array[0] == -1) continue;
+                        for(v2 of v2Array) {
+                            v2 -= 1;
+                            if(v2 <= v1 && points_in_vertex[v1].some(val=> points_in_vertex[v2].includes(val))) { //add symmetric edge if any points intersect
+                                adja[v1][v2] = adja[v2][v1] = 1;
                             }
                         }
                     }
