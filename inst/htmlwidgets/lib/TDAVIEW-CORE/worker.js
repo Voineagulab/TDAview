@@ -132,6 +132,7 @@ this.onmessage = function(e) {
                 } else {
                     throw "Unknown filter function";
                 }
+                if(filter[0] < 0) for(let i=0; i<filter.length; ++i) filter[i] = -filter[i]; //fix_sign
                 mapperObj = mapper1D(dist, filter, e.data.numintervals, e.data.percentoverlap, e.data.numbins);
             } else {
                 if(e.data.filterFunc == "PCAEV1,2") {
@@ -139,6 +140,7 @@ this.onmessage = function(e) {
                 } else {
                     throw "Unknown filter function";
                 }
+                for(let j=0; j<2; ++j) if(filter[j][0] < 0) for(let i=0; i<filter[j].length; ++i) filter[j][i] = -filter[j][i]; //fix_sign
                 mapperObj = mapper2D(dist, filter, [e.data.numintervals,e.data.numintervals], e.data.percentoverlap, e.data.numbins);
             }
         }

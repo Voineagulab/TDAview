@@ -76,8 +76,8 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
         let level_1 = level_indices_1[level];
         let level_2 = level_indices_2[level];
 
-        let min_value_in_level_1 = filter_min_1 + level_1 * step_size_1;
-        let min_value_in_level_2 = filter_min_2 + level_2 * step_size_2;
+        let min_value_in_level_1 = filter_min_1 + (level_1-1) * step_size_1;
+        let min_value_in_level_2 = filter_min_2 + (level_2-1) * step_size_2;
         let max_value_in_level_1 = min_value_in_level_1 + interval_length_1;
         let max_value_in_level_2 = min_value_in_level_2 + interval_length_2;
 
@@ -86,6 +86,15 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
         let num_points_in_level = points_in_level_logical.reduce((count, v) => count + (v==true), 0);
         let points_in_level_current = points_in_level_logical.map((v, index) => index).filter(i => (points_in_level_logical[i]==true));
         points_in_level.push(points_in_level_current.map(p => p+1));
+
+        /*
+        precision comparison
+        let temp = points_in_level[points_in_level.length-1];
+        if(temp[0]==1&&temp[1]==3&&temp[2]==16&&temp[3]==17) { //3 should not be in this level
+          console.log(min_value_in_level_1, min_value_in_level_2, max_value_in_level_1, max_value_in_level_2);
+          console.log(filter_values[0][3-1], filter_values[1][3-1]);
+          //console.log(level);
+        }*/
 
         if (num_points_in_level == 0) {
             console.log('Level set is empty');
@@ -142,11 +151,11 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
             }
 
             vertices_in_level.push(vertex_ids);
-            level_of_vertex = level_of_vertex.concat(new Array(num_vertices_in_level).fill(level));
+            level_of_vertex = level_of_vertex.concat(new Array(num_vertices_in_level).fill(level+1));
             vertex_index += num_vertices_in_level;
         }
     } // end mapper main loop
-  
+
     let num_vertices = vertex_index;
 
      // Create the adjacency matrix for the graph, starting with a matrix of zeros
@@ -154,7 +163,7 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
     for(let i=0; i<num_vertices; ++i) {
         adja[i] = new Array(num_vertices).fill(0);
     }
-    
+
     for(let i=1; i<num_intervals[0]; ++i) { //for all adjacent intervals
         for(let j=1; j<num_intervals[1]; ++j) {
 
@@ -179,7 +188,7 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
         }
     } // end part 1 of constructing adjacency matrix
 
-    
+
     for(let j=1; j<num_intervals[1]; ++j) { //for all adjacent intervals
         for(let i=1; i<num_intervals[0]; ++i) {
 
@@ -203,7 +212,7 @@ function mapper2D(distance_matrix, filter_values, num_intervals=[10, 10], percen
             }
         }
     } // end part 2 of constructing adjacency matrix
-    
+
 
   return {
       adjacency: adja,
