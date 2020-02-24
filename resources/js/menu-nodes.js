@@ -149,20 +149,16 @@ class MenuNodes {
     }
 
     _serializeNodeColor() {
-        var obj = {};
-        obj.variable = this.variablecolorinputold;
-        if(document.getElementById("nodecoloruniform").checked) {
-            obj.type = "uniform";
-        } else {
-            obj.type = "variable";
+        return {
+            variable: this.variablecolorinputold,
+            source: this._getRadioIndex(document.getElementsByName("nodecolor")),
+            colors: this.nodeGradPicker.getSettings()
         }
-        obj.colors = this.nodeGradPicker.getSettings();
-        return obj;
     }
 
     _deserializeNodeColor(obj) {
         this.nodeGradPicker.setSettings(obj.colors);
-        
+
         document.getElementById("variablecolorinput").value = "";
         document.getElementById("variablecolorinput").placeholder = "Select: ";
 
@@ -171,10 +167,7 @@ class MenuNodes {
         if(obj.variable) {
             document.getElementById("nodecolorvariable").click();
         }
-
-        if(obj.type == "uniform") {
-            document.getElementById("nodecoloruniform").click();
-        }
+        document.getElementsByName("nodecolor")[obj.source].click();
     }
 
     _initNodeSize() {
@@ -215,14 +208,10 @@ class MenuNodes {
     }
 
     _serializeNodeSize() {
-        var obj = {};
-        obj.variable = this.sizedatainputold;
-        if(document.getElementById("continuoussize").checked) {
-            obj.type = "continuous";
-        } else {
-            obj.type = document.getElementById("contentsize").checked ? "content" : (document.getElementById("degreesize").checked ? "degree" : "none");
-        }
-        return obj;
+      return {
+        variable: this.sizedatainputold,
+        source: this._getRadioIndex(document.getElementsByName("nodesize"))
+      }
     }
 
     _deserializeNodeSize(obj) {
@@ -233,14 +222,7 @@ class MenuNodes {
         if(obj.variable) {
             document.getElementById("continuoussize").click();
         }
-
-        if(obj.type == "content") {
-            document.getElementById("contentsize").click();
-        } else if(obj.type == "none") {
-            document.getElementById("nonesize").click();
-        } else if(obj.type == "degree") {
-            document.getElementById("degreesize").click();
-        }
+        document.getElementsByName("nodesize")[obj.source].click();
     }
 
     _initLabelText() {
@@ -315,24 +297,20 @@ class MenuNodes {
 
     _serializeLabelColor() {
         return {
-            source: document.getElementById("labelcolor").checked ? "uniform" : "background",
+            source: this._getRadioIndex(document.getElementsByName("labelColor")),
             color: this.labelColPicker.getColor(),
         }
     }
 
     _deserializeLabelColor(obj) {
         this.labelColPicker.setColor(obj.color);
-        if(obj.source == "uniform") {
-            document.getElementById("labelcolor").click();
-        } else {
-            document.getElementById("labelcolorbackground").click();
-        }
+        document.getElementsByName("labelColor")[obj.source].click();
     }
 
     _initLabelSize() {
         var self = this;
         var labelSizeInput = document.getElementById("labelSize");
-        labelSizeInput.onchange = function(){
+        labelSizeInput.onchange = function() {
             self.OnLabelSizeChange(labelSizeInput.value)
         }
     }

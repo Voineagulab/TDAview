@@ -425,6 +425,7 @@ class tdaview {
 
     getSettings() {
         return {
+            version: "1.0",
             menu: this.sidebar.getSettings()
         }
     }

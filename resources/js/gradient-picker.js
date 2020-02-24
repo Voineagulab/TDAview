@@ -267,8 +267,8 @@ class GradientPicker {
         return {
             state: this.state,
             color: this.colorString,
-            gradient: this.steps.map(s => {return {percentage: s.percentage, color: '#' + s.color.getHexString()};}),
-            fixed: this.fixedSteps.map(s => {return {percentage: s.percentage, color: '#' + s.color.getHexString()};}),
+            gradient: this.steps.map(s => {return {percentage: s.percentage, color: s.color.getHexString()};}),
+            fixed: this.fixedSteps.map(s => {return {percentage: s.percentage, color: s.color.getHexString()};}),
         }
     }
 
@@ -282,8 +282,8 @@ class GradientPicker {
         }
 
         this.colorString = obj.color;
-        this.steps = obj.gradient.map(s => {var newS = this.createGradientStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS;});
-        this.fixedSteps = obj.fixed.map(s => {var newS = this.createStep(); newS.color.set(s.color); this.setStepPercentage(newS, s.percentage); return newS;});
+        this.steps = obj.gradient.map(s => {var newS = this.createGradientStep(); newS.color.set('#' + s.color); this.setStepPercentage(newS, s.percentage); return newS;});
+        this.fixedSteps = obj.fixed.map(s => {var newS = this.createStep(); newS.color.set('#' + s.color); this.setStepPercentage(newS, s.percentage); return newS;});
 
         this.hideSteps(this.steps);
         this.hideSteps(this.fixedSteps);

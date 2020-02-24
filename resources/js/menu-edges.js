@@ -195,7 +195,7 @@ class MenuEdge {
     _deserializeLabelColor(obj) {
         this.labelColPicker.setColor(obj.color);
         document.getElementsByName("labelEdgeColor")[obj.source].click();
-        
+
     }
 
     _initLabelSize() {

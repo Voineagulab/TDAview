@@ -362,13 +362,35 @@ class MenuLoad {
         });
     }
 
-    //TODO
-    getSettings() {
-        return {};
+    _getRadioIndex(radios) {
+        for(let i=1; i<radios.length; i++) {
+            if(radios[i].checked) return i;
+        }
+        return 0;
     }
 
-    setSettings(obj) {
+    getSettings() {
+        return {
+            example: this.examples.selectedIndex,
+            filterdim: document.getElementById("filterdim").selectedIndex,
+            numintervals: document.getElementById("numintervals").value,
+            percentoverlap: document.getElementById("percentoverlap").value,
+            numbins: document.getElementById("numbins").value,
+            distfunc: document.getElementById("distfunc").selectedIndex,
+            filterfunc: document.getElementById("filterfunc").selectedIndex
+        };
+    }
 
+    //Note this cannot be called before examples are fetched
+    setSettings(obj) {
+        this.examples.selectedIndex = obj.example;
+        this.examples.onchange();
+        document.getElementById("filterdim").selectedIndex = obj.filterdim;
+        document.getElementById("numintervals").value = obj.numintervals;
+        document.getElementById("percentoverlap").value = obj.percentoverlap;
+        document.getElementById("numbins").value = obj.numbins;
+        document.getElementById("distfunc").selectedIndex = obj.distfunc;
+        document.getElementById("filterfunc").selectedIndex = obj.filterfunc;
     }
 
     OnMapperFileChange(mapperObject, metaObject, rownames) {}
