@@ -1,62 +1,65 @@
 <!DOCTYPE HTML>
-<!--<!DOCTYPE HTML> this is breaking positions but should include it to standardize parser-->
 <meta charset="UTF-8">
 <html>
     <head>
-        <script src="inst/htmlwidgets/lib/MLJS/ml.min.js"></script>
-        <script src="inst/htmlwidgets/lib/MAPPER/cutoff.js"></script>
-        <script src="inst/htmlwidgets/lib/MAPPER/mapper1D.js"></script>
-        <script src="inst/htmlwidgets/lib/MAPPER/mapper2D.js"></script>
+        <script src="vendors/ml/ml.min.js"></script>
+        <script src="vendors/mapper/cutoff.js"></script>
+        <script src="vendors/mapper/mapper-1d.js"></script>
+        <script src="vendors/mapper/mapper-2d.js"></script>
+        <script src="vendors/d3/d3.min.js"></script>
+        <script src="vendors/three/three.min.js"></script>
+        <script src="vendors/three/css2drenderer.js"></script>
+        <script src="vendors/jquery/jquery.min.js"></script>
+        <script src="vendors/html2canvas/html2canvas.min.js"></script>
+        <script src="vendors/papaparse/papaparse.min.js"></script>
+        <script src="vendors/pdfkit/pdfkit.standalone.js"></script>
+        <script src="vendors/pdfkit/blob-stream.js"></script>
+        <script src="vendors/color-picker/color-picker.min.js"></script>
 
-        <script src="inst/htmlwidgets/lib/D3/d3.min.js"></script>
-        <script src="inst/htmlwidgets/lib/THREE/three.min.js"></script>
-        <script src="inst/htmlwidgets/lib/THREE/css2drenderer.js"></script>
-        <script src="inst/htmlwidgets/lib/JQUERY/jquery.min.js"></script>
-        <script src="inst/htmlwidgets/lib/HTML2CANVAS/html2canvas.min.js"></script>
-        <script src="inst/htmlwidgets/lib/PAPAPARSE/papaparse.min.js"></script>
+        <script src="resources/js/matrix-reader.js"></script>
+        <script src="resources/js/worker.js"></script>
+        <script src="resources/js/step.js"></script>
+        <script src="resources/js/step-element.js"></script>
+        <script src="resources/js/color-map.js"></script>
+        <script src="resources/js/color-picker.js"></script>
+        <script src="resources/js/compatibility.js"></script>
+        <script src="resources/js/data-utility.js"></script>
+        <script src="resources/js/data-categorical-variable.js"></script>
+        <script src="resources/js/data-continuous-variable.js"></script>
+        <script src="resources/js/data-cached-variable.js"></script>
+        <script src="resources/js/data-bin.js"></script>
+        <script src="resources/js/data.js"></script>
+        <script src="resources/js/gradient-picker.js"></script>
+        <script src="resources/js/graph.js"></script>
+        <script src="resources/js/interact-set.js"></script>
+        <script src="resources/js/interact-system.js"></script>
+        <script src="resources/js/legend-bar.js"></script>
+        <script src="resources/js/legend-pie.js"></script>
+        <script src="resources/js/link-instance.js"></script>
+        <script src="resources/js/link-renderer.js"></script>
+        <script src="resources/js/node-neighbor.js"></script>
+        <script src="resources/js/node-instance.js"></script>
+        <script src="resources/js/node-renderer.js"></script>
+        <script src="resources/js/menu.js"></script>
+        <script src="resources/js/menu-load.js"></script>
+        <script src="resources/js/menu-nodes.js"></script>
+        <script src="resources/js/menu-edges.js"></script>
+        <script src="resources/js/menu-save.js"></script>
+        <script src="resources/js/menu-select.js"></script>
+        <script src="resources/js/tdaview.js"></script>
 
-        <script src="inst/htmlwidgets/lib/PDFKIT/pdfkit.standalone.js"></script>
-        <script src="inst/htmlwidgets/lib/PDFKIT/blob-stream.js"></script>
+        <link href="vendors/color-picker/color-picker.min.css" rel="stylesheet"/>
 
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MatrixReader.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js"></script>
+        <link href="resources/css/default.css" rel="stylesheet"/>
+        <link href="resources/css/menu.css" rel="stylesheet"/>
+        <link href="resources/css/graph.css" rel="stylesheet" />
+        <link href="resources/css/gradient-picker.css" rel="stylesheet"/>
+        <link href="resources/css/legend-bar.css" rel="stylesheet"/>
+        <link href="resources/css/legend-pie.css" rel="stylesheet"/>
 
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/Step.js"></script>
-        <script src="inst/htmlwidgets/lib/COLORPICKER/color-picker.min.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/ColorMap.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/ColorPicker.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/Compatibility.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/Data.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/Event.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/GradientPicker.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/Graph.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/InteractSet.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/InteractSystem.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/LegendBar.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/LegendPie.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/LinkRenderer.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/NodeRenderer.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/Menu2.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuLoad.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuNodes.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuEdges.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuLabels.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuSave.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/MenuSelect.js"></script>
-        <script src="inst/htmlwidgets/lib/TDAVIEW-CORE/tdaview.js"></script>
-
-        <link href="inst/htmlwidgets/lib/COLORPICKER/color-picker.min.css" rel="stylesheet" />
-        <link href="inst/htmlwidgets/lib/TDAVIEW-CORE/style.css" rel="stylesheet" />
-        <link href="inst/htmlwidgets/lib/TDAVIEW-CORE/sidebar.css" rel="stylesheet" />
-        <link href="inst/htmlwidgets/lib/TDAVIEW-CORE/graph.css" rel="stylesheet" />
-        <link href="inst/htmlwidgets/lib/TDAVIEW-CORE/gradientPicker.css" rel="stylesheet" />
-        <link href="inst/htmlwidgets/lib/TDAVIEW-CORE/legendbar.css" rel="stylesheet" />
-        <link href="inst/htmlwidgets/lib/TDAVIEW-CORE/legendpie.css" rel="stylesheet" />
-
-        <link src="Examples/autism/exp_bySamples.csv"/>
-        <link src="Examples/autism/meta_bySamples.csv"/>
-        <link src="Examples/autism/mapper_object1D_euc.json"/>
-
+        <link src="resources/data/autism/exp_bySamples.csv"/>
+        <link src="resources/data/autism/meta_bySamples.csv"/>
+        <link src="resources/data/autism/mapper_object1D_euc.json"/>
     </head>
 
     <body>

@@ -23,7 +23,7 @@
 //        percent_overlap = 50,
 //        num_bins_when_clustering = 10)
 // \dontrun{
-// //install.packages("igraph") 
+// //install.packages("igraph")
 // library(igraph)
 // g1 <- graph.adjacency(m1$adjacency, mode="undirected")
 // plot(g1, layout = layout.auto(g1) )
@@ -85,11 +85,11 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
             });
 
             heights.sort((a, b) => a-b);
-            
+
             let cutoff = cluster_cutoff_at_first_empty_bin(heights, level_max_distance, num_bins_when_clustering);
 
             let n = level_hcluster_output.size; //nrow(tree$merge) + 1
-            
+
             //finds the index of the first height greater than cutoff
             //tree$height is the array of heights in non-decreasing order
 
@@ -124,10 +124,10 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
             level_of_vertex = level_of_vertex.concat(new Array(num_vertices_in_level).fill(level+1));
             vertex_index += num_vertices_in_level;
 
-            
+
         }
     } // end mapper main loop
-  
+
     let num_vertices = vertex_index;
 
      // Create the adjacency matrix for the graph, starting with a matrix of zeros
@@ -148,7 +148,7 @@ function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_over
         }
     } // end constructing adjacency matrix
 
-    
+
   return {
       adjacency: adja,
       num_vertices: vertex_index,

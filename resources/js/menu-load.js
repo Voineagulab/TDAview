@@ -189,7 +189,7 @@ class MenuLoad {
                     self.myWorker = undefined;
                 }
 
-                self.myWorker = new Worker("inst/htmlwidgets/lib/TDAVIEW-CORE/worker.js");
+                self.myWorker = new Worker("resources/js/worker.js");
                 self.myWorker.postMessage({
                   dataFile: dataFile,
                   filterDim: filterdim.options[filterdim.selectedIndex].value,

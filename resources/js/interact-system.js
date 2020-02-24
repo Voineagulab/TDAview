@@ -6,7 +6,7 @@ class InteractSystem {
         this.element = element;
 
         this.resize(width, height);
-        
+
         this.mouseScreen = new THREE.Vector2();
         this.mouseWorld = new THREE.Vector3();
         this.mouseScreenDown = new THREE.Vector2();
@@ -25,14 +25,12 @@ class InteractSystem {
         this.isMouseDown = false;
         this.isDragging = false;
 
-        this.eventSystem = new event();
-        
         element.addEventListener("mousedown", function() {
             self.isMouseDown = true;
             self.mouseScreenDown.copy(self.mouseScreen);
             self._updateMouseWorld();
             self._updateObjectSetAtMouseWorld();
-            
+
             if(self.currentSet) {
                 if(self.currentSet.isDraggable) {
                     self.mouseWorldOffset = self.currentSet.ObjectDragCenter(self.currentObject, self.mouseWorldOffset).sub(self.mouseWorld);

@@ -1,6 +1,6 @@
 if( 'undefined' === typeof window){
 
-importScripts('../PAPAPARSE/papaparse.min.js', '../MAPPER/mapper1D.js', '../MAPPER/mapper2D.js', '../MAPPER/cutoff.js', '../MLJS/ml.min.js', '../TDAVIEW-CORE/MatrixReader.js');
+importScripts('../../vendors/papaparse/papaparse.min.js', '../../vendors/mapper/mapper-1d.js', '../../vendors/mapper/mapper-2d.js', '../../vendors/mapper/cutoff.js', '../../vendors/ml/ml.min.js', 'matrix-reader.js');
 
 this.onmessage = function(e) {
     let warning = undefined;
