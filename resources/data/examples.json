@@ -1,0 +1,7 @@
+{
+    "Autism" : {
+        "data": "/autism/exp_bySamples.csv",
+        "meta": "/autism/meta_bySamples.csv",
+        "override": "/autism/mapper_object1D_euc.json"
+    }
+}

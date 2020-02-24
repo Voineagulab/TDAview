@@ -28,8 +28,7 @@ class MenuLoad {
 
             <font size="2">Example Data</font><br>
             <select id="examples">
-              <option value="none">None</option>
-              <option value="autism">Autism</option>
+              <option value="None">None</option>
             </select>
         </fieldset>
 
@@ -136,6 +135,21 @@ class MenuLoad {
         let inputMetaLabel = document.getElementById("inputMetaLabel");
         let inputOverrideLabel = document.getElementById("inputOverrideLabel");
 
+        this.examples = document.getElementById("examples");
+        let exampleObj = {};
+
+        function updateExamples(newObj) {
+          exampleObj = newObj;
+          while(self.examples.childNodes.length > 2) self.examples.removeChild(self.examples.lastChild);
+          for(let exampleName in exampleObj) {
+            let exDiv = document.createElement("option");
+            exDiv.value = exDiv.textContent = exampleName;
+            self.examples.appendChild(exDiv);
+          }
+        }
+
+        fetch(window.location.href + "/resources/data/examples.json").then(r => r.json()).then(j => updateExamples(j));
+
         this.inputData = document.getElementById("inputData");
         this.inputDataText = document.getElementById("inputDataText");
         this.inputMeta = document.getElementById("inputMeta");
@@ -151,10 +165,10 @@ class MenuLoad {
         inputMeta.onchange = function() {self.inputMetaText.textContent = inputMeta.files[0].name;}
         inputOverride.onchange = function() {self.inputOverrideText.textContent = inputOverride.files[0].name;}
 
-        this.examples = document.getElementById("examples");
+
         this.examples.onchange = function() {
           let selectedValue = self.examples.options[self.examples.selectedIndex].value;
-          if(selectedValue == "none") {
+          if(selectedValue == "None") {
             self.inputDataText.textContent = self.inputMetaText.textContent = self.inputOverrideText.textContent = "No file chosen";
             inputDataLabel.classList.remove("btndisable");
             inputMetaLabel.classList.remove("btndisable");
@@ -164,11 +178,10 @@ class MenuLoad {
             inputDataLabel.classList.add("btndisable");
             inputMetaLabel.classList.add("btndisable");
             inputOverrideLabel.classList.add("btndisable");
-            if(selectedValue == "autism") { //TODO use yaml or json to track example paths
-                self.inputDataText.textContent = "/Examples/autism/exp_bySamples.csv";
-                self.inputMetaText.textContent = "/Examples/autism/meta_bySamples.csv";
-                self.inputOverrideText.textContent = "/Examples/autism/mapper_object1D_euc.json";
-            }
+
+            self.inputDataText.textContent = exampleObj[selectedValue].data;
+            self.inputMetaText.textContent = exampleObj[selectedValue].meta;
+            self.inputOverrideText.textContent = exampleObj[selectedValue].override;
           }
         }
 
@@ -286,7 +299,7 @@ class MenuLoad {
         if(element.files[0]) {
             success(element.files[0]);
         } else if(fallbackURL) {
-            fetch(window.location.href + fallbackURL, {cache: "force-cache"}).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
+            fetch(window.location.href + "Resources/data" + fallbackURL, {cache: "force-cache"}).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
         } else if(required){
             element.setCustomValidity("File required");
             element.reportValidity();
