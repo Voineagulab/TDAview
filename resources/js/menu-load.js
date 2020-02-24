@@ -299,7 +299,7 @@ class MenuLoad {
         if(element.files[0]) {
             success(element.files[0]);
         } else if(fallbackURL) {
-            fetch(window.location.href + "Resources/data" + fallbackURL, {cache: "force-cache"}).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
+            fetch(window.location.href + "resources/data" + fallbackURL, {cache: "force-cache"}).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
         } else if(required){
             element.setCustomValidity("File required");
             element.reportValidity();
