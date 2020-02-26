@@ -1,10 +1,9 @@
-# TDAView
-
-NOTICE: Please see dev branch for most up to date code.
+# tdaview
 
 A graph visualisation tool targeted at persistent homology applications, focusing on:
 
-  - Compatibility with R viewer
+  - Ease of use
+  - Compatibility with R workflows
   - Efficient display of large force networks in WebGL
   - Control over colour, size and width for nodes and edges with real-time updates
   - Publishing results
@@ -13,59 +12,7 @@ A graph visualisation tool targeted at persistent homology applications, focusin
 
 
 # Getting Started
-### Installation
-1. Download and build the library
-```{r}
-devtools::install_github("ktaouk1/TDAView", ref = "dev")
-```
-2. Initialise a graph:
-```{r}
-tdaview( mapper, metadata, names, labels)
-```
-where *mapper* is the return value of TDAMapper and *metadata* is a 2D array of string or numeric values, with the first entry being variable name and each subsequent entry pertaining to a row in the original data. *Names* are the row names of the data used for TDAMapper.
-
-Finally, *labels* is an array of strings whose length coincides with TDAMapper's calculated vertex count. This is an optional parameter.
-
-Use `options(viewer = NULL)` to open subsequent calls in default browser.
-
-### Example 1
-Trigonometric data is passed into Mapper and the result is displayed in TDAView
-```{r}
-devtools::install_github("paultpearson/TDAmapper")
-library(TDAMapper)
-devtools::install_github("ktaouk1/TDAView")
-library(tdaview)
-
-First.Example.names = sprintf("Gene %s", seq(1:100))
-First.Example.data = data.frame(x = 2*cos(0.5*(1:100)), y=sin(1:100))
-First.Example.meta = data.frame(Treatment = c(sprintf("Positive", 1:50), sprintf("Negative", 1:50)), Intake = 3*cos(0.5*(1:100)))
-First.Example.filter = First.Example.data$x
-First.Example.dist = dist(First.Example.data)
-
-First.Example.mapper <- mapper(dist_object = First.Example.dist,
-                               filter_values = First.Example.filter,
-                               num_intervals = 6,
-                               percent_overlap = 50,
-                               num_bins_when_clustering = 10)
-
-First.Example.labels = sprintf("Node %s", seq(1:First.Example.mapper$num_vertices))
-
-tdaview::visualizeMapper(First.Example.mapper, First.Example.meta, First.Example.names, First.Example.labels)
-```
-### Demo 1
-Real sample data is pre-loaded to demonstrate features in browser
-https://ktaouk1.github.io/TDAView/
-### Demo 2
-Random data is generated to demonstrate performance for larger datasets
-https://ktaouk1.github.io/TDAView/random.html
-
-### The Menu
-The sidebar enables real-time customisation of graphs and is divided into a series of sub-menus.
-`Selected` displays all the relevant data for the selected node. This includes the mean value of each of the metadata variables in the selected node, as well as the amount of data present.
-`Node Radius` sets the size of the nodes based on the categorical metadata variables, the node content or a predefined constant.
-`Node Colour` sets the colour of nodes based on no variables (for constant shading), a single variable (for an overall gradient) or multiple variables to produce pie charts. For variable shading, the colour picker determines the value of the selected step. Drag steps to reposition them, double click to add or remove them.
-`Node Label` switches between displaying the given names of the nodes, the size of their content, or nothing at all.
-`Edge Width` changes the width of the edges to a percentage of the neighbouring nodes' radii. A reset button reverts any changes back to the default value of 50% width.
-`Edge Colour` sets the colour of edges based on constant or single variable shading. For variable shading, the colour picker determines the value of the selected step. Drag steps to reposition them, double click to add or remove them.
-`Legend` hides or displays legends relating to node size and colour. The legends contain information about the distribution and importance of each metadata variable.
-`Export` captures the present state of the graph and allows download in either PNG or JPEG format.
+### Launch tdaview
+https://walshkieran.github.io/tdaview
+### Read the wiki
+https://github.com/walshkieran/tdaview/wiki
