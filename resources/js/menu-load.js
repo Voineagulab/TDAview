@@ -13,13 +13,13 @@ class MenuLoad {
         return /*html*/`
         <fieldset>
             <legend>Load Data</legend>
-            <font size="2">Data</font>
 
+            <font size="2">Data</font>
             <input type="file" id="inputData" style="opacity:0;" accept=".csv">
             <button class="btninline" id="inputDataLabel">Choose File</button>
-            <font size="1" id="inputDataText" class="btninline">No file chosen</font>
+            <font size="1" id="inputDataText" class="btninline">No file chosen</font><br><br>
 
-
+            <font size="2">Metadata</font>
             <input type="file" id="inputMeta" style="opacity:0;" accept=".csv">
             <button class="btninline" id="inputMetaLabel">Choose File</button>
             <font size="1" id="inputMetaText" class="btninline">No file chosen</font>
