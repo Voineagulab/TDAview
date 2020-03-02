@@ -229,7 +229,7 @@ class MenuLoad {
 
                     if(e.data.mapper !== undefined) {
                         self._getMetaAsync(e.data.headingsKey, function(metaObject) {
-                            self.OnMapperFileChange(e.data.mapper, metaObject, Object.keys(e.data.headingsKey));
+                            self.OnMapperFileChange(e.data.mapper, metaObject, e.data.headings);
                             resetProgress();
                         });
                     }
@@ -257,9 +257,9 @@ class MenuLoad {
                     let or = new FileReader();
                     or.onload = function(ore) {
                         let mapperObject = JSON.parse(ore.target.result);
-                        MatrixReader.ReadMatrixFromFile(dataFile, function(dataArray, headingsKey, conversionCount) {
+                        MatrixReader.ReadMatrixFromFile(dataFile, function(dataArray, headings, headingsKey, conversionCount) {
                             self._getMetaAsync(headingsKey, function(metaObject) {
-                                self.OnMapperFileChange(mapperObject, metaObject, Object.keys(headingsKey));
+                                self.OnMapperFileChange(mapperObject, metaObject, headings);
                                 resetProgress();
                             });
                         });
@@ -345,6 +345,10 @@ class MenuLoad {
                         throw "Invalid metadata headers or column lengths";
                     }
                 }
+
+                console.log("reading meta")
+                console.log(metaArray);
+                console.log(headingsKey);
 
                 //Get meta object
                 let metaObj = {};

@@ -5,7 +5,7 @@ importScripts('../../vendors/papaparse/papaparse.min.js', '../../vendors/mapper/
 this.onmessage = function(e) {
     let warning = undefined;
 
-    MatrixReader.ReadMatrixFromFile(e.data.dataFile, function(dataArray, headingsKey, conversionCount) {
+    MatrixReader.ReadMatrixFromFile(e.data.dataFile, function(dataArray, headings, headingsKey, conversionCount) {
         if(conversionCount > 0) warning = (conversionCount + " numeric data NAs converted to zeros");
 
         let colCount = dataArray[0].length;
@@ -146,7 +146,7 @@ this.onmessage = function(e) {
         }
 
 
-        self.postMessage({progress: 1.0, mapper: mapperObj, headingsKey: headingsKey, warning: warning});
+        self.postMessage({progress: 1.0, mapper: mapperObj, headings: headings, headingsKey: headingsKey, warning: warning});
     });
 }
 }

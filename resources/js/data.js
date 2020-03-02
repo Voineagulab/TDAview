@@ -63,8 +63,8 @@ class Data {
         return this.bins;
     }
 
-    getRowName(index) {
-        return this.rowNames[index];
+    getRowName(point) {
+        return this.rowNames[point-1];
     }
 
     loadVariable(name) {
@@ -124,6 +124,6 @@ class Data {
     }
 
     getPointNames(bin) {
-        return Object.keys(bin.points).map(p => this.rowNames[p]);
+        return bin.points.map(p => this.getRowName(p));
     }
 }

@@ -30,13 +30,15 @@ class MatrixReader {
             }
         }
 
-        //Remove headings
+        var headings = dataArray[0].slice(1);
+
         var headingsKey = {};
         for(let i=1; i<dataArray[0].length; ++i) {
             headingsKey[dataArray[0][i]] = i-1;
         }
-        dataArray.shift();
 
+        //Remove headings
+        dataArray.shift();
         for(let i=0; i<dataArray.length; ++i) {
           dataArray[i].shift();
         }
@@ -50,6 +52,6 @@ class MatrixReader {
                 }
             }
         }
-        callback(dataArray, headingsKey, conversionCount);
+        callback(dataArray, headings, headingsKey, conversionCount);
     }
 }
