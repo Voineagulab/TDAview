@@ -94,7 +94,7 @@ class Graph {
         }
 
         this.edgeLabels = new Array(links.length);
-        this.edgeLabelsvisible = true;
+        this.edgeLabelsVisible = true;
         for(let i=0; i<this.edgeLabels.length; ++i) {
             let div = document.createElement('div');
             div.className = "unselectable label";
