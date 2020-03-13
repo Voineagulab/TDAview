@@ -1,10 +1,11 @@
 if( 'undefined' === typeof window){
 
-importScripts('../../vendors/papaparse/papaparse.min.js', '../../vendors/mapper/mapper-1d.js', '../../vendors/mapper/mapper-2d.js', '../../vendors/mapper/cutoff.js', '../../vendors/ml/ml.min.js', 'matrix-reader.js');
+importScripts('../../vendors/numeric/numeric.min.js', '../../vendors/papaparse/papaparse.min.js', '../../vendors/mapper/mapper-1d.js', '../../vendors/mapper/mapper-2d.js', '../../vendors/mapper/cutoff.js', '../../vendors/ml/ml.min.js', 'matrix-reader.js');
 
 this.onmessage = function(e) {
     let warning = undefined;
 
+    try {
     MatrixReader.ReadMatrixFromFile(e.data.dataFile, function(dataArray, headings, headingsKey, conversionCount) {
         if(conversionCount > 0) warning = (conversionCount + " numeric data NAs converted to zeros");
 
@@ -70,12 +71,15 @@ this.onmessage = function(e) {
         if(e.data.filterFunc == "CMDS") {
             this.postMessage({progressstep: {text: "running classical mds...", currstep: 3, numstep: 4}});
 
+
+
+            /*
             let m = dist.clone();
 
             // square distances
-            m.multiply(-0.5).pow(2);
+            //m.pow(2).multiply(-0.5); //the mul step is not correct
 
-            // double centre the rows/columns
+            // double centre the rows/columns //note can use https://mljs.github.io/matrix/classes/abstractmatrix.html#center
             function mean(arr) {
               let sum = 0;
               for(let j=0; j<arr.length; ++j) {
@@ -88,7 +92,7 @@ this.onmessage = function(e) {
               let sum = 0;
               let ret = new Array(mat.cols);
               for(let i=0; i<mat.cols; ++i) {
-                ret[i] = mean(mat[i])
+                ret[i] = mean(mat.data[i])
               }
               return ret;
             }
@@ -99,7 +103,7 @@ this.onmessage = function(e) {
 
             for(let i=0; i<m.cols; ++i) {
               for(let j=0; j<m.rows; ++j) {
-                  m[i][j] += totalMean - rowMeans[i] - colMeans[j];
+                  m.data[i][j] += totalMean - rowMeans[i] - colMeans[j];
               }
             }
 
@@ -116,8 +120,48 @@ this.onmessage = function(e) {
               u.mulRowVector(i, eigenvalues);
             }
 
+            filter = new ML.MatrixLib.MatrixSubView(u, 0, u.rows-1, 0, e.data.filterDim-1).to2DArray();
+            */
+
+            //TODO: translate to ml js (above not working )
+            //Credit: https://github.com/benfred/mds.js/blob/master/mds.js
+            function mdsclassic(distances, dimensions) {
+                dimensions = dimensions || 2;
+        
+                // square distances
+                var M = numeric.mul(-0.5, numeric.pow(distances, 2));
+        
+                // double centre the rows/columns
+                function mean(A) { return numeric.div(numeric.add.apply(null, A), A.length); }
+                var rowMeans = mean(M),
+                    colMeans = mean(numeric.transpose(M)),
+                    totalMean = mean(rowMeans);
+        
+                for (var i = 0; i < M.length; ++i) {
+                    for (var j =0; j < M[0].length; ++j) {
+                        M[i][j] += totalMean - rowMeans[i] - colMeans[j];
+                    }
+                }
+        
+                // take the SVD of the double centred matrix, and return the
+                // points from it
+                var ret = numeric.svd(M),
+                    eigenValues = numeric.sqrt(ret.S);
+                return ret.U.map(function(row) {
+                    return numeric.mul(row, eigenValues).splice(0, dimensions);
+                });
+            };
+
+            filter = mdsclassic(dist.to2DArray(), e.data.filterDim);
             this.postMessage({progressstep: {text: "running mapper...", currstep: 4, numstep: 4}});
-            mapperObj = mapper1D(dist, new ML.MatrixLib.MatrixSubView(u, 0, u.rows-1, 0, e.data.filterDim-1).to2DArray());
+
+            if(e.data.filterDim == 1) {
+                mapperObj = mapper1D(dist, filter, e.data.numintervals, e.data.percentoverlap, e.data.numbins);
+            } else {
+                mapperObj = mapper2D(dist, filter, [e.data.numintervals,e.data.numintervals], e.data.percentoverlap, e.data.numbins);
+            }
+
+            
         } else {
             this.postMessage({progressstep: {text: "running pca...", currstep: 3, numstep: 4}});
 
@@ -148,5 +192,8 @@ this.onmessage = function(e) {
 
         self.postMessage({progress: 1.0, mapper: mapperObj, headings: headings, headingsKey: headingsKey, warning: warning});
     });
+} catch(error) {
+    self.postMessage({error: error});
+}
 }
 }

@@ -214,6 +214,13 @@ class MenuLoad {
                 });
 
                 self.myWorker.onmessage = function(e){
+                    if(e.data.error !== undefined) { //caught errors
+                        window.alert(e.data.error);
+                        console.error(e.data.error);
+                        resetProgress();
+                        return;
+                    }
+
                     if(e.data.warning !== undefined) {
                         console.warn(e.data.warning);
                         window.alert(e.data.warning);
@@ -236,8 +243,7 @@ class MenuLoad {
                 }
 
                 self.myWorker.onerror = function (e) {
-                    console.error(e.message);
-                    window.alert(e.message);
+                    console.error(e.message); //uncaught errors
                 };
             }, resetProgress);
         }
