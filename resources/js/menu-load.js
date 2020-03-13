@@ -214,6 +214,13 @@ class MenuLoad {
                 });
 
                 self.myWorker.onmessage = function(e){
+                    if(e.data.error !== undefined) { //caught errors
+                        window.alert(e.data.error);
+                        console.error(e.data.error);
+                        resetProgress();
+                        return;
+                    }
+
                     if(e.data.warning !== undefined) {
                         console.warn(e.data.warning);
                         window.alert(e.data.warning);
@@ -229,15 +236,18 @@ class MenuLoad {
 
                     if(e.data.mapper !== undefined) {
                         self._getMetaAsync(e.data.headingsKey, function(metaObject) {
-                            self.OnMapperFileChange(e.data.mapper, metaObject, e.data.headings);
+                            if(metaObject[Object.keys(metaObject)[0]].length == e.data.headings.length) { //TODO: check this before computation
+                                self.OnMapperFileChange(e.data.mapper, metaObject, e.data.headings);
+                            } else {
+                                window.alert("Data column count not equal to metadata row count");
+                            }
                             resetProgress();
                         });
                     }
                 }
 
                 self.myWorker.onerror = function (e) {
-                    console.error(e.message);
-                    window.alert(e.message);
+                    console.error(e.message); //uncaught errors
                 };
             }, resetProgress);
         }
@@ -259,7 +269,11 @@ class MenuLoad {
                         let mapperObject = JSON.parse(ore.target.result);
                         MatrixReader.ReadMatrixFromFile(dataFile, function(dataArray, headings, headingsKey, conversionCount) {
                             self._getMetaAsync(headingsKey, function(metaObject) {
-                                self.OnMapperFileChange(mapperObject, metaObject, headings);
+                                if(metaObject[Object.keys(metaObject)[0]].length == headings.length) {
+                                    self.OnMapperFileChange(mapperObject, metaObject, headings);
+                                } else {
+                                    window.alert("Data column count not equal to metadata row count");
+                                }
                                 resetProgress();
                             });
                         });
@@ -345,10 +359,6 @@ class MenuLoad {
                         throw "Invalid metadata headers or column lengths";
                     }
                 }
-
-                console.log("reading meta")
-                console.log(metaArray);
-                console.log(headingsKey);
 
                 //Get meta object
                 let metaObj = {};

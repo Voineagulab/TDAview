@@ -5,6 +5,7 @@ importScripts('../../vendors/papaparse/papaparse.min.js', '../../vendors/mapper/
 this.onmessage = function(e) {
     let warning = undefined;
 
+    try {
     MatrixReader.ReadMatrixFromFile(e.data.dataFile, function(dataArray, headings, headingsKey, conversionCount) {
         if(conversionCount > 0) warning = (conversionCount + " numeric data NAs converted to zeros");
 
@@ -72,52 +73,36 @@ this.onmessage = function(e) {
 
             let m = dist.clone();
 
-            // square distances
-            m.multiply(-0.5).pow(2);
+            //Square distance matrix
+            m.pow(2).multiply(0.5);
 
-            // double centre the rows/columns
-            function mean(arr) {
-              let sum = 0;
-              for(let j=0; j<arr.length; ++j) {
-                sum += arr[j];
-              }
-              return sum / arr.length;
+            //Double center
+            let rowMeans = m.mean("row");
+            colMeans = m.mean("column");
+            totalMean = (new ML.MatrixLib.WrapperMatrix1D(rowMeans)).mean();
+            for(let i=0; i<m.data.length; ++i) {
+                for(let j=0; j<m.data[0].length; ++j) {
+                    m.data[i][j] += totalMean - rowMeans[i] - colMeans[j];
+                }
             }
 
-            function means(mat) {
-              let sum = 0;
-              let ret = new Array(mat.cols);
-              for(let i=0; i<mat.cols; ++i) {
-                ret[i] = mean(mat[i])
-              }
-              return ret;
-            }
-
-            let rowMeans = means(m);
-            let colMeans = means(new ML.MatrixLib.MatrixTransposeView(m));
-            let totalMean = mean(rowMeans);
-
-            for(let i=0; i<m.cols; ++i) {
-              for(let j=0; j<m.rows; ++j) {
-                  m[i][j] += totalMean - rowMeans[i] - colMeans[j];
-              }
-            }
-
+            //Perform SVD
             let svd = new ML.MatrixLib.SingularValueDecomposition(m);
-
-            const singularValues = svd.diagonal;
-            const eigenvalues = [];
-            for (const singularValue of singularValues) {
-              eigenvalues.push((singularValue * singularValue) / (m.rows - 1));
+            let eigenVals = svd.s.map(v => Math.sqrt(v));
+            filter = new ML.MatrixLib.MatrixTransposeView(new ML.MatrixLib.MatrixSubView(svd.U, 0, svd.U.rows-1, 0, e.data.filterDim-1)).to2DArray();
+            for(let i=0; i<filter.length; ++i) {
+                for(let j=0; j<filter[0].length; ++j) {
+                    filter[i][j] *= eigenVals[i];
+                }
             }
-
-            let u = svd.leftSingularVectors;
-            for(let i=0; i<u.cols; ++i) {
-              u.mulRowVector(i, eigenvalues);
-            }
-
+            
             this.postMessage({progressstep: {text: "running mapper...", currstep: 4, numstep: 4}});
-            mapperObj = mapper1D(dist, new ML.MatrixLib.MatrixSubView(u, 0, u.rows-1, 0, e.data.filterDim-1).to2DArray());
+
+            if(e.data.filterDim == 1) {
+                mapperObj = mapper1D(dist, filter[0], e.data.numintervals, e.data.percentoverlap, e.data.numbins);
+            } else {
+                mapperObj = mapper2D(dist, filter, [e.data.numintervals,e.data.numintervals], e.data.percentoverlap, e.data.numbins);
+            }
         } else {
             this.postMessage({progressstep: {text: "running pca...", currstep: 3, numstep: 4}});
 
@@ -144,9 +129,10 @@ this.onmessage = function(e) {
                 mapperObj = mapper2D(dist, filter, [e.data.numintervals,e.data.numintervals], e.data.percentoverlap, e.data.numbins);
             }
         }
-
-
         self.postMessage({progress: 1.0, mapper: mapperObj, headings: headings, headingsKey: headingsKey, warning: warning});
     });
+} catch(error) {
+    self.postMessage({error: error});
+}
 }
 }
