@@ -1,38 +1,54 @@
-// mapper1D function
-//
-// This function uses a filter function f: X -> R on a data set X that has n rows (observations) and k columns (variables).
-//
-// @param distance_matrix An n x n matrix of pairwise dissimilarities.
-// @param filter_values A length n vector of real numbers.
-// @param num_intervals A positive integer.
-// @param percent_overlap A number between 0 and 100 specifying how much adjacent intervals should overlap.
-// @param num_bins_when_clustering A positive integer that controls whether points in the same level set end up in the same cluster.
-//
-// @return An object of class \code{TDAmapper} which is a list of items named \code{adjacency} (adjacency matrix for the edges), \code{num_vertices} (integer number of vertices), \code{level_of_vertex} (vector with \code{level_of_vertex[i]} = index of the level set for vertex i), \code{points_in_vertex} (list with \code{points_in_vertex[[i]]} = vector of indices of points in vertex i), \code{points_in_level} (list with \code{points_in_level[[i]]} = vector of indices of points in level set i, and \code{vertices_in_level} (list with \code{vertices_in_level[[i]]} = vector of indices of vertices in level set i.
-//
-// @author Paul Pearson, \email{pearsonp@@hope.edu}
-// @references \url{https://github.com/paultpearson/TDAmapper}
-// @seealso \code{\link{mapper2D}}
-// @keywords mapper1D
-//
-// @examples
-// m1 <- mapper1D(
-//        distance_matrix = dist(data.frame( x=2*cos(0.5*(1:100)), y=sin(1:100) )),
-//        filter_values = 2*cos(0.5*(1:100)),
-//        num_intervals = 10,
-//        percent_overlap = 50,
-//        num_bins_when_clustering = 10)
-// \dontrun{
-// //install.packages("igraph")
-// library(igraph)
-// g1 <- graph.adjacency(m1$adjacency, mode="undirected")
-// plot(g1, layout = layout.auto(g1) )
-// }
-// @export
-//
+/*
+LICENSE: GNU General Public License v3.0.
+YEAR: 2020
+COPYRIGHT HOLDER: Kieran Walsh
 
-//Notes: ML.HClust.agnes requires conversion of the matrix to 2D array and back every time
+GNU General Public License v3.0. The mapper 1d, 2d and cutoff functions by
+Kieran Walsh are direct JavaScript translations of Paul Pearson's R code versions -
+the following was included in this R code.
 
+    LICENSE: GNU General Public License v3.0.
+    YEAR: 2015
+    COPYRIGHT HOLDER: Paul Pearson
+
+    GNU General Public License v3.0.  The mapper1D function by Paul
+    Pearson is a cleaned-up, modified, and ported version of the Mapper 
+    code by Daniel Muellner and Gurjeet Singh originally written for Matlab.
+    What follows is the copyright notice included in the Matlab code written 
+    by Muellner, based on code written by Singh.
+
+        This is a cleaned-up and modified version of the Mapper code by
+        Gurjeet Singh. It also corrects two bugs which are present in the
+        original Mapper code.
+        (c) 2010 Daniel Muellner, muellner@math.stanford.edu
+        Copyright: As far as Daniel Muellner's contributions are concerned,
+        this code is published under the GNU General Public License v3.0
+        (see http://www.gnu.org/licenses/gpl.html). For scientific citations,
+        please refer to my home page http://math.stanford.edu/~muellner. If
+        you visit this page in the future, chances are high that you will find
+        a Python library with improved, largely extended and freely
+        distributable Mapper code there.
+        Since the present code is based on Gurjeet Singh's original code,
+        please also respect his copyright message.
+        Below is the original copyright message:
+        Mapper code -- (c) 2007-2009 Gurjeet Singh
+        This code is provided as is, with no guarantees except that
+        bugs are almost surely present.  Published reports of research
+        using this code (or a modified version) should cite the
+        article that describes the algorithm:
+        G. Singh, F. Memoli, G. Carlsson (2007).  Topological Methods for
+        the Analysis of High Dimensional Data Sets and 3D Object
+        Recognition, Point Based Graphics 2007, Prague, September 2007.
+        Comments and bug reports are welcome.  Email to
+        gurjeet@stanford.edu.
+        I would also appreciate hearing about how you used this code,
+        improvements that you have made to it, or translations into other
+        languages.
+        You are free to modify, extend or distribute this code, as long
+        as this copyright notice is included whole and unchanged.
+*/
+
+//TODO: ML.HClust.agnes requires conversion of the matrix to 2D array and back every time
 function mapper1D(distance_matrix, filter_values, num_intervals=10, percent_overlap=50, num_bins_when_clustering=10) {
 // initialize variables
     let vertex_index = 0;
