@@ -14,5 +14,5 @@ https://walshkieran.github.io/tdaview
 ### Read the wiki
 https://github.com/walshkieran/tdaview/wiki
 
-![alt-text](https://github.com/ktaouk1/TDAView/raw/master/example.png "Example Pic")
+![alt-text](https://raw.githubusercontent.com/WalshKieran/tdaview/master/resources/images/example.png "RNA-Seq Differentiation Example")
 
