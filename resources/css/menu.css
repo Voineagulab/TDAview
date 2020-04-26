@@ -327,9 +327,9 @@ fieldset {
 .btninline {
   color: black;
   display: inline-block;
-  margin-right: 5px;
   overflow: hidden;
-  max-width: 120px;
+  max-width: 100px;
+  white-space: nowrap;
 }
 
 .btninline.btndisable {

@@ -131,15 +131,16 @@ class MenuNodes {
                 self.nodeGradPicker.setState(STATE_GRADIENT);
                 self.OnNodeColorContinuous(variablecolorinput.value);
                 variablecolorinput.placeholder = self.variablecolorinputold = variablecolorinput.value;
+                self.nodeGradPicker.updateBarGradient();
             } else if(self.categoricalNames.indexOf(variablecolorinput.value) >= 0) {
                 let count = self.OnNodeColorCategorical(variablecolorinput.value);
                 self.nodeGradPicker.setState(STATE_FIXED, count);
                 variablecolorinput.placeholder = self.variablecolorinputold = variablecolorinput.value;
+                self.nodeGradPicker.updateBarGradient();
             } else {
-              document.getElementById("nodecoloruniform").click();
-              return;
+                document.getElementById("nodecoloruniform").click();
+                self.variablecolorinputold = variablecolorinput.placeholder = "";
             }
-            self.nodeGradPicker.updateBarGradient();
             variablecolorinput.value = "";
         };
 
@@ -163,7 +164,7 @@ class MenuNodes {
         document.getElementById("variablecolorinput").placeholder = "Select: ";
 
         //Load variable - need to do this even if uniform is currently selected
-        this.variablecolorinputold  = obj.variable;
+        this.variablecolorinputold = obj.variable;
         if(obj.variable) {
             document.getElementById("nodecolorvariable").click();
         }
