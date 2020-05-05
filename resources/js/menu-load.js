@@ -149,7 +149,8 @@ class MenuLoad {
           }
         }
 
-        fetch(window.location.href + "../examples/examples.json").then(r => r.json()).then(j => updateExamples(j));
+        console.log(window.location.href + "/examples/examples.json");
+        fetch(window.location.href + "/examples/examples.json").then(r => r.json()).then(j => updateExamples(j));
 
         this.inputData = document.getElementById("inputData");
         this.inputDataText = document.getElementById("inputDataText");
@@ -203,8 +204,6 @@ class MenuLoad {
                 }
 
                 self.dataFileChanged |= self.exampleCacheFile != self.examples.selectedIndex;
-
-                console.warn(self.dataFileChanged);
 
                 if(self.dataFileChanged || self.filterCacheFunc != filterfunc.selectedIndex) self.filterCache = undefined;
                 if(self.dataFileChanged || self.distCacheFunc != distfunc.selectedIndex) self.distCache = undefined;
