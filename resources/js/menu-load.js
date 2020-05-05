@@ -4,7 +4,8 @@ class MenuLoad {
         this.domElement.innerHTML = this.generateHTML();
         element.appendChild(this.domElement);
 
-        this.filterCompatibility = [1, 1, 2, 0];
+        this.filterCompatibilityDim = [1, 1, 1, 1, 1, 2, 0]; //0=all dimensions, 1=1d, 2=2d
+        this.filterCompatibilityDist = [0, 0, 0, 0, 0, 0, 1]; //0=all, 1=euclidean only
 
         this._init(setLoadingStep, setLoadingProgress);
     }
@@ -67,6 +68,9 @@ class MenuLoad {
             <br><br>
             <font size="2">Filter Function</font><br>
             <select id="filterfunc">
+                <option value="Mean">Mean</option>
+                <option value="Min">Min</option>
+                <option value="Max">Max</option>
                 <option value="PCAEV1">PCA 1</option>
                 <option value="PCAEV2">PCA 2</option>
                 <option value="PCAEV1,2">PCA 1,2</option>
@@ -93,6 +97,8 @@ class MenuLoad {
     _init(setLoadingStep, setLoadingProgress) {
         var self = this;
 
+        this.dataFileChanged = true;
+
         var filterdim = document.getElementById("filterdim");
         var distfunc = document.getElementById("distfunc");
 
@@ -100,18 +106,13 @@ class MenuLoad {
         var percentoverlap = document.getElementById("percentoverlap");
         var numbins = document.getElementById("numbins");
 
-        const filterfuncpartitionindex = 3;
         var filterfunc = document.getElementById("filterfunc");
 
-        self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
-        filterdim.onchange = function() {
-            self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
+        self._UpdateAvailableFilterFunc(filterdim, filterfunc, distfunc);
+        filterdim.onchange = distfunc.onchange = function() {
+            self._UpdateAvailableFilterFunc(filterdim, filterfunc, distfunc);
         };
 
-        self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
-        filterdim.onchange = function() {
-            self._UpdateAvailableFilterFunc(filterdim, filterfunc, filterfuncpartitionindex);
-        };
 
         function openPage(pageName, elmnt, color) {
             var i, tabcontent, tablinks;
@@ -148,7 +149,7 @@ class MenuLoad {
           }
         }
 
-        fetch(window.location.href + "/resources/data/examples.json").then(r => r.json()).then(j => updateExamples(j));
+        fetch(window.location.href + "../examples/examples.json").then(r => r.json()).then(j => updateExamples(j));
 
         this.inputData = document.getElementById("inputData");
         this.inputDataText = document.getElementById("inputDataText");
@@ -161,10 +162,9 @@ class MenuLoad {
         inputMetaLabel.onclick = function() {self.inputMeta.click();}
         inputOverrideLabel.onclick = function() {self.inputOverride.click();}
 
-        inputData.onchange = function() {self.inputDataText.textContent = inputData.files[0].name;}
+        inputData.onchange = function() {self.inputDataText.textContent = inputData.files[0].name; self.dataFileChanged = true;}
         inputMeta.onchange = function() {self.inputMetaText.textContent = inputMeta.files[0].name;}
         inputOverride.onchange = function() {self.inputOverrideText.textContent = inputOverride.files[0].name;}
-
 
         this.examples.onchange = function() {
           let selectedValue = self.examples.options[self.examples.selectedIndex].value;
@@ -202,6 +202,13 @@ class MenuLoad {
                     self.myWorker = undefined;
                 }
 
+                self.dataFileChanged |= self.exampleCacheFile != self.examples.selectedIndex;
+
+                console.warn(self.dataFileChanged);
+
+                if(self.dataFileChanged || self.filterCacheFunc != filterfunc.selectedIndex) self.filterCache = undefined;
+                if(self.dataFileChanged || self.distCacheFunc != distfunc.selectedIndex) self.distCache = undefined;
+
                 self.myWorker = new Worker("resources/js/worker.js");
                 self.myWorker.postMessage({
                   dataFile: dataFile,
@@ -210,8 +217,14 @@ class MenuLoad {
                   filterFunc: filterfunc.options[filterfunc.selectedIndex].value,
                   numintervals: parseInt(numintervals.value),
                   percentoverlap: percentoverlap.value,
-                  numbins: parseInt(numbins.value)
+                  numbins: parseInt(numbins.value),
+                  filterCache: self.filterCache,
+                  distCache: self.distCache
                 });
+
+                self.exampleCacheFile = self.examples.selectedIndex
+                self.filterCacheFunc = filterfunc.selectedIndex;
+                self.distCacheFunc = distfunc.selectedIndex;
 
                 self.myWorker.onmessage = function(e){
                     if(e.data.error !== undefined) { //caught errors
@@ -235,6 +248,10 @@ class MenuLoad {
                     }
 
                     if(e.data.mapper !== undefined) {
+                        self.distCache = e.data.distCache;
+                        self.filterCache = e.data.filterCache;
+                        self.dataFileChanged = false;
+
                         self._getMetaAsync(e.data.headingsKey, function(metaObject) {
                             if(metaObject[Object.keys(metaObject)[0]].length == e.data.headings.length) { //TODO: check this before computation
                                 self.OnMapperFileChange(e.data.mapper, metaObject, e.data.headings);
@@ -322,10 +339,10 @@ class MenuLoad {
         }
     }
 
-    _UpdateAvailableFilterFunc(filterdim, filterfunc) {
+    _UpdateAvailableFilterFunc(filterdim, filterfunc, distfunc) {
         let valid = -1;
-        for(let i=0; i<this.filterCompatibility.length; ++i) {
-          if(!this.filterCompatibility[i] || this.filterCompatibility[i] == (filterdim.selectedIndex + 1)) {
+        for(let i=0; i<this.filterCompatibilityDim.length; ++i) {
+          if((!this.filterCompatibilityDim[i] || this.filterCompatibilityDim[i] == (filterdim.selectedIndex + 1)) && (!this.filterCompatibilityDist[i] || distfunc.options[distfunc.selectedIndex].value == "euclidean")) {
             filterfunc.options[i].disabled = false;
             filterfunc.options[i].hidden = false;
             if(valid < 0) valid = i;
@@ -334,9 +351,8 @@ class MenuLoad {
             filterfunc.options[i].hidden = true;
           }
         }
-
         filterfunc.selectedIndex = valid;
-    }
+      }
 
     //Thing to match is first column of each row
     _getMetaAsync(headingsKey, callback) {
