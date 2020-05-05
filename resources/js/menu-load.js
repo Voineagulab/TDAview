@@ -149,8 +149,8 @@ class MenuLoad {
           }
         }
 
-        console.log(window.location.href + "/examples/examples.json");
-        fetch(window.location.href + "/examples/examples.json").then(r => r.json()).then(j => updateExamples(j));
+        console.log(window.location.href + "examples/examples.json");
+        fetch(window.location.href + "examples/examples.json").then(r => r.json()).then(j => updateExamples(j));
 
         this.inputData = document.getElementById("inputData");
         this.inputDataText = document.getElementById("inputDataText");
@@ -329,7 +329,7 @@ class MenuLoad {
         if(element.files[0]) {
             success(element.files[0]);
         } else if(fallbackURL) {
-            fetch(window.location.href + "resources/data" + fallbackURL, {cache: "force-cache"}).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
+            fetch(window.location.href + "examples" + fallbackURL, {cache: "force-cache"}).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
         } else if(required){
             element.setCustomValidity("File required");
             element.reportValidity();
