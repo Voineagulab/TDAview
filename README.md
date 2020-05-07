@@ -23,6 +23,7 @@ TDAview requires as input files the DATA and METADATA in .CSV format, with the f
   - MAPPER object: If using TDAview only for visulisation, a MAPPER object can be generated with the TDAmapper R package, and exported as a .json file using the write_json function in the jsonlite R library. This .jason file can then be uploaded in TDAview. Note that the DATA and METADATA files need to be imported even if the MAPPER object is upoaded, for the visualisation component of TDAview.
 Example datasets are available in the EXAMPLES folder, and can also be loaded from TDAview's drop-down menu.
 
+To remove the uploaded data refresh the browser page.
 #
 TDAview implements TDAmapper, which requires the following parameters for generating the graph. Further details explaining these parameters are available in the TDAview publication (Walsh et al. Bioinformatics 2020) and TDAmapper documentation:https://cran.r-project.org/web/packages/TDAmapper/index.html
 - Filter dimensions: Mapper1D or Mapper2D
