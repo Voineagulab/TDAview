@@ -11,11 +11,11 @@ TDAview can be used as either:
   - a visualisation tool, by importing a Mapper object generated using the TDAmapper R package: https://cran.r-project.org/web/packages/TDAmapper/index.html
   - a TDA analysis and visualization tool, by importing the data and metadata, and choosing the Mapper parameters. For this option, TDAview implements the TDAmapper algorithm in JavaScript.
 
-### Getting Started
-## Launch TDAview:
+## Getting Started
+### Launch TDAview:
 https://walshkieran.github.io/tdaview
 
-## Importing data and generating the graph
+### Importing data and generating the graph
 
 TDAview requires as input files the DATA and METADATA in .CSV format, with the following formatting requirements:
   - DATA: Data matrix with columns specifying data points (eg. samples for inter-sample graphs or genes for co-expression graphs) and rows specifying measured features. The first column should contain feature names and the first row should contain data-point names. 
@@ -30,9 +30,13 @@ TDAview implements TDAmapper, which requires the following parameters for genera
 - Percent overlap
 - Number of bins when clustering
 Further details explaining these parameters are available in the TDAview publication (Walsh et al. Bioinformatics 2020) and TDAmapper documentation:
+#
 
-## Read the wiki for further details on (1) Example datasets, (2) Formatting nodes and edges and (3) Saving the data
-https://github.com/walshkieran/tdaview/wiki
+### Read the wiki https://github.com/walshkieran/tdaview/wiki for further details on:
+(1) Example datasets
+(2) Formatting nodes and edges 
+(3) Saving the data
+
 
 ![alt-text](https://raw.githubusercontent.com/WalshKieran/tdaview/master/resources/images/example.png "RNA-Seq Differentiation Example")
 
