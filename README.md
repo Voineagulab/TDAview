@@ -20,7 +20,7 @@ https://walshkieran.github.io/tdaview
 TDAview requires as input files the DATA and METADATA in .CSV format, with the following formatting requirements:
   - DATA: Data matrix with columns specifying data points (eg. samples for inter-sample graphs or genes for co-expression graphs) and rows specifying measured features. The first column should contain feature names and the first row should contain data-point names. 
   - METADATA: The first column should contain the data-point names identical to the colum names of DATA. The order doesn't need to be identical, as TDAview will match the column names of DATA with the first column in METADATA. However, the number of datapoints should be the same in DATA and METADATA. 
-  - MAPPER object: If using TDAview only for visulalsation, a MAPPER object can be generated with the TDAmapper R package, and exported as a .json file using the write_json function in the jsonlite R library. Note that the DATA and METADATA files need to be imported even if the MAPPER object is upoaded, for the visualisation component of TDAview.
+  - MAPPER object: If using TDAview only for visulisation, a MAPPER object can be generated with the TDAmapper R package, and exported as a .json file using the write_json function in the jsonlite R library. This .jason file can then be uploaded in TDAview. Note that the DATA and METADATA files need to be imported even if the MAPPER object is upoaded, for the visualisation component of TDAview.
 Example datasets are available in the EXAMPLES folder, and can also be loaded from TDAview's drop-down menu.
 
 #
