@@ -15,7 +15,7 @@ TDAview can be used as either:
 ### Launch TDAview:
 https://walshkieran.github.io/tdaview
 
-### Importing data and generating the graph
+### Importing data and generating the graph:
 
 TDAview requires as input files the DATA and METADATA in .CSV format, with the following formatting requirements:
   - DATA: Data matrix with columns specifying data points (eg. samples for inter-sample graphs or genes for co-expression graphs) and rows specifying measured features. The first column should contain feature names and the first row should contain data-point names. 
@@ -35,7 +35,7 @@ TDAview implements TDAmapper, which requires the following parameters for genera
 ### Read the wiki https://github.com/walshkieran/tdaview/wiki for further details on:
 #### - (1) Example datasets
 #### - (2) Formatting nodes and edges 
-###3 - (3) Saving the data
+#### - (3) Saving the data
 
 ![alt-text](https://raw.githubusercontent.com/WalshKieran/tdaview/master/resources/images/example.png "RNA-Seq Differentiation Example")
 
