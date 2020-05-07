@@ -24,18 +24,18 @@ TDAview requires as input files the DATA and METADATA in .CSV format, with the f
 Example datasets are available in the EXAMPLES folder, and can also be loaded from TDAview's drop-down menu.
 
 #
-TDAview implements TDAmapper, which requires the following parameters for generating the graph:
+TDAview implements TDAmapper, which requires the following parameters for generating the graph. Further details explaining these parameters are available in the TDAview publication (Walsh et al. Bioinformatics 2020) and TDAmapper documentation:https://cran.r-project.org/web/packages/TDAmapper/index.html
 - Filter dimensions: Mapper1D or Mapper2D
 - Number of intervals
 - Percent overlap
 - Number of bins when clustering
-Further details explaining these parameters are available in the TDAview publication (Walsh et al. Bioinformatics 2020) and TDAmapper documentation:
+
 #
 
 ### Read the wiki https://github.com/walshkieran/tdaview/wiki for further details on:
-### - (1) Example datasets
-### - (2) Formatting nodes and edges 
-### - (3) Saving the data
+#### - (1) Example datasets
+#### - (2) Formatting nodes and edges 
+###3 - (3) Saving the data
 
 ![alt-text](https://raw.githubusercontent.com/WalshKieran/tdaview/master/resources/images/example.png "RNA-Seq Differentiation Example")
 
