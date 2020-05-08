@@ -79,13 +79,13 @@ this.onmessage = function(e) {
         } else {
             if(e.data.filterFunc == "Mean") {
                 filter = [new Array(dataArray[0].length), new Array(dataArray[0].length)];
-                for(let j=0; j<dataArray[0].length; ++j) filter[0][j] = Utility.Mean(...dataArray.map(a => a[j]));
+                for(let j=0; j<dataArray[0].length; ++j) filter[0][j] = Utility.Mean(dataArray.map(a => a[j]));
             } else if(e.data.filterFunc == "Min") {
                 filter = [new Array(dataArray[0].length), new Array(dataArray[0].length)];
-                for(let j=0; j<dataArray[0].length; ++j) filter[0][j] = Utility.Min(...dataArray.map(a => a[j]));
+                for(let j=0; j<dataArray[0].length; ++j) filter[0][j] = Utility.Min(dataArray.map(a => a[j]));
             } else if(e.data.filterFunc == "Max") {
                 filter = [new Array(dataArray[0].length), new Array(dataArray[0].length)];
-                for(let j=0; j<dataArray[0].length; ++j) filter[0][j] = Utility.Max(...dataArray.map(a => a[j]));
+                for(let j=0; j<dataArray[0].length; ++j) filter[0][j] = Utility.Max(dataArray.map(a => a[j]));
             } else if(e.data.filterFunc == "CMDS") {
                 this.postMessage({progressstep: {text: "running classical mds...", currstep: 3, numstep: 4}});
     

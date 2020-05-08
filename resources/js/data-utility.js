@@ -10,7 +10,7 @@ class Utility {
     static Mean(array) {
         let mean = 0.0;
         for(let i=0; i<array.length; i++) {
-            mean += array[i];
+            mean += (array[i] * 1);
         }
         return mean / array.length;
     }
