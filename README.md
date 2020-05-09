@@ -13,7 +13,7 @@ TDAview can be used as either:
 
 ## Getting Started
 ### Launch TDAview:
-https://walshkieran.github.io/tdaview
+https://walshkieran.github.io/TDAview
 
 ### Importing data and generating the graph:
 
@@ -33,7 +33,7 @@ TDAview implements TDAmapper, which requires the following parameters for genera
 
 #
 
-### Read the wiki https://github.com/walshkieran/tdaview/wiki for further details on:
+### Read the wiki https://github.com/walshkieran/TDAview/wiki for further details on:
 ### - Example datasets
 ### - Formatting nodes and edges 
 ### - Saving the data
@@ -41,6 +41,6 @@ TDAview implements TDAmapper, which requires the following parameters for genera
 
 #
 
-![alt-text](https://github.com/WalshKieran/tdaview/blob/master/examples/Climate%20Change/fig.png)
+![alt-text](https://github.com/WalshKieran/TDAview/blob/master/examples/Climate%20Change/fig.png)
 
 
