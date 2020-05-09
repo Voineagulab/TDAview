@@ -38,5 +38,5 @@ TDAview implements TDAmapper, which requires the following parameters for genera
 ### - Formatting nodes and edges 
 ### - Saving the data
 
-![alt-text](https://raw.githubusercontent.com/WalshKieran/tdaview/master/resources/images/example.png "RNA-Seq Differentiation Example")
+![alt-text](https://raw.githubusercontent.com/WalshKieran/tdaview/master/examples/Climate%20Change/figure.png)
 
