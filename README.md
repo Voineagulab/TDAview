@@ -39,6 +39,8 @@ TDAview implements TDAmapper, which requires the following parameters for genera
 ### - Saving the data
 ### - Technical notes
 
+#
+
 ![alt-text](https://github.com/WalshKieran/tdaview/blob/master/examples/Climate%20Change/fig.png)
 
-#
+
