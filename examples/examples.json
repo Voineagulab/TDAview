@@ -1,13 +1,11 @@
 {
     "Falcon Heavy Rocket Launch" : {
         "data": "/Falcon Heavy Rocket Launch/falcondata.csv",
-        "meta": "/Falcon Heavy Rocket Launch/falconmeta.csv",
-        "override": "/Falcon Heavy Rocket Launch/mapper_object1D_abp4-20-10.json"
+        "meta": "/Falcon Heavy Rocket Launch/falconmeta.csv"
     },
     "Climate Change" : {
         "data": "/Climate Change/climatedata.csv",
-        "meta": "/Climate Change/climatemeta.csv",
-        "override": "/Climate Change/mapper_object2D_abp8-40-10.json"
+        "meta": "/Climate Change/climatemeta.csv"
     },
     "RNAseq Neuronal Differentiation" : {
         "data": "/RNAseq Neuronal Differentiation/Griesi_allData_FPKM_IV.csv",
@@ -18,10 +16,5 @@
         "data": "/RNAseq Prefrontal Cortex/.csv",
         "meta": "/RNAseq Prefrontal Cortex/.csv",
         "override": "/RNAseq Prefrontal Cortex/.json"
-    },
-    "Mouse Rett Knockout" : {
-        "data": "/Mouse Rett Knockout/MouseRett_Data.csv",
-        "meta": "/Mouse Rett Knockout/MouseRett_Meta.csv",
-        "override": "/Mouse Rett Knockout/mapper_object1D_abp5-50-10.json"
     }
 }
