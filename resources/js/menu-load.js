@@ -310,7 +310,7 @@ class MenuLoad {
 
     _tryGetDataFile(success, failure) {
         let fallbackURL = undefined;
-        if(this.examples.options[this.examples.selectedIndex].value != "none") {
+        if(this.examples.options[this.examples.selectedIndex].value != "None") {
             fallbackURL = this.inputDataText.textContent;
         }
         this._tryGetFile(this.inputData, true, fallbackURL, success, failure);
@@ -318,7 +318,7 @@ class MenuLoad {
 
     _tryGetMetaFile(callback) {
         let fallbackURL = undefined;
-        if(this.examples.options[this.examples.selectedIndex] != "none") {
+        if(this.examples.options[this.examples.selectedIndex] != "None") {
             fallbackURL = this.inputMetaText.textContent;
         }
         this._tryGetFile(this.inputMeta, false, fallbackURL, callback);
@@ -326,7 +326,7 @@ class MenuLoad {
 
     _tryGetOverrideFile(success, failure) {
         let fallbackURL = undefined;
-        if(this.examples.options[this.examples.selectedIndex].value != "none") {
+        if(this.examples.options[this.examples.selectedIndex].value != "None") {
             fallbackURL = this.inputOverrideText.textContent;
         }
         this._tryGetFile(this.inputOverride, true, fallbackURL, success, failure);
@@ -337,7 +337,7 @@ class MenuLoad {
         if(element.files[0]) {
             success(element.files[0]);
         } else if(fallbackURL) {
-            fetch(window.location.href + "examples" + fallbackURL, {cache: "force-cache"}).then(r => r.blob()).then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, ''))));
+            fetch(window.location.href + "examples" + fallbackURL, {cache: "force-cache"}).then(r => {if(r.ok) r.blob().then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, '')))); else {window.alert("Example file missing"); failure();};});
         } else if(required){
             element.setCustomValidity("File required");
             element.reportValidity();
