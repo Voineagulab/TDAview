@@ -115,10 +115,6 @@ this.onmessage = function(e) {
         }
 
         this.postMessage({progressstep: {text: "running mapper...", currstep: 4, numstep: 4}});
-        
-        console.log("values:");
-        console.log(dist);
-        console.log(filter);
 
         if(e.data.filterDim == 1) {
             mapperObj = mapper1D(dist, (e.data.filterFunc == "PCAEV2" ? filter[1] : filter[0]), e.data.numintervals[0], e.data.percentoverlap, e.data.numbins);
