@@ -49,7 +49,8 @@ class MenuLoad {
             </select>
             <br><br>
             <font size="2">Num Intervals</font><br>
-            <input class="horizontalInput" id="numintervals" type="number" step="1" min="1" value="50"/>
+            <input class="horizontalInput inputinline" id="numintervals" type="number" step="1" min="1" value="50"/><span style="padding-left:2.5px;"/><input class="horizontalInput inputinline" id="numintervals2" type="number" step="1" min="1" value="50"/>
+
             <br>
 
             <font size="2">Percent Overlap</font><br>
@@ -103,16 +104,18 @@ class MenuLoad {
         var distfunc = document.getElementById("distfunc");
 
         var numintervals = document.getElementById("numintervals");
+        var numintervals2 = document.getElementById("numintervals2");
         var percentoverlap = document.getElementById("percentoverlap");
         var numbins = document.getElementById("numbins");
 
         var filterfunc = document.getElementById("filterfunc");
 
+        numintervals2.disabled = (filterdim.selectedIndex == 0);
         self._UpdateAvailableFilterFunc(filterdim, filterfunc, distfunc);
         filterdim.onchange = distfunc.onchange = function() {
             self._UpdateAvailableFilterFunc(filterdim, filterfunc, distfunc);
+            numintervals2.disabled = (filterdim.selectedIndex == 0);
         };
-
 
         function openPage(pageName, elmnt, color) {
             var i, tabcontent, tablinks;
@@ -177,12 +180,17 @@ class MenuLoad {
           } else {
             self.inputData.value = self.inputMeta.value = self.inputOverride.value = "";
             inputDataLabel.classList.add("btndisable");
-            inputMetaLabel.classList.add("btndisable");
-            inputOverrideLabel.classList.add("btndisable");
-
             self.inputDataText.textContent = exampleObj[selectedValue].data;
+
+            inputMetaLabel.classList.add("btndisable");
             self.inputMetaText.textContent = exampleObj[selectedValue].meta;
-            self.inputOverrideText.textContent = exampleObj[selectedValue].override;
+
+            if(exampleObj[selectedValue].override) {
+                inputOverrideLabel.classList.add("btndisable");
+                self.inputOverrideText.textContent = exampleObj[selectedValue].override;
+            } else {
+                self.inputOverrideText.textContent = "No file chosen"
+            }
           }
         }
 
@@ -214,7 +222,7 @@ class MenuLoad {
                   filterDim: filterdim.options[filterdim.selectedIndex].value,
                   distFunc: distfunc.options[distfunc.selectedIndex].value,
                   filterFunc: filterfunc.options[filterfunc.selectedIndex].value,
-                  numintervals: parseInt(numintervals.value),
+                  numintervals: [parseInt(numintervals.value), parseInt(numintervals2.value)],
                   percentoverlap: percentoverlap.value,
                   numbins: parseInt(numbins.value),
                   filterCache: self.filterCache,

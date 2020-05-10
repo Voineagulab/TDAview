@@ -321,18 +321,25 @@ fieldset {
   }
 
   .horizontalInput {
-    width: 100px;
+    width: 90px;
   }
 
 .btninline {
   color: black;
   display: inline-block;
   overflow: hidden;
-  max-width: 100px;
+  max-width: 90px;
   white-space: nowrap;
 }
 
 .btninline.btndisable {
   opacity: 0.65;
   pointer-events: none;
+}
+
+.inputinline {
+    display: inline-block;
+    overflow: hidden;
+    max-width: 90px;
+    white-space: nowrap;
 }

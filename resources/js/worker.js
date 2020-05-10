@@ -121,9 +121,9 @@ this.onmessage = function(e) {
         console.log(filter);
 
         if(e.data.filterDim == 1) {
-            mapperObj = mapper1D(dist, (e.data.filterFunc == "PCAEV2" ? filter[1] : filter[0]), e.data.numintervals, e.data.percentoverlap, e.data.numbins);
+            mapperObj = mapper1D(dist, (e.data.filterFunc == "PCAEV2" ? filter[1] : filter[0]), e.data.numintervals[0], e.data.percentoverlap, e.data.numbins);
         } else {
-            mapperObj = mapper2D(dist, filter, [e.data.numintervals, e.data.numintervals], e.data.percentoverlap, e.data.numbins);
+            mapperObj = mapper2D(dist, filter, e.data.numintervals, e.data.percentoverlap, e.data.numbins);
         }
         self.postMessage({progress: 1.0, mapper: mapperObj, headings: headings, headingsKey: headingsKey, warning: warning, distCache: dist, filterCache: filter});
     });
