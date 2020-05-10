@@ -326,7 +326,7 @@ class MenuLoad {
 
     _tryGetOverrideFile(success, failure) {
         let fallbackURL = undefined;
-        if(this.examples.options[this.examples.selectedIndex].value != "None") {
+        if(this.examples.options[this.examples.selectedIndex].value != "None" && this.inputOverrideText.textContent != "No file chosen") {
             fallbackURL = this.inputOverrideText.textContent;
         }
         this._tryGetFile(this.inputOverride, true, fallbackURL, success, failure);
@@ -337,6 +337,7 @@ class MenuLoad {
         if(element.files[0]) {
             success(element.files[0]);
         } else if(fallbackURL) {
+            console.log(fallbackURL);
             fetch(window.location.href + "examples" + fallbackURL, {cache: "force-cache"}).then(r => {if(r.ok) r.blob().then(b => success(new File([b], fallbackURL.replace(/^.*[\\\/]/, '')))); else {window.alert("Example file missing"); failure();};});
         } else if(required){
             element.setCustomValidity("File required");
