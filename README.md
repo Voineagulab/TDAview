@@ -41,6 +41,6 @@ TDAview implements TDAmapper, which requires the following parameters for genera
 
 #
 
-![alt-text](https://github.com/WalshKieran/TDAview/blob/master/examples/Climate%20Change/fig.png)
+![alt-text](https://github.com/WalshKieran/TDAview/blob/master/example%20files/Climate%20Change/fig.png)
 
 
