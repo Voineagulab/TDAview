@@ -1,5 +1,5 @@
 class ColorMap {
-    constructor(n = 256) {
+    constructor(n = 1024) {
         this.n = n;
         this.map = new THREE.DataTexture(new Uint8Array(3 * this.n).fill(0), this.n, 1, THREE.RGBFormat);
     }

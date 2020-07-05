@@ -39,8 +39,8 @@ class MenuSave {
 
         let settingsimportfile = document.getElementById("settingsimportfile");
         document.getElementById("settingsimport").onclick = function() {
-          console.log("hi");
-          settingsimportfile.click();
+            settingsimportfile.value = "";
+            settingsimportfile.click();
         }
 
         settingsimportfile.onchange = function(event) {

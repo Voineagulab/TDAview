@@ -291,7 +291,21 @@ class tdaview {
                 let bottomLeft = new THREE.Vector3(-1, -1, 0).unproject(self.graph.camera);
                 let topRight = new THREE.Vector3(1, 1, 0).unproject(self.graph.camera);
 
-                const doc = new PDFDocument({size: [self.graph.width, self.graph.height], margin: 0});
+                //Clamp maximum dimensions at A4 (72DPI)
+                let scaledWidth, scaledHeight, layout;
+                if(self.graph.width > self.graph.height) {
+                    scaledWidth = 842;
+                    scaledHeight = self.graph.height * scaledWidth / self.graph.width;
+                    layout = "landscape";
+                } else {
+                    scaledHeight = 842;
+                    scaledWidth = self.graph.width * scaledHeight / self.graph.height;
+                    layout = "portrait";
+                }
+
+                const doc = new PDFDocument({size: [scaledWidth, scaledHeight], margin: 0, layout: layout});
+                doc.scale(scaledWidth / self.graph.width, scaledHeight / self.graph.height);
+                doc.font('Times-Roman');
                 const stream = doc.pipe(blobStream());
 
                 //Background color
@@ -309,7 +323,6 @@ class tdaview {
 
                 //Canvas transformation, draws legends
                 doc.save();
-
                 legendBar.fillContext(doc);
                 legendPie.fillContext(doc);
                 doc.restore();

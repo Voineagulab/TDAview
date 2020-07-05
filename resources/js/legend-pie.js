@@ -28,18 +28,19 @@ class LegendPie {
 
       let fontSizeCompute = parseFloat(window.getComputedStyle(this.title, null).getPropertyValue('font-size'));
       let rect = this.title.getBoundingClientRect();
+      
       ctx.fontSize(fontSizeCompute);
       ctx.fillColor(this.colorString);
-      ctx.text(this.title.textContent, rect.x-250, rect.y);
+      ctx.text(this.title.textContent, rect.x-250, rect.y, {lineBreak: false});
 
-      for(let i=0; i<this.entries.length; ++ i) {
+      for(let i=0; i<this.entries.length; ++i) {
           let rect = this.entries[i].getBoundingClientRect();
           ctx.rect(rect.x - 250, rect.y, rect.width, rect.height);
           ctx.fill(this.colorStrings[i]);
 
           rect = this.labels[i].getBoundingClientRect();
           ctx.fillColor(this.colorString);
-          ctx.text(this.labels[i].textContent, rect.x-250, rect.y);
+          ctx.text(this.labels[i].textContent, rect.x-250, rect.y, {lineBreak: false});
       }
     }
 

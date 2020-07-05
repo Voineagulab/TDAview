@@ -44,13 +44,13 @@ class LegendBar {
       ctx.fontSize(fontSizeCompute);
 
       rect = this.title.getBoundingClientRect();
-      ctx.text(this.title.textContent, rect.x -250, rect.y, {align: this.title.style.textAlign});
+      ctx.text(this.title.textContent, rect.x -250, rect.y, {align: this.title.style.textAlign, lineBreak: false});
 
       rect = this.minLabel.getBoundingClientRect();
-      ctx.text(this.minLabel.textContent, rect.x -250, rect.y, {align: this.minLabel.style.textAlign});
+      ctx.text(this.minLabel.textContent, rect.x -250, rect.y, {align: this.minLabel.style.textAlign, lineBreak: false});
 
       rect = this.maxLabel.getBoundingClientRect();
-      ctx.text(this.maxLabel.textContent, rect.x -250, rect.y, {align: this.maxLabel.style.textAlign});
+      ctx.text(this.maxLabel.textContent, rect.x -250, rect.y, {align: this.maxLabel.style.textAlign, lineBreak: false});
     }
 
     setTitle(title) {

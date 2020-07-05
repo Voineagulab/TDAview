@@ -547,18 +547,20 @@ class Graph {
         this.nodeRenderer.fillContext(ctx);
 
         if(this.labelsVisible && this.labels.length > 0) {
-          ctx.fontSize(this.fontScale);
+          let fontSizeCompute = parseFloat(window.getComputedStyle(this.labels[0].element, null).getPropertyValue('font-size'));
+          ctx.fontSize(fontSizeCompute);
           ctx.fillColor(this.labelColor);
           for(let i=0; i<this.labels.length; ++i) {
-            ctx.text(this.labels[i].element.textContent, this.labels[i].position.x, -this.labels[i].position.y);
+            ctx.text(this.labels[i].element.textContent, this.labels[i].position.x, -this.labels[i].position.y, {lineBreak: false});
           }
         }
 
         if(this.edgeLabelsVisible && this.edgeLabels.length > 0) {
-          ctx.fontSize(this.fontScaleEdge);
+          let fontSizeCompute = parseFloat(window.getComputedStyle(this.edgeLabels[0].element, null).getPropertyValue('font-size'));
+          ctx.fontSize(fontSizeCompute);
           ctx.fillColor(this.edgeLabelColor);
           for(let i=0; i<this.edgeLabels.length; ++i) {
-            ctx.text(this.edgeLabels[i].element.textContent, this.edgeLabels[i].position.x, -this.edgeLabels[i].position.y);
+            ctx.text(this.edgeLabels[i].element.textContent, this.edgeLabels[i].position.x, -this.edgeLabels[i].position.y, {lineBreak: false});
           }
         }
     }
