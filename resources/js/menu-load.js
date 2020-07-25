@@ -168,11 +168,13 @@ class MenuLoad {
         inputData.onchange = function() {self.inputDataText.textContent = inputData.files[0].name; self.dataFileChanged = true;}
         inputMeta.onchange = function() {self.inputMetaText.textContent = inputMeta.files[0].name;}
         inputOverride.onchange = function() {self.inputOverrideText.textContent = inputOverride.files[0].name;}
-
+        
         this.examples.onchange = function() {
           let selectedValue = self.examples.options[self.examples.selectedIndex].value;
           if(selectedValue == "None") {
-            self.inputDataText.textContent = self.inputMetaText.textContent = self.inputOverrideText.textContent = "No file chosen";
+            if(!inputData.files[0]) self.inputDataText.textContent = "No file chosen";
+            if(!inputMeta.files[0]) self.inputMetaText.textContent = "No file chosen";
+            if(!inputOverride.files[0]) self.inputOverrideText.textContent = "No file chosen";
             inputDataLabel.classList.remove("btndisable");
             inputMetaLabel.classList.remove("btndisable");
             inputOverrideLabel.classList.remove("btndisable");
