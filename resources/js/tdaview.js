@@ -296,14 +296,12 @@ class tdaview {
                 if(self.graph.width > self.graph.height) {
                     scaledWidth = 842;
                     scaledHeight = self.graph.height * scaledWidth / self.graph.width;
-                    layout = "landscape";
                 } else {
                     scaledHeight = 842;
                     scaledWidth = self.graph.width * scaledHeight / self.graph.height;
-                    layout = "portrait";
                 }
 
-                const doc = new PDFDocument({size: [scaledWidth, scaledHeight], margin: 0, layout: layout});
+                const doc = new PDFDocument({size: [scaledWidth, scaledHeight], margin: 0});
                 doc.scale(scaledWidth / self.graph.width, scaledHeight / self.graph.height);
                 doc.font('Times-Roman');
                 const stream = doc.pipe(blobStream());
